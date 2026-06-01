@@ -123,7 +123,7 @@ function ChartsSection({ company, primaryColor, accentColor }: {
               <YAxis yAxisId="r" orientation="right" tick={AXIS_TICK} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} width={36} />
               <Tooltip
                 {...TOOLTIP_STYLE}
-                formatter={(val: number, name: string) =>
+                formatter={(val: any, name: any) =>
                   name === 'Margin %' ? [`${val.toFixed(1)}%`, name] : [fmtCr(val), name]
                 }
               />
@@ -149,7 +149,7 @@ function ChartsSection({ company, primaryColor, accentColor }: {
               <YAxis tick={AXIS_TICK} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} width={44} />
               <Tooltip
                 {...TOOLTIP_STYLE}
-                formatter={(val: number) => [fmtCr(val), 'Valuation']}
+                formatter={(val: any) => [fmtCr(val), 'Valuation']}
               />
               <Area
                 type="monotone" dataKey="valuation" name="Valuation"
@@ -173,7 +173,7 @@ function ChartsSection({ company, primaryColor, accentColor }: {
                 <CartesianGrid {...GRID_PROPS} />
                 <XAxis dataKey="year" tick={AXIS_TICK} axisLine={false} tickLine={false} />
                 <YAxis tick={AXIS_TICK} axisLine={false} tickLine={false} width={36} />
-                <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmtCr(v), 'Net Profit']} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v: any) => [fmtCr(v), 'Net Profit']} />
                 <Bar dataKey="netProfit" name="Net Profit" radius={[3,3,0,0]} maxBarSize={24}>
                   {chartData.map((entry, i) => (
                     <Cell key={i} fill={entry.netProfit >= 0 ? '#10B981' : '#EF4444'} fillOpacity={0.85} />
@@ -191,7 +191,7 @@ function ChartsSection({ company, primaryColor, accentColor }: {
                   <CartesianGrid {...GRID_PROPS} />
                   <XAxis dataKey="year" tick={AXIS_TICK} axisLine={false} tickLine={false} />
                   <YAxis tick={AXIS_TICK} axisLine={false} tickLine={false} width={30} />
-                  <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [v, 'Employees']} />
+                  <Tooltip {...TOOLTIP_STYLE} formatter={(v: any) => [v, 'Employees']} />
                   <Bar dataKey="employees" name="Employees" fill="#3B82F6" radius={[3,3,0,0]} maxBarSize={24} />
                 </BarChart>
               </ResponsiveContainer>
@@ -217,7 +217,7 @@ function ChartsSection({ company, primaryColor, accentColor }: {
                 <CartesianGrid {...GRID_PROPS} />
                 <XAxis dataKey="year" tick={AXIS_TICK} axisLine={false} tickLine={false} />
                 <YAxis tick={AXIS_TICK} axisLine={false} tickLine={false} width={38} tickFormatter={v => `₹${v}`} />
-                <Tooltip {...TOOLTIP_STYLE} formatter={(v: number, n: string) => [fmtCr(v), n]} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v: any, n: any) => [fmtCr(v), n]} />
                 {hasDebt && <Legend wrapperStyle={{ fontSize: 10 }} />}
                 <Bar dataKey="totalAssets" name="Assets" fill="#3B82F6" radius={[3,3,0,0]} maxBarSize={20} />
                 {hasDebt && (
@@ -244,7 +244,7 @@ function ChartsSection({ company, primaryColor, accentColor }: {
                     >
                       {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                     </Pie>
-                    <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [`${v.toFixed(1)}%`]} />
+                    <Tooltip {...TOOLTIP_STYLE} formatter={(v: any) => [`${v.toFixed(1)}%`]} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

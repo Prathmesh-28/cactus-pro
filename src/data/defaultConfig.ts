@@ -1051,6 +1051,7 @@ export const defaultConfig: AppStore = {
       patents: [
         { title: 'GST-based Dynamic Credit Scoring Model for SMEs', status: 'Filed', filingLocation: 'India', applicationDate: '2021', grantDate: '—' },
       ],
+      teamMembers: [],
     },
   ],
 

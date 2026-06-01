@@ -49,6 +49,7 @@ const EMPTY: Omit<PortfolioCompany, 'id'> = {
   financialHistory: [],
   capTable: [],
   patents: [],
+  teamMembers: [],
 };
 
 const STAGES: CompanyStage[] = ['Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Late', 'Exited'];
