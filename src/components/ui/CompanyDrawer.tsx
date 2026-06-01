@@ -1,9 +1,14 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   X, ExternalLink, Building2, Quote, TrendingUp, ChevronDown, ChevronUp,
   Users, BarChart2, Layers, Award, FileText, GitBranch, Target, Search,
-  Mail, MapPin, Filter,
+  Mail, MapPin, Filter, Upload, Trash2, Download, Paperclip,
 } from 'lucide-react';
+import {
+  fetchNote, saveNote,
+  fetchFiles, uploadFile, deleteFile, fileDownloadUrl,
+  type CompanyFile,
+} from '../../lib/api';
 import {
   ResponsiveContainer, ComposedChart, BarChart, AreaChart, PieChart,
   Bar, Area, Pie, Cell,
@@ -20,7 +25,7 @@ interface Props {
   onClose: () => void;
 }
 
-type DrawerTab = 'overview' | 'financials' | 'funding' | 'captable' | 'patents' | 'people';
+type DrawerTab = 'overview' | 'financials' | 'funding' | 'captable' | 'patents' | 'people' | 'docs';
 
 const TABS: { key: DrawerTab; label: string; Icon: React.ElementType }[] = [
   { key: 'overview', label: 'Overview', Icon: Building2 },
@@ -29,6 +34,7 @@ const TABS: { key: DrawerTab; label: string; Icon: React.ElementType }[] = [
   { key: 'captable', label: 'Cap Table', Icon: Layers },
   { key: 'patents', label: 'Patents', Icon: FileText },
   { key: 'people', label: 'People', Icon: Users },
+  { key: 'docs', label: 'Docs', Icon: Paperclip },
 ];
 
 // ─── Chart helpers ────────────────────────────────────────────────────────────
@@ -301,18 +307,53 @@ function KV({ label, value }: { label: string; value: string | number }) {
 // ─── Main drawer ──────────────────────────────────────────────────────────────
 
 export default function CompanyDrawer({ company, onClose }: Props) {
-  const { store, updateCompany, canAddNotes } = useApp();
+  const { store, canAddNotes } = useApp();
   const [activeTab, setActiveTab] = useState<DrawerTab>('overview');
   const [notes, setNotes] = useState('');
   const [notesDirty, setNotesDirty] = useState(false);
+  const [notesSaving, setNotesSaving] = useState(false);
+  const [files, setFiles] = useState<CompanyFile[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (company) { setNotes(company.notes); setNotesDirty(false); setActiveTab('overview'); }
-  }, [company]);
+    if (!company) return;
+    setNotesDirty(false);
+    setActiveTab('overview');
+    // Load notes and files from backend
+    fetchNote(company.id).then(setNotes);
+    fetchFiles(company.id).then(setFiles);
+  }, [company?.id]);
 
   if (!company) return null;
 
-  const saveNotes = () => { updateCompany({ ...company, notes }); setNotesDirty(false); };
+  const handleSaveNotes = async () => {
+    setNotesSaving(true);
+    await saveNote(company.id, notes);
+    setNotesDirty(false);
+    setNotesSaving(false);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const uploaded = await uploadFile(company.id, file);
+    if (uploaded) setFiles(prev => [uploaded, ...prev]);
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDeleteFile = async (fileId: number) => {
+    await deleteFile(fileId);
+    setFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const fmtSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   const primaryColor = store.firm.primaryColor;
   const accentColor = store.firm.accentColor;
@@ -429,12 +470,17 @@ export default function CompanyDrawer({ company, onClose }: Props) {
               value={notes}
               onChange={e => { setNotes(e.target.value); setNotesDirty(true); }}
               rows={4}
-              placeholder="Add internal notes..."
+              placeholder="Add internal notes (saved to cloud)..."
               className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 resize-none"
             />
             {notesDirty && (
-              <button onClick={saveNotes} className="mt-2 px-4 py-1.5 text-xs font-medium rounded-lg text-white" style={{ backgroundColor: primaryColor }}>
-                Save Notes
+              <button
+                onClick={handleSaveNotes}
+                disabled={notesSaving}
+                className="mt-2 px-4 py-1.5 text-xs font-medium rounded-lg text-white disabled:opacity-60"
+                style={{ backgroundColor: primaryColor }}
+              >
+                {notesSaving ? 'Saving…' : 'Save Notes'}
               </button>
             )}
           </>
@@ -732,6 +778,69 @@ export default function CompanyDrawer({ company, onClose }: Props) {
     );
   };
 
+  // ── Tab: Docs ──────────────────────────────────────────────────────────────
+  const DocsTab = () => (
+    <div className="space-y-4">
+      {/* Upload */}
+      {canAddNotes() && (
+        <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center">
+          <Paperclip className="w-6 h-6 text-gray-300 mx-auto mb-2" />
+          <p className="text-xs text-gray-400 mb-3">Upload PDFs, Word docs, spreadsheets, images (max 20 MB)</p>
+          <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload}
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="px-4 py-2 text-xs font-medium rounded-lg text-white flex items-center gap-1.5 mx-auto disabled:opacity-60"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            {uploading ? 'Uploading…' : 'Choose File'}
+          </button>
+        </div>
+      )}
+
+      {/* File list */}
+      {files.length === 0 ? (
+        <p className="text-sm text-gray-400 text-center py-6">No documents uploaded yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {files.map(f => (
+            <div key={f.id} className="flex items-center gap-3 border border-gray-100 rounded-xl px-4 py-3 hover:bg-gray-50">
+              <FileText className="w-8 h-8 text-gray-300 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-800 truncate">{f.original_name}</p>
+                <p className="text-[10px] text-gray-400">
+                  {fmtSize(f.file_size)} · {new Date(f.uploaded_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a
+                  href={fileDownloadUrl(f.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700"
+                  title="View / Download"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                </a>
+                {canAddNotes() && (
+                  <button
+                    onClick={() => handleDeleteFile(f.id)}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   const TAB_CONTENT: Record<DrawerTab, React.ReactNode> = {
     overview: <OverviewTab />,
     financials: <FinancialsTab />,
@@ -739,6 +848,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
     captable: <CapTableTab />,
     patents: <PatentsTab />,
     people: <PeopleTab />,
+    docs: <DocsTab />,
   };
 
   return (
