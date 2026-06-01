@@ -1,0 +1,146 @@
+import { useState } from 'react';
+import { useApp } from '../context/AppContext';
+import AccessRestricted from '../components/layout/AccessRestricted';
+import FirmSettings from '../components/admin/FirmSettings';
+import CompanyManager from '../components/admin/CompanyManager';
+import PeopleManager from '../components/admin/PeopleManager';
+import SectorManager from '../components/admin/SectorManager';
+import MetricsManager from '../components/admin/MetricsManager';
+import PermissionsManager from '../components/admin/PermissionsManager';
+import AnnouncementManager from '../components/admin/AnnouncementManager';
+import {
+  Settings,
+  Building2,
+  Users,
+  Tag,
+  BarChart2,
+  ShieldCheck,
+  Bell,
+  RotateCcw,
+} from 'lucide-react';
+import { cn } from '../lib/utils';
+
+type AdminTab =
+  | 'firm'
+  | 'companies'
+  | 'people'
+  | 'sectors'
+  | 'metrics'
+  | 'permissions'
+  | 'announcements';
+
+const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
+  { key: 'firm', label: 'Firm Settings', Icon: Settings },
+  { key: 'companies', label: 'Portfolio Companies', Icon: Building2 },
+  { key: 'people', label: 'People & Team', Icon: Users },
+  { key: 'sectors', label: 'Sectors', Icon: Tag },
+  { key: 'metrics', label: 'Fund Metrics', Icon: BarChart2 },
+  { key: 'permissions', label: 'Roles & Permissions', Icon: ShieldCheck },
+  { key: 'announcements', label: 'Announcements', Icon: Bell },
+];
+
+export default function AdminPage() {
+  const { store, canAccess, resetToDefaults } = useApp();
+  const [activeTab, setActiveTab] = useState<AdminTab>('firm');
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  if (!canAccess('admin')) return <AccessRestricted tab="admin" />;
+
+  const PANELS: Record<AdminTab, React.ReactNode> = {
+    firm: <FirmSettings />,
+    companies: <CompanyManager />,
+    people: <PeopleManager />,
+    sectors: <SectorManager />,
+    metrics: <MetricsManager />,
+    permissions: <PermissionsManager />,
+    announcements: <AnnouncementManager />,
+  };
+
+  const activeTabConfig = TABS.find((t) => t.key === activeTab);
+
+  return (
+    <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="font-heading text-2xl font-bold text-gray-900 mb-1">Admin Panel</h1>
+          <p className="text-sm text-gray-500">
+            Manage all content and configuration for {store.firm.name}
+          </p>
+        </div>
+        <div>
+          {confirmReset ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">Reset all data?</span>
+              <button
+                onClick={() => { resetToDefaults(); setConfirmReset(false); }}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500 text-white hover:bg-red-600"
+              >
+                Yes, reset
+              </button>
+              <button
+                onClick={() => setConfirmReset(false)}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmReset(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset to Defaults
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar */}
+        <aside className="lg:w-56 flex-shrink-0">
+          <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+            {TABS.map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={cn(
+                  'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap text-left flex-shrink-0',
+                  activeTab === key
+                    ? 'text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                )}
+                style={
+                  activeTab === key
+                    ? { backgroundColor: store.firm.primaryColor }
+                    : {}
+                }
+              >
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline lg:inline">{label}</span>
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Content */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-2xl p-6 min-w-0">
+          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
+            {activeTabConfig && (
+              <>
+                <activeTabConfig.Icon
+                  className="w-5 h-5"
+                  style={{ color: store.firm.primaryColor }}
+                />
+                <h2 className="font-heading font-semibold text-gray-900">
+                  {activeTabConfig.label}
+                </h2>
+              </>
+            )}
+          </div>
+          {PANELS[activeTab]}
+        </div>
+      </div>
+    </main>
+  );
+}
