@@ -1,72 +1,75 @@
-const nodemailer = require('nodemailer');
+/**
+ * Email service using EmailJS REST API
+ * No SMTP, no IPv6 issues — just HTTPS to api.emailjs.com
+ * 
+ * Required env vars in Render:
+ *   EMAILJS_SERVICE_ID    → your EmailJS service ID
+ *   EMAILJS_INVITE_TPL    → template ID for invite emails
+ *   EMAILJS_RESET_TPL     → template ID for password reset emails
+ *   EMAILJS_PUBLIC_KEY    → your EmailJS public key (User ID)
+ *   EMAILJS_PRIVATE_KEY   → your EmailJS private key (for server-side)
+ */
 
-const transporter = nodemailer.createTransport({
-  host:   process.env.SMTP_HOST   || 'smtp.gmail.com',
-  port:   parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  family: 4,   // ← force IPv4 — Render free tier blocks IPv6 outbound
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: (process.env.SMTP_PASS || '').replace(/\s/g, ''),
-  },
-  tls: { rejectUnauthorized: false },
-});
-
-// Verify connection on startup
-transporter.verify().then(() => {
-  console.log('✓ SMTP connection verified');
-}).catch(err => {
-  console.error('✗ SMTP connection failed:', err.message);
-});
-
-const FROM = process.env.SMTP_FROM || `"Cactus Partners" <${process.env.SMTP_USER}>`;
 const APP_URL = process.env.FRONTEND_URL || 'https://cactus-pro.vercel.app';
+
+async function sendViaEmailJS(templateId, params) {
+  const serviceId  = process.env.EMAILJS_SERVICE_ID;
+  const publicKey  = process.env.EMAILJS_PUBLIC_KEY;
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+
+  if (!serviceId || !publicKey || !privateKey) {
+    throw new Error(
+      'EmailJS not configured. Add EMAILJS_SERVICE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_PRIVATE_KEY to Render env vars.'
+    );
+  }
+
+  const body = {
+    service_id:   serviceId,
+    template_id:  templateId,
+    user_id:      publicKey,
+    accessToken:  privateKey,
+    template_params: params,
+  };
+
+  const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`EmailJS error ${res.status}: ${text}`);
+  }
+
+  console.log(`✓ Email sent via EmailJS (template: ${templateId}) to ${params.to_email}`);
+}
 
 async function sendInvite({ to, name, token, inviterName }) {
   const link = `${APP_URL}/set-password?token=${token}&type=invite`;
-  await transporter.sendMail({
-    from: FROM, to,
-    subject: `You've been invited to Cactus Pro`,
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
-        <div style="background:#1C4B42;padding:32px 40px;border-radius:12px 12px 0 0">
-          <h1 style="color:#86CA0F;margin:0;font-size:22px">🌵 Cactus Partners</h1>
-          <p style="color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:13px">Portfolio Management Portal</p>
-        </div>
-        <div style="background:#fff;padding:32px 40px;border:1px solid #E3EDE9;border-top:none;border-radius:0 0 12px 12px">
-          <h2 style="color:#191c14;margin:0 0 12px">Hi ${name || to},</h2>
-          <p style="color:#555951;line-height:1.6">
-            <strong>${inviterName || 'A team member'}</strong> has invited you to access the
-            <strong>Cactus Partners</strong> portfolio management portal.
-          </p>
-          <a href="${link}" style="display:inline-block;margin:24px 0;padding:14px 28px;background:#1C4B42;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px">
-            Accept Invite & Set Password
-          </a>
-          <p style="color:#999;font-size:12px">This link expires in 48 hours. If you didn't expect this, ignore it.</p>
-        </div>
-      </div>`,
+  const templateId = process.env.EMAILJS_INVITE_TPL;
+  if (!templateId) throw new Error('EMAILJS_INVITE_TPL env var not set');
+
+  await sendViaEmailJS(templateId, {
+    to_email:     to,
+    to_name:      name || to,
+    invite_link:  link,
+    inviter_name: inviterName || 'The Cactus Team',
+    firm_name:    'Cactus Partners',
+    expiry:       '48 hours',
   });
 }
 
 async function sendPasswordReset({ to, token }) {
   const link = `${APP_URL}/set-password?token=${token}&type=reset`;
-  await transporter.sendMail({
-    from: FROM, to,
-    subject: `Reset your Cactus Pro password`,
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
-        <div style="background:#1C4B42;padding:32px 40px;border-radius:12px 12px 0 0">
-          <h1 style="color:#86CA0F;margin:0;font-size:22px">🌵 Cactus Partners</h1>
-        </div>
-        <div style="background:#fff;padding:32px 40px;border:1px solid #E3EDE9;border-top:none;border-radius:0 0 12px 12px">
-          <h2 style="color:#191c14;margin:0 0 12px">Password reset</h2>
-          <p style="color:#555951">Click below to set a new password. This link expires in 1 hour.</p>
-          <a href="${link}" style="display:inline-block;margin:24px 0;padding:14px 28px;background:#1C4B42;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px">
-            Reset Password
-          </a>
-          <p style="color:#999;font-size:12px">If you didn't request this, ignore it.</p>
-        </div>
-      </div>`,
+  const templateId = process.env.EMAILJS_RESET_TPL;
+  if (!templateId) throw new Error('EMAILJS_RESET_TPL env var not set');
+
+  await sendViaEmailJS(templateId, {
+    to_email:    to,
+    reset_link:  link,
+    firm_name:   'Cactus Partners',
+    expiry:      '1 hour',
   });
 }
 
