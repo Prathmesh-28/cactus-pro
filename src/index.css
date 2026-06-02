@@ -1,25 +1,44 @@
+/* ── Google Fonts — matches cactuspartners.in ─────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap");
+
 @import "tailwindcss";
 
+/* ── Design tokens from cactuspartners.in ─────────────────────────────────── */
 @theme {
-  --color-cactus-primary: #2D6A4F;
-  --color-cactus-accent: #52B788;
-  --color-cactus-light: #D8F3DC;
-  --color-cactus-dark: #1B4332;
-  --font-heading: "DM Sans", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  /* Primary palette */
+  --color-cactus-dark:    #0A2321;   /* darkest — footer/hero darks */
+  --color-cactus-primary: #1C4B42;   /* deep forest green — buttons, headings */
+  --color-cactus-mid:     #254536;   /* mid green */
+  --color-cactus-lime:    #86CA0F;   /* bright lime — their signature accent */
+  --color-cactus-lime2:   #95c840;   /* lighter lime */
+
+  /* Light backgrounds — straight from their stylesheet */
+  --color-cactus-bg:      #F6FAF7;   /* page background */
+  --color-cactus-surface: #F2F7F1;   /* card surface */
+  --color-cactus-subtle:  #E3EDE9;   /* borders, dividers */
+  --color-cactus-pale:    #E5F7DB;   /* hover / highlight tint */
+
+  /* Text */
+  --color-cactus-text:    #191c14;   /* near-black green text */
+  --color-cactus-muted:   #555951;   /* muted/secondary text */
+  --color-cactus-border:  #d2dbd9;   /* subtle borders */
+
+  /* Fonts */
+  --font-heading: "Libre Baskerville", Georgia, serif;
+  --font-body:    "DM Sans", system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+/* ── Base reset ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   padding: 0;
   font-family: var(--font-body);
-  background-color: #F9FAFB;
-  color: #1B1B1B;
+  background-color: #F6FAF7;
+  color: #191c14;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -28,6 +47,23 @@ html, body {
   flex-direction: column;
 }
 
-h1, h2, h3, h4, h5, h6 {
+/* Headings use the serif face like the main website */
+h1, h2, h3 {
   font-family: var(--font-heading);
+  font-weight: 700;
+  color: #1C4B42;
 }
+
+h4, h5, h6 {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+/* ── Scrollbar — subtle green tint ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F2F7F1; }
+::-webkit-scrollbar-thumb { background: #d2dbd9; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #86CA0F; }
+
+/* ── Selection highlight ─────────────────────────────────────────────────── */
+::selection { background: #E5F7DB; color: #1C4B42; }
