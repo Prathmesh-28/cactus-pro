@@ -465,6 +465,9 @@ export default function CompanyDrawer({ company, onClose }: Props) {
         </Section>
       )}
 
+      {/* ── Charts (Revenue, Valuation, Net Profit, Headcount, Assets, Cap Table) ── */}
+      <ChartsSection company={company} primaryColor={primaryColor} accentColor={accentColor} />
+
       <Section title="Internal Notes" icon={FileText}>
         {canAddNotes() ? (
           <>
@@ -930,9 +933,8 @@ export default function CompanyDrawer({ company, onClose }: Props) {
           ))}
         </div>
 
-        {/* ── Single scrollable column: charts first, then tab content ──────── */}
+        {/* ── Single scrollable column: tab content only (charts inside Overview) ── */}
         <div className="flex-1 overflow-y-auto">
-          <ChartsSection company={company} primaryColor={primaryColor} accentColor={accentColor} />
           <div className="p-5">
             {TAB_CONTENT[activeTab]}
           </div>
