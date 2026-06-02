@@ -51,6 +51,53 @@ async function initDb() {
         last_sync_error TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      -- ── Auth tables ────────────────────────────────────────────────────────
+      CREATE TABLE IF NOT EXISTS users (
+        id          SERIAL PRIMARY KEY,
+        email       VARCHAR(255) NOT NULL UNIQUE,
+        name        VARCHAR(200) NOT NULL DEFAULT '',
+        password_hash TEXT,                          -- NULL until invite accepted
+        role        VARCHAR(50)  NOT NULL DEFAULT 'portfolio_team',
+        is_active   BOOLEAN      NOT NULL DEFAULT true,
+        avatar_url  TEXT,
+        invited_by  INTEGER REFERENCES users(id),
+        last_login  TIMESTAMPTZ,
+        created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS refresh_tokens (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token       TEXT NOT NULL UNIQUE,
+        expires_at  TIMESTAMPTZ NOT NULL,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token       TEXT NOT NULL UNIQUE,
+        type        VARCHAR(20) NOT NULL DEFAULT 'reset', -- 'reset' | 'invite'
+        expires_at  TIMESTAMPTZ NOT NULL,
+        used_at     TIMESTAMPTZ,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS audit_log (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER REFERENCES users(id),
+        user_email  VARCHAR(255),
+        action      VARCHAR(100) NOT NULL,
+        resource    TEXT,
+        ip_address  VARCHAR(60),
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user  ON refresh_tokens(user_id);
+      CREATE INDEX IF NOT EXISTS idx_reset_tokens_token   ON password_reset_tokens(token);
+      CREATE INDEX IF NOT EXISTS idx_audit_user           ON audit_log(user_id);
+      CREATE INDEX IF NOT EXISTS idx_audit_created        ON audit_log(created_at);
     `);
     console.log('Database tables ready');
   } finally {

@@ -9,6 +9,7 @@ import MetricsManager from './MetricsManager';
 import PermissionsManager from './PermissionsManager';
 import AnnouncementManager from './AnnouncementManager';
 import SyncManager from './SyncManager';
+import UsersManager from './UsersManager';
 import InvestmentSettings from './InvestmentSettings';
 import HomepageEditor from './HomepageEditor';
 import KpiThresholds from './KpiThresholds';
@@ -31,6 +32,7 @@ import {
   Landmark,
   Tags,
   TableProperties,
+  UserCog,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -48,7 +50,8 @@ type AdminTab =
   | 'kpi_thresholds'
   | 'finance_config'
   | 'taxonomy'
-  | 'portfolio_snapshot';
+  | 'portfolio_snapshot'
+  | 'users';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'firm', label: 'Firm Settings', Icon: Settings },
@@ -65,6 +68,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'finance_config', label: 'Finance Config', Icon: Landmark },
   { key: 'taxonomy', label: 'Taxonomy', Icon: Tags },
   { key: 'portfolio_snapshot', label: 'Portfolio Snapshot', Icon: TableProperties },
+  { key: 'users', label: 'Users & Access', Icon: UserCog },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -120,6 +124,10 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
     affects: ['Admin → Company editor — Stage dropdown (Seed, Series A…)', 'Admin → Company editor — Status dropdown (Active, Watch, Exited)', 'Portfolio filters — Stage and Status filter options'],
     note: 'Removing a stage does not delete companies with that stage — it just hides the option from new entries.',
   },
+  users: {
+    affects: ['Who can log in', 'Role-based tab access', 'All protected API endpoints', 'Audit log'],
+    note: 'Deactivating a user immediately revokes all their sessions. Role changes apply on their next page load.',
+  },
   portfolio_snapshot: {
     affects: ['Finance → Fund Overview → Portfolio Snapshot table', 'Finance → Fund Overview → Totals/Averages footer row'],
     note: 'Click any row to edit that company\'s investment data. Logos come from Portfolio Companies → Logo.',
@@ -148,6 +156,7 @@ export default function AdminPage() {
     finance_config: <FinanceConfigManager />,
     taxonomy: <TaxonomyManager />,
     portfolio_snapshot: <PortfolioSnapshotManager />,
+    users: <UsersManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);
