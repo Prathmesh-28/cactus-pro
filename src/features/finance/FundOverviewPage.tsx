@@ -4,23 +4,7 @@ import { useFund } from './lib/fund-context';
 import { useApp } from '../../context/AppContext';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-// ─── CSV data from Book1(All).csv mapped to companies in defaultConfig order ──
-// Companies order: Lohum, Bellatrix, ShowroomB2B, Indigrid, Brandworks,
-//                  Intangles, Kapture, Auric, AMPM, Ananant, Vitraya, ParkMate
-const CSV_DATA = [
-  { date: '15.4.21', currentStake: 300000000,  equityValue: 20000000, investmentValue: 10000000, moic: 3, irr: 30 },
-  { date: '16.4.21', currentStake: 240000000,  equityValue: null,     investmentValue: null,     moic: 4, irr: 20 },
-  { date: '17.4.21', currentStake: 390000000,  equityValue: null,     investmentValue: null,     moic: 5, irr: 30 },
-  { date: '18.4.21', currentStake: 490000000,  equityValue: null,     investmentValue: null,     moic: 6, irr: 30 },
-  { date: '19.4.21', currentStake: 1250000000, equityValue: null,     investmentValue: null,     moic: 7, irr: 30 },
-  { date: '20.4.21', currentStake: 640000000,  equityValue: null,     investmentValue: null,     moic: 8, irr: 30 },
-  { date: '22.4.21', currentStake: 300000000,  equityValue: null,     investmentValue: null,     moic: 2, irr: 30 },
-  { date: '23.4.21', currentStake: null,        equityValue: null,     investmentValue: null,     moic: 3, irr: 20 },
-  { date: '24.4.21', currentStake: null,        equityValue: null,     investmentValue: null,     moic: 4, irr: 40 },
-  { date: '25.4.21', currentStake: null,        equityValue: null,     investmentValue: null,     moic: 4, irr: 20 },
-  { date: '26.4.21', currentStake: null,        equityValue: null,     investmentValue: null,     moic: 3, irr: 20 },
-  { date: '30.4.21', currentStake: null,        equityValue: null,     investmentValue: null,     moic: 7, irr: 40 },
-];
+// Portfolio snapshot data comes from Admin → Portfolio Snapshot
 
 function fmtCr(n: number | null): string {
   if (n === null || n === undefined) return '—';
@@ -44,12 +28,11 @@ export default function FundOverviewPage() {
   const { fund, setFund } = useFund();
   const { store } = useApp();
 
-  // Match companies in defaultConfig order (skip Rubix c13 which is exited)
-  const activeCompanies = store.companies.filter(c => c.status !== 'Exited');
-  const snapshot = activeCompanies.slice(0, CSV_DATA.length).map((company, i) => ({
-    company,
-    csv: CSV_DATA[i],
-  }));
+  const snapshotData = store.portfolioSnapshot ?? [];
+  const snapshot = snapshotData.map(row => ({
+    company: store.companies.find(c => c.id === row.companyId),
+    csv: row,
+  })).filter((x): x is { company: NonNullable<typeof x.company>; csv: typeof x.csv } => x.company !== undefined);
 
   return (
     <div className="flex flex-col min-h-full" style={{ background: 'var(--background)' }}>
@@ -67,13 +50,13 @@ export default function FundOverviewPage() {
         {/* Fund selector */}
         <div className="inline-flex items-center rounded-md border p-0.5"
           style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-          {(['fund_1', 'fund_2'] as const).map(f => (
-            <button key={f} onClick={() => setFund(f)}
+          {(store.financeConfig?.funds ?? [{ key: 'fund_1', label: 'Fund 1' }, { key: 'fund_2', label: 'Fund 2' }]).map(f => (
+            <button key={f.key} onClick={() => setFund(f.key as 'fund_1' | 'fund_2')}
               className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
-              style={fund === f
+              style={fund === f.key
                 ? { backgroundColor: '#3B6D11', color: '#fff' }
                 : { color: '#3B6D11', backgroundColor: 'transparent' }}>
-              {f === 'fund_1' ? 'Fund 1' : 'Fund 2'}
+              {f.label}
             </button>
           ))}
         </div>
@@ -134,7 +117,7 @@ export default function FundOverviewPage() {
 
                       {/* Date */}
                       <td className="px-4 py-3 text-sm tabular-nums" style={{ color: 'var(--foreground)' }}>
-                        {csv.date}
+                        {csv.dateOfFirstInvestment}
                       </td>
 
                       {/* Current Stake */}
@@ -144,20 +127,20 @@ export default function FundOverviewPage() {
 
                       {/* Equity Value */}
                       <td className="px-4 py-3 text-right tabular-nums" style={{ color: 'var(--muted-foreground)' }}>
-                        {fmtCr(csv.equityValue)}
+                        {fmtCr(csv.currentEquityValue)}
                       </td>
 
                       {/* Investment Value */}
                       <td className="px-4 py-3 text-right tabular-nums" style={{ color: 'var(--muted-foreground)' }}>
-                        {fmtCr(csv.investmentValue)}
+                        {fmtCr(csv.valueOfInvestment)}
                       </td>
 
                       {/* MOIC */}
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {csv.moic >= 3
+                          {csv.moic >= (store.kpiThresholds?.moic.good ?? 3)
                             ? <TrendingUp className="w-3.5 h-3.5" style={{ color: '#3B6D11' }} />
-                            : csv.moic < 2
+                            : csv.moic < (store.kpiThresholds?.moic.warning ?? 2)
                             ? <TrendingDown className="w-3.5 h-3.5 text-red-500" />
                             : <Minus className="w-3.5 h-3.5 text-gray-400" />}
                           <span className="font-bold text-sm tabular-nums" style={{ color: 'var(--foreground)' }}>
@@ -188,15 +171,15 @@ export default function FundOverviewPage() {
                     </td>
                     <td className="px-4 py-3" />
                     <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#3B6D11' }}>
-                      {fmtCr(CSV_DATA.reduce((s, r) => s + (r.currentStake ?? 0), 0))}
+                      {fmtCr(snapshotData.reduce((s, r) => s + (r.currentStake ?? 0), 0))}
                     </td>
                     <td className="px-4 py-3" />
                     <td className="px-4 py-3" />
                     <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#3B6D11' }}>
-                      {(CSV_DATA.reduce((s, r) => s + r.moic, 0) / CSV_DATA.length).toFixed(1)}x avg
+                      {snapshotData.length > 0 ? (snapshotData.reduce((s, r) => s + r.moic, 0) / snapshotData.length).toFixed(1) : '—'}x avg
                     </td>
                     <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#3B6D11' }}>
-                      {Math.round(CSV_DATA.reduce((s, r) => s + r.irr, 0) / CSV_DATA.length)}% avg
+                      {snapshotData.length > 0 ? Math.round(snapshotData.reduce((s, r) => s + r.irr, 0) / snapshotData.length) : '—'}% avg
                     </td>
                   </tr>
                 </tfoot>

@@ -6,6 +6,8 @@ import type {
   AppStore, FirmConfig, Sector, Person, PortfolioCompany,
   FundMetric, RolePermissions, Announcement, Deal, LP, CashFlowPoint,
   RoleName, TabName, Resource, Gap, TeamNote,
+  DealStageConfig, KpiThresholds, HomepageConfig, FinanceConfig,
+  CompanyTaxonomy, PortfolioSnapshotRow,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -63,6 +65,13 @@ interface AppContextValue {
   addTeamNote: (n: TeamNote) => void;
   updateTeamNote: (n: TeamNote) => void;
   deleteTeamNote: (id: string) => void;
+  // Config sections
+  updateDealStages: (stages: DealStageConfig[]) => void;
+  updateKpiThresholds: (t: KpiThresholds) => void;
+  updateHomepage: (h: HomepageConfig) => void;
+  updateFinanceConfig: (f: FinanceConfig) => void;
+  updateTaxonomy: (t: CompanyTaxonomy) => void;
+  updatePortfolioSnapshot: (rows: PortfolioSnapshotRow[]) => void;
   resetToDefaults: () => void;
 }
 
@@ -175,6 +184,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateTeamNote = (n: TeamNote)  => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).map(x => x.id === n.id ? n : x) }));
   const deleteTeamNote = (id: string)   => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).filter(x => x.id !== id) }));
 
+  // ── New config sections ──────────────────────────────────────────────────
+  const updateDealStages       = (stages: DealStageConfig[])      => setStore(s => ({ ...s, dealStages: stages }));
+  const updateKpiThresholds    = (t: KpiThresholds)               => setStore(s => ({ ...s, kpiThresholds: t }));
+  const updateHomepage         = (h: HomepageConfig)              => setStore(s => ({ ...s, homepage: h }));
+  const updateFinanceConfig    = (f: FinanceConfig)               => setStore(s => ({ ...s, financeConfig: f }));
+  const updateTaxonomy         = (t: CompanyTaxonomy)             => setStore(s => ({ ...s, taxonomy: t }));
+  const updatePortfolioSnapshot= (rows: PortfolioSnapshotRow[])   => setStore(s => ({ ...s, portfolioSnapshot: rows }));
+
   // ── Reset ─────────────────────────────────────────────────────────────────
   const resetToDefaults = () => {
     setStoreRaw(defaultConfig);
@@ -198,6 +215,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addResource, updateResource, deleteResource,
     addGap, updateGap, deleteGap,
     addTeamNote, updateTeamNote, deleteTeamNote,
+    updateDealStages, updateKpiThresholds, updateHomepage,
+    updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,
   };
 

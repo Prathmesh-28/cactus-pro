@@ -53,8 +53,7 @@ const EMPTY_CAP: CapTableEntry = { investor: '', category: '', holdingPct: 0, in
 const EMPTY_PATENT: Patent = { title: '', status: 'Filed', filingLocation: 'India', applicationDate: '', grantDate: '—' };
 const EMPTY_PERSON: CompanyKeyPerson = { name: '', title: '', background: '' };
 
-const STAGES: CompanyStage[] = ['Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Late', 'Exited'];
-const STATUSES: CompanyStatus[] = ['Active', 'Watch', 'Exited'];
+// Stages and statuses come from Admin → Company Taxonomy
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -123,6 +122,8 @@ function CompanyForm({ company, onSave, onCancel }: {
   onCancel: () => void;
 }) {
   const { store } = useApp();
+  const STAGES = (store.taxonomy?.stages ?? ['Seed','Series A','Series B','Series C','Growth','Late','Exited']) as CompanyStage[];
+  const STATUSES = (store.taxonomy?.statuses ?? ['Active','Watch','Exited']) as CompanyStatus[];
   const [form, setForm] = useState<Omit<PortfolioCompany, 'id'>>(
     company ? { ...company } : { ...EMPTY_COMPANY, sectorId: store.sectors[0]?.id ?? '' }
   );

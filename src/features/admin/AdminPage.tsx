@@ -9,6 +9,12 @@ import MetricsManager from './MetricsManager';
 import PermissionsManager from './PermissionsManager';
 import AnnouncementManager from './AnnouncementManager';
 import SyncManager from './SyncManager';
+import InvestmentSettings from './InvestmentSettings';
+import HomepageEditor from './HomepageEditor';
+import KpiThresholds from './KpiThresholds';
+import FinanceConfigManager from './FinanceConfigManager';
+import TaxonomyManager from './TaxonomyManager';
+import PortfolioSnapshotManager from './PortfolioSnapshotManager';
 import {
   Settings,
   Building2,
@@ -19,6 +25,12 @@ import {
   Bell,
   RotateCcw,
   RefreshCw,
+  TrendingUp,
+  Globe,
+  Gauge,
+  Landmark,
+  Tags,
+  TableProperties,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -30,7 +42,13 @@ type AdminTab =
   | 'metrics'
   | 'permissions'
   | 'announcements'
-  | 'sync';
+  | 'sync'
+  | 'investment_settings'
+  | 'homepage'
+  | 'kpi_thresholds'
+  | 'finance_config'
+  | 'taxonomy'
+  | 'portfolio_snapshot';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'firm', label: 'Firm Settings', Icon: Settings },
@@ -41,6 +59,12 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'permissions', label: 'Roles & Permissions', Icon: ShieldCheck },
   { key: 'announcements', label: 'Announcements', Icon: Bell },
   { key: 'sync', label: 'Data Sync', Icon: RefreshCw },
+  { key: 'investment_settings', label: 'Deal Stages', Icon: TrendingUp },
+  { key: 'homepage', label: 'Homepage', Icon: Globe },
+  { key: 'kpi_thresholds', label: 'KPI Thresholds', Icon: Gauge },
+  { key: 'finance_config', label: 'Finance Config', Icon: Landmark },
+  { key: 'taxonomy', label: 'Taxonomy', Icon: Tags },
+  { key: 'portfolio_snapshot', label: 'Portfolio Snapshot', Icon: TableProperties },
 ];
 
 export default function AdminPage() {
@@ -59,6 +83,12 @@ export default function AdminPage() {
     permissions: <PermissionsManager />,
     announcements: <AnnouncementManager />,
     sync: <SyncManager />,
+    investment_settings: <InvestmentSettings />,
+    homepage: <HomepageEditor />,
+    kpi_thresholds: <KpiThresholds />,
+    finance_config: <FinanceConfigManager />,
+    taxonomy: <TaxonomyManager />,
+    portfolio_snapshot: <PortfolioSnapshotManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);

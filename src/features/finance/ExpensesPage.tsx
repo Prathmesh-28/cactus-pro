@@ -1,19 +1,9 @@
+import { useApp } from '../../context/AppContext';
 import { EditableTable } from './components/editable-table';
 import { FundExpensesChart } from './components/fund-expenses-chart';
 import type { Column } from './components/editable-table';
 
-const projectedColumns: Column[] = [
-  { key: 'category', label: 'Category',  type: 'text',     width: '20%' },
-  { key: 'fy23',     label: 'FY23',       type: 'currency' },
-  { key: 'fy24',     label: 'FY24',       type: 'currency' },
-  { key: 'fy25',     label: 'FY25',       type: 'currency' },
-  { key: 'fy26',     label: 'FY26',       type: 'currency' },
-  { key: 'fy27',     label: 'FY27',       type: 'currency' },
-  { key: 'fy28',     label: 'FY28',       type: 'currency' },
-  { key: 'fy29',     label: 'FY29',       type: 'currency' },
-  { key: 'fy30',     label: 'FY30',       type: 'currency' },
-  { key: 'fy31',     label: 'FY31',       type: 'currency' },
-];
+
 
 const actualBudgetedColumns: Column[] = [
   { key: 'category',  label: 'Category',         type: 'text',    width: '10%' },
@@ -29,6 +19,12 @@ const actualBudgetedColumns: Column[] = [
 ];
 
 export default function ExpensesPage() {
+  const { store } = useApp();
+  const fyColumns = (store.financeConfig?.fiscalYears ?? ['FY23','FY24','FY25','FY26','FY27','FY28','FY29','FY30','FY31']);
+  const projectedColumns = [
+    { key: 'category', label: 'Category', type: 'text' as const, width: '20%' },
+    ...fyColumns.map(fy => ({ key: fy.toLowerCase(), label: fy, type: 'currency' as const })),
+  ];
   return (
     <div className="flex flex-col min-h-full" style={{ background: 'var(--background)' }}>
       <div className="border-b px-6 md:px-10 py-6"

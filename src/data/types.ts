@@ -281,6 +281,65 @@ export interface TeamNote {
   tags: string[];
 }
 
+// ─── Deal Stage Config ────────────────────────────────────────────────────────
+
+export interface DealStageConfig {
+  name: string;
+  bgColor: string;   // Tailwind-compatible hex
+  textColor: string;
+  borderColor: string;
+}
+
+// ─── KPI Thresholds ───────────────────────────────────────────────────────────
+
+export interface KpiThresholds {
+  moic: { good: number; warning: number };   // good >= X, warning >= Y
+  irr:  { good: number; warning: number };
+}
+
+// ─── Homepage Content ─────────────────────────────────────────────────────────
+
+export interface ValuePillar { title: string; description: string; }
+
+export interface HomepageConfig {
+  badge: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  ctaLabel: string;
+  pillars: ValuePillar[];
+  navLinks: Array<{ label: string; href: string }>;
+}
+
+// ─── Finance Configuration ────────────────────────────────────────────────────
+
+export interface FundConfig { key: string; label: string; }
+
+export interface FinanceConfig {
+  funds: FundConfig[];
+  fiscalYears: string[];
+  fundMetricLabels: Array<{ key: string; label: string; type: 'currency' | 'percent' | 'number' }>;
+  cashFlowLabels: Array<{ key: string; label: string }>;
+}
+
+// ─── Company Taxonomy ─────────────────────────────────────────────────────────
+
+export interface CompanyTaxonomy {
+  stages: string[];
+  statuses: string[];
+}
+
+// ─── Portfolio Snapshot ───────────────────────────────────────────────────────
+
+export interface PortfolioSnapshotRow {
+  companyId: string;
+  dateOfFirstInvestment: string;
+  currentStake: number | null;
+  currentEquityValue: number | null;
+  valueOfInvestment: number | null;
+  moic: number;
+  irr: number;
+}
+
 // ─── Root App Store ───────────────────────────────────────────────────────────
 
 export interface AppStore {
@@ -297,4 +356,11 @@ export interface AppStore {
   resources: Resource[];
   gaps: Gap[];
   teamNotes: TeamNote[];
+  // ── Configurable sections (never hardcoded) ──
+  dealStages: DealStageConfig[];
+  kpiThresholds: KpiThresholds;
+  homepage: HomepageConfig;
+  financeConfig: FinanceConfig;
+  taxonomy: CompanyTaxonomy;
+  portfolioSnapshot: PortfolioSnapshotRow[];
 }

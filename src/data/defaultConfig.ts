@@ -1333,4 +1333,85 @@ export const defaultConfig: AppStore = {
       tags: ['ampm', 'concentration', 'risk'],
     },
   ],
+
+  // ─── Deal pipeline stages (fully editable from Admin → Investment Settings) ──
+  dealStages: [
+    { name: 'Sourcing',       bgColor: '#F3F4F6', textColor: '#4B5563', borderColor: '#E5E7EB' },
+    { name: 'Due Diligence',  bgColor: '#EFF6FF', textColor: '#1D4ED8', borderColor: '#BFDBFE' },
+    { name: 'IC Review',      bgColor: '#F5F3FF', textColor: '#6D28D9', borderColor: '#DDD6FE' },
+    { name: 'Term Sheet',     bgColor: '#FFFBEB', textColor: '#B45309', borderColor: '#FDE68A' },
+    { name: 'Closed',         bgColor: '#ECFDF5', textColor: '#065F46', borderColor: '#6EE7B7' },
+    { name: 'Passed',         bgColor: '#FEF2F2', textColor: '#DC2626', borderColor: '#FECACA' },
+  ],
+
+  // ─── KPI colour thresholds (Admin → KPI Thresholds) ─────────────────────────
+  kpiThresholds: {
+    moic: { good: 3,  warning: 2  },
+    irr:  { good: 30, warning: 20 },
+  },
+
+  // ─── Homepage content (Admin → Homepage Editor) ───────────────────────────────
+  homepage: {
+    badge:        'Venture Capital · India',
+    heroTitle:    'Building Tomorrow\'s Indian Champions',
+    heroSubtitle: 'We partner with exceptional founders at the earliest stages, providing capital, conviction, and connections to build category-defining companies.',
+    ctaLabel:     'Explore Portfolio',
+    pillars: [
+      { title: 'Founder First',     description: 'We partner with founders before the market does — at ideation, pre-seed or seed, when conviction matters most.' },
+      { title: 'India at Core',     description: 'Deep expertise in Indian markets, regulatory landscape, and growth dynamics that global firms lack.' },
+      { title: 'Long-term Capital', description: 'Patient capital that stays through cycles. We build alongside you, not just for the next round.' },
+      { title: 'Sector Depth',      description: 'Concentrated bets in sectors where we have operational experience and a strong network.' },
+    ],
+    navLinks: [
+      { label: 'Portfolio', href: '#portfolio' },
+      { label: 'About',     href: '#about'     },
+      { label: 'Team',      href: '#team'      },
+      { label: 'Sectors',   href: '#sectors'   },
+    ],
+  },
+
+  // ─── Finance configuration (Admin → Finance Config) ──────────────────────────
+  financeConfig: {
+    funds: [
+      { key: 'fund_1', label: 'Fund 1' },
+      { key: 'fund_2', label: 'Fund 2' },
+    ],
+    fiscalYears: ['FY23', 'FY24', 'FY25', 'FY26', 'FY27', 'FY28', 'FY29', 'FY30', 'FY31'],
+    fundMetricLabels: [
+      { key: 'called_capital', label: 'Called Capital', type: 'currency' },
+      { key: 'nav',            label: 'NAV',            type: 'currency' },
+      { key: 'tvpi',           label: 'TVPI',           type: 'number'   },
+      { key: 'gross_irr',      label: 'Gross IRR',      type: 'percent'  },
+      { key: 'net_irr',        label: 'Net IRR',        type: 'percent'  },
+      { key: 'dpi',            label: 'DPI',            type: 'number'   },
+      { key: 'moic',           label: 'MOIC',           type: 'number'   },
+    ],
+    cashFlowLabels: [
+      { key: 'called_capital',   label: 'Called Capital'   },
+      { key: 'bank_balance',     label: 'Bank Balance'     },
+      { key: 'uncalled_capital', label: 'Uncalled Capital' },
+    ],
+  },
+
+  // ─── Company taxonomy (Admin → Company Taxonomy) ─────────────────────────────
+  taxonomy: {
+    stages:   ['Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Late', 'Exited'],
+    statuses: ['Active', 'Watch', 'Exited'],
+  },
+
+  // ─── Portfolio snapshot rows (Admin → Portfolio Snapshot) ─────────────────────
+  portfolioSnapshot: [
+    { companyId: 'c3',  dateOfFirstInvestment: '15.4.21', currentStake: 300000000,  currentEquityValue: 20000000, valueOfInvestment: 10000000, moic: 3, irr: 30 },
+    { companyId: 'c1',  dateOfFirstInvestment: '16.4.21', currentStake: 240000000,  currentEquityValue: null,     valueOfInvestment: null,     moic: 4, irr: 20 },
+    { companyId: 'c2',  dateOfFirstInvestment: '17.4.21', currentStake: 390000000,  currentEquityValue: null,     valueOfInvestment: null,     moic: 5, irr: 30 },
+    { companyId: 'c4',  dateOfFirstInvestment: '18.4.21', currentStake: 490000000,  currentEquityValue: null,     valueOfInvestment: null,     moic: 6, irr: 30 },
+    { companyId: 'c5',  dateOfFirstInvestment: '19.4.21', currentStake: 1250000000, currentEquityValue: null,     valueOfInvestment: null,     moic: 7, irr: 30 },
+    { companyId: 'c6',  dateOfFirstInvestment: '20.4.21', currentStake: 640000000,  currentEquityValue: null,     valueOfInvestment: null,     moic: 8, irr: 30 },
+    { companyId: 'c7',  dateOfFirstInvestment: '22.4.21', currentStake: 300000000,  currentEquityValue: null,     valueOfInvestment: null,     moic: 2, irr: 30 },
+    { companyId: 'c8',  dateOfFirstInvestment: '23.4.21', currentStake: null,        currentEquityValue: null,     valueOfInvestment: null,     moic: 3, irr: 20 },
+    { companyId: 'c9',  dateOfFirstInvestment: '24.4.21', currentStake: null,        currentEquityValue: null,     valueOfInvestment: null,     moic: 4, irr: 40 },
+    { companyId: 'c10', dateOfFirstInvestment: '25.4.21', currentStake: null,        currentEquityValue: null,     valueOfInvestment: null,     moic: 4, irr: 20 },
+    { companyId: 'c11', dateOfFirstInvestment: '26.4.21', currentStake: null,        currentEquityValue: null,     valueOfInvestment: null,     moic: 3, irr: 20 },
+    { companyId: 'c12', dateOfFirstInvestment: '30.4.21', currentStake: null,        currentEquityValue: null,     valueOfInvestment: null,     moic: 7, irr: 40 },
+  ],
 };

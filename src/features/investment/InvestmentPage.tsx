@@ -6,23 +6,7 @@ import { Plus, Pencil, Trash2, X, Check, Calendar, DollarSign } from 'lucide-rea
 import { generateId } from '../../lib/utils';
 import type { Deal, DealStage } from '../../data/types';
 
-const STAGES: DealStage[] = [
-  'Sourcing',
-  'Due Diligence',
-  'IC Review',
-  'Term Sheet',
-  'Closed',
-  'Passed',
-];
-
-const STAGE_COLORS: Record<DealStage, string> = {
-  Sourcing: 'bg-gray-100 text-gray-600 border-gray-200',
-  'Due Diligence': 'bg-blue-50 text-blue-700 border-blue-200',
-  'IC Review': 'bg-violet-50 text-violet-700 border-violet-200',
-  'Term Sheet': 'bg-amber-50 text-amber-700 border-amber-200',
-  Closed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Passed: 'bg-red-50 text-red-600 border-red-200',
-};
+// Stages + colours come from Admin → Investment Settings
 
 const EMPTY: Omit<Deal, 'id'> = {
   companyName: '',
@@ -30,12 +14,17 @@ const EMPTY: Omit<Deal, 'id'> = {
   ticketSize: '',
   leadPartnerId: '',
   dateAdded: new Date().toISOString().slice(0, 10),
-  stage: 'Sourcing',
+  stage: '' as DealStage,
   notes: '',
 };
 
 export default function InvestmentPage() {
   const { store, canAccess, addDeal, updateDeal, deleteDeal } = useApp();
+  const STAGES = (store.dealStages ?? []).map(s => s.name) as DealStage[];
+  const stageStyle = (name: string) => {
+    const s = (store.dealStages ?? []).find(x => x.name === name);
+    return s ? { backgroundColor: s.bgColor, color: s.textColor, borderColor: s.borderColor } : {};
+  };
   const [editing, setEditing] = useState<Deal | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<Deal, 'id'>>(EMPTY);
@@ -47,7 +36,7 @@ export default function InvestmentPage() {
   const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cactus-accent/30 bg-white';
 
   const startCreate = () => {
-    setForm({ ...EMPTY, sectorId: sectors[0]?.id ?? '', leadPartnerId: people[0]?.id ?? '' });
+    setForm({ ...EMPTY, sectorId: sectors[0]?.id ?? '', leadPartnerId: people[0]?.id ?? '', stage: (store.dealStages?.[0]?.name ?? 'Sourcing') as DealStage });
     setCreating(true);
     setEditing(null);
   };
@@ -141,7 +130,7 @@ export default function InvestmentPage() {
           const stageDeals = deals.filter((d) => d.stage === stage);
           return (
             <div key={stage} className="flex flex-col">
-              <div className={`px-3 py-2 rounded-lg border text-xs font-semibold mb-3 ${STAGE_COLORS[stage]}`}>
+              <div className="px-3 py-2 rounded-lg border text-xs font-semibold mb-3" style={stageStyle(stage)}>
                 {stage}
                 <span className="ml-2 font-normal opacity-70">({stageDeals.length})</span>
               </div>
