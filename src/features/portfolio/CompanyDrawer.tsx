@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   X, ExternalLink, Building2, Quote, TrendingUp, ChevronDown, ChevronUp,
   Users, BarChart2, Layers, Award, FileText, GitBranch, Target, Search,
-  Mail, MapPin, Filter, Upload, Trash2, Download, Paperclip,
+  Mail, MapPin, Filter, Upload, Trash2, Download, Paperclip, CalendarDays,
 } from 'lucide-react';
+import CompanyCalendar from '../../components/ui/CompanyCalendar';
 import {
   fetchNote, saveNote,
   fetchFiles, uploadFile, deleteFile, fileDownloadUrl,
@@ -25,16 +26,17 @@ interface Props {
   onClose: () => void;
 }
 
-type DrawerTab = 'overview' | 'financials' | 'funding' | 'captable' | 'patents' | 'people' | 'docs';
+type DrawerTab = 'overview' | 'financials' | 'funding' | 'captable' | 'patents' | 'people' | 'calendar' | 'docs';
 
 const TABS: { key: DrawerTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'overview', label: 'Overview', Icon: Building2 },
+  { key: 'overview',   label: 'Overview',   Icon: Building2 },
   { key: 'financials', label: 'Financials', Icon: BarChart2 },
-  { key: 'funding', label: 'Funding', Icon: TrendingUp },
-  { key: 'captable', label: 'Cap Table', Icon: Layers },
-  { key: 'patents', label: 'Patents', Icon: FileText },
-  { key: 'people', label: 'People', Icon: Users },
-  { key: 'docs', label: 'Docs', Icon: Paperclip },
+  { key: 'funding',    label: 'Funding',    Icon: TrendingUp },
+  { key: 'captable',   label: 'Cap Table',  Icon: Layers },
+  { key: 'patents',    label: 'Patents',    Icon: FileText },
+  { key: 'people',     label: 'People',     Icon: Users },
+  { key: 'calendar',   label: 'Calendar',   Icon: CalendarDays },
+  { key: 'docs',       label: 'Docs',       Icon: Paperclip },
 ];
 
 // ─── Chart helpers ────────────────────────────────────────────────────────────
@@ -841,14 +843,30 @@ export default function CompanyDrawer({ company, onClose }: Props) {
     </div>
   );
 
+  // ── Tab: Calendar ──────────────────────────────────────────────────────────
+  const CalendarTab = () => (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 mb-4">
+        <CalendarDays className="w-4 h-4" style={{ color: primaryColor }} />
+        <p className="text-sm font-semibold text-gray-700">Compliance Deadlines — {company.name}</p>
+      </div>
+      <CompanyCalendar
+        companyId={company.id}
+        companyName={company.name}
+        compact
+      />
+    </div>
+  );
+
   const TAB_CONTENT: Record<DrawerTab, React.ReactNode> = {
-    overview: <OverviewTab />,
+    overview:   <OverviewTab />,
     financials: <FinancialsTab />,
-    funding: <FundingTab />,
-    captable: <CapTableTab />,
-    patents: <PatentsTab />,
-    people: <PeopleTab />,
-    docs: <DocsTab />,
+    funding:    <FundingTab />,
+    captable:   <CapTableTab />,
+    patents:    <PatentsTab />,
+    people:     <PeopleTab />,
+    calendar:   <CalendarTab />,
+    docs:       <DocsTab />,
   };
 
   return (

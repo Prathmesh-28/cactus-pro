@@ -5,10 +5,11 @@ import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
 import CompanyDrawer from './CompanyDrawer';
 import OperationalMetrics from '../finance/OperationalMetrics';
+import CompanyCalendar from '../../components/ui/CompanyCalendar';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import {
   Building2, Search, Download, TrendingUp, TrendingDown, Minus,
-  ChevronUp, ChevronDown, BarChart2, Layers, LayoutList,
+  ChevronUp, ChevronDown, BarChart2, Layers, LayoutList, CalendarDays,
 } from 'lucide-react';
 import { exportToCSV } from '../../lib/utils';
 import type { PortfolioCompany } from '../../data/types';
@@ -404,6 +405,24 @@ export default function PortfolioPage() {
 
       {/* Company Detail Drawer */}
       <CompanyDrawer company={selectedCompany} onClose={() => setSelectedCompany(null)} />
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 3 — PORTFOLIO COMPLIANCE CALENDAR (all companies)
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="mt-10 border-t border-gray-100 pt-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-xl bg-green-50">
+            <CalendarDays className="w-5 h-5 text-green-700" />
+          </div>
+          <div>
+            <h2 className="font-heading text-lg font-bold text-gray-900">Portfolio Compliance Calendar</h2>
+            <p className="text-xs text-gray-500">All deadlines across portfolio companies — click a company to open its individual calendar</p>
+          </div>
+        </div>
+        <CompanyCalendar
+          allCompanies={store.companies.map(c => ({ id: c.id, name: c.name }))}
+        />
+      </section>
     </main>
   );
 }
