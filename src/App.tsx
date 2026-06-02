@@ -1,20 +1,39 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LoginPage from './pages/LoginPage';
-import SetPasswordPage from './pages/SetPasswordPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import { AppProvider } from './context/AppContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Chatbot from './components/ui/Chatbot';
+
+// Eagerly loaded (tiny, needed immediately)
+import LoginPage from './pages/LoginPage';
+import SetPasswordPage from './pages/SetPasswordPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import HomePage from './pages/HomePage';
-import PortfolioPage from './features/portfolio/PortfolioPage';
-import FinancePage from './features/finance/FinancePage';
-import InvestmentPage from './features/investment/InvestmentPage';
-import AdminPage from './features/admin/AdminPage';
-import VCToolkitPage from './features/toolkit/VCToolkitPage';
-import WorkspacePage from './features/workspace/WorkspacePage';
-import OperationsHub from './features/operations/OperationsHub';
+
+// Lazy-loaded — each becomes its own JS chunk
+const PortfolioPage  = lazy(() => import('./features/portfolio/PortfolioPage'));
+const FinancePage    = lazy(() => import('./features/finance/FinancePage'));
+const InvestmentPage = lazy(() => import('./features/investment/InvestmentPage'));
+const OperationsHub  = lazy(() => import('./features/operations/OperationsHub'));
+const AdminPage      = lazy(() => import('./features/admin/AdminPage'));
+const VCToolkitPage  = lazy(() => import('./features/toolkit/VCToolkitPage'));
+const WorkspacePage  = lazy(() => import('./features/workspace/WorkspacePage'));
+
+function PageLoader() {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="text-center space-y-3">
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center mx-auto"
+          style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
+          <span className="text-white text-base">🌵</span>
+        </div>
+        <p className="text-sm text-gray-400">Loading…</p>
+      </div>
+    </div>
+  );
+}
 
 // Redirect to login, remembering where the user wanted to go
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -48,17 +67,18 @@ function AppShell() {
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <div className="flex-1">
-          <Routes>
-            <Route path="/dashboard"   element={<PortfolioPage />} />
-            <Route path="/finance"     element={<FinancePage />} />
-            <Route path="/investment"  element={<InvestmentPage />} />
-            <Route path="/operations"  element={<OperationsHub />} />
-            <Route path="/admin"       element={<AdminPage />} />
-            <Route path="/toolkit"     element={<VCToolkitPage />} />
-            <Route path="/workspace"   element={<WorkspacePage />} />
-            {/* Catch-all → dashboard */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/dashboard"   element={<PortfolioPage />} />
+              <Route path="/finance"     element={<FinancePage />} />
+              <Route path="/investment"  element={<InvestmentPage />} />
+              <Route path="/operations"  element={<OperationsHub />} />
+              <Route path="/admin"       element={<AdminPage />} />
+              <Route path="/toolkit"     element={<VCToolkitPage />} />
+              <Route path="/workspace"   element={<WorkspacePage />} />
+              <Route path="*"            element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Suspense>
         </div>
         <Footer />
       </div>
