@@ -4,13 +4,12 @@ const transporter = nodemailer.createTransport({
   host:   process.env.SMTP_HOST   || 'smtp.gmail.com',
   port:   parseInt(process.env.SMTP_PORT || '587'),
   secure: process.env.SMTP_SECURE === 'true',
+  family: 4,   // ← force IPv4 — Render free tier blocks IPv6 outbound
   auth: {
     user: process.env.SMTP_USER,
-    pass: (process.env.SMTP_PASS || '').replace(/\s/g, ''), // strip spaces from App Password
+    pass: (process.env.SMTP_PASS || '').replace(/\s/g, ''),
   },
   tls: { rejectUnauthorized: false },
-  logger: true,
-  debug: process.env.NODE_ENV !== 'production',
 });
 
 // Verify connection on startup

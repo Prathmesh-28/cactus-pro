@@ -55,9 +55,20 @@ router.post('/invite', requireAdmin, async (req, res) => {
       [user.id, token, 'invite', expiresAt]
     );
 
-    await sendInvite({ to: user.email, name: user.name, token, inviterName: req.user.name });
-    await audit(req.user.id, req.user.email, 'invited_user', user.email, req.ip);
+    try {
+      await sendInvite({ to: user.email, name: user.name, token, inviterName: req.user.name });
+    } catch (emailErr) {
+      console.error('Invite email failed:', emailErr.message, emailErr.code);
+      // Delete the user and token so invite can be retried cleanly
+      await pool.query('DELETE FROM password_reset_tokens WHERE user_id=$1', [user.id]);
+      await pool.query('DELETE FROM users WHERE id=$1', [user.id]);
+      return res.status(500).json({
+        error: `User created but email failed to send: ${emailErr.message}. Check SMTP settings in Render.`,
+        code: emailErr.code,
+      });
+    }
 
+    await audit(req.user.id, req.user.email, 'invited_user', user.email, req.ip);
     res.status(201).json({
       id: user.id, email: user.email, name: user.name,
       role: user.role, is_active: user.is_active,
