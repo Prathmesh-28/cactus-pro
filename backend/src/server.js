@@ -37,9 +37,27 @@ app.use(express.json({ limit: '10mb' }));
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 app.use('/auth', authRouter);         // /auth/login, /auth/refresh, etc.
 
+// File downloads are public — images must load without a JWT
+// (upload/delete/list still require auth via filesRouter internal checks)
+const { pool: _p } = require('./db');
+app.get('/api/files/download/:fileId', async (req, res) => {
+  try {
+    const { rows } = await _p.query(
+      'SELECT original_name, mime_type, file_data FROM files WHERE id=$1',
+      [req.params.fileId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'File not found' });
+    const file = rows[0];
+    res.setHeader('Content-Type', file.mime_type);
+    res.setHeader('Content-Disposition', `inline; filename="${file.original_name}"`);
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
+    res.send(file.file_data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ── Protected routes (JWT required) ──────────────────────────────────────────
 app.use('/api/notes', authenticate, notesRouter);
-app.use('/api/files', authenticate, filesRouter);
+app.use('/api/files', authenticate, filesRouter); // upload/delete/list still auth-gated
 app.use('/api/kv',    authenticate, kvRouter);
 app.use('/api/sync',  authenticate, syncRouter);
 app.use('/api/users', usersRouter);   // auth applied inside router
