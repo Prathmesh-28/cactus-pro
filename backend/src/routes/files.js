@@ -8,11 +8,19 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB limit
   fileFilter: (_, file, cb) => {
-    const allowed = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg',
-      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/plain'];
-    cb(null, allowed.includes(file.mimetype));
+    // Accept all image formats + documents
+    const allowed = [
+      'image/png', 'image/jpeg', 'image/jpg', 'image/webp',
+      'image/svg+xml', 'image/gif', 'image/avif',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+    ];
+    // Also accept anything that starts with image/ as a safety net
+    cb(null, allowed.includes(file.mimetype) || file.mimetype.startsWith('image/'));
   },
 });
 
