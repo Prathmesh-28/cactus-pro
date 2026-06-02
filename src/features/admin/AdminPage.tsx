@@ -67,6 +67,65 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'portfolio_snapshot', label: 'Portfolio Snapshot', Icon: TableProperties },
 ];
 
+// ─── Impact notes — shown as a banner under each panel heading ───────────────
+const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
+  firm: {
+    affects: ['Header logo & name', 'Footer contact details', 'All brand colours & buttons sitewide', 'Email shown on homepage'],
+    note: 'Colour changes apply instantly everywhere — no page refresh needed.',
+  },
+  companies: {
+    affects: ['Portfolio tab — company cards & filters', 'CompanyDrawer — all tabs (Overview, Financials, Funding…)', 'Finance → Fund Overview → Portfolio Snapshot', 'Homepage — featured companies section'],
+    note: 'Logos, valuations, and financials update immediately across all views.',
+  },
+  people: {
+    affects: ['Homepage → Team section', 'Admin → Company editor (Board Members checkboxes)', 'CompanyDrawer → Overview (Cactus Board Members)'],
+  },
+  sectors: {
+    affects: ['Portfolio tab — sector filter pills & colour badges', 'Company cards & CompanyDrawer header', 'Homepage → Sectors We Back section'],
+    note: 'Sector colour changes update every pill across the site.',
+  },
+  metrics: {
+    affects: ['Homepage → KPI stat cards (top row)', 'Portfolio tab — summary strip'],
+    note: 'Toggle "Visible" to show or hide individual cards without deleting them.',
+  },
+  permissions: {
+    affects: ['Which tabs each role can see and access', 'Whether a role can export data or write internal notes'],
+    note: 'Changes take effect the next time a user switches roles.',
+  },
+  announcements: {
+    affects: ['Homepage & Portfolio — announcement banners shown to targeted roles'],
+    note: 'Set an expiry date so banners disappear automatically.',
+  },
+  sync: {
+    affects: ['Finance → all editable tables (Fund Metrics, Expenses, Performance)', 'Data is pulled from your SharePoint/OneDrive Excel on demand'],
+    note: 'Click "Sync Now" any time to pull the latest data. Tables update immediately.',
+  },
+  investment_settings: {
+    affects: ['Investment tab — Kanban column headers and badge colours', 'Deal form → Stage dropdown options'],
+    note: 'Add, rename or reorder stages. New stages appear as empty columns instantly.',
+  },
+  homepage: {
+    affects: ['Homepage — hero title, subtitle, badge, CTA button', 'Homepage — navigation links', 'Homepage — value pillars section (Founder First, India at Core…)'],
+    note: 'All text changes are live immediately — no redeploy needed.',
+  },
+  kpi_thresholds: {
+    affects: ['Portfolio cards — MOIC/IRR colour badges (green/amber/red)', 'Finance → Portfolio Snapshot — MOIC trend icons and IRR badges', 'Operational Metrics view — performance colour bands'],
+    note: 'Example: set "good MOIC" to 2.5x instead of 3x to change what shows green.',
+  },
+  finance_config: {
+    affects: ['Finance → Fund Overview — fund selector (Fund 1 / Fund 2 buttons)', 'Finance → Expenses — column headers (FY23, FY24…)', 'Finance → Fund Overview — metric card labels and number format'],
+    note: 'Add a Fund 3 or rename Fund 1 to "Cactus Fund I" — the selector updates instantly.',
+  },
+  taxonomy: {
+    affects: ['Admin → Company editor — Stage dropdown (Seed, Series A…)', 'Admin → Company editor — Status dropdown (Active, Watch, Exited)', 'Portfolio filters — Stage and Status filter options'],
+    note: 'Removing a stage does not delete companies with that stage — it just hides the option from new entries.',
+  },
+  portfolio_snapshot: {
+    affects: ['Finance → Fund Overview → Portfolio Snapshot table', 'Finance → Fund Overview → Totals/Averages footer row'],
+    note: 'Click any row to edit that company\'s investment data. Logos come from Portfolio Companies → Logo.',
+  },
+};
+
 export default function AdminPage() {
   const { store, canAccess, resetToDefaults } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('firm');
@@ -160,19 +219,38 @@ export default function AdminPage() {
 
         {/* Content */}
         <div className="flex-1 bg-white border border-gray-200 rounded-2xl p-6 min-w-0">
-          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
+          {/* Panel heading */}
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
             {activeTabConfig && (
               <>
-                <activeTabConfig.Icon
-                  className="w-5 h-5"
-                  style={{ color: store.firm.primaryColor }}
-                />
-                <h2 className="font-heading font-semibold text-gray-900">
-                  {activeTabConfig.label}
-                </h2>
+                <activeTabConfig.Icon className="w-5 h-5" style={{ color: store.firm.primaryColor }} />
+                <h2 className="font-heading font-semibold text-gray-900">{activeTabConfig.label}</h2>
               </>
             )}
           </div>
+
+          {/* Impact banner */}
+          {TAB_META[activeTab] && (
+            <div className="mb-5 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 space-y-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">
+                Where changes appear
+              </p>
+              <ul className="space-y-0.5">
+                {TAB_META[activeTab].affects.map((line, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-amber-800">
+                    <span className="mt-0.5 shrink-0 text-amber-400">→</span>
+                    {line}
+                  </li>
+                ))}
+              </ul>
+              {TAB_META[activeTab].note && (
+                <p className="text-[11px] text-amber-600 italic border-t border-amber-100 pt-1.5 mt-1">
+                  💡 {TAB_META[activeTab].note}
+                </p>
+              )}
+            </div>
+          )}
+
           {PANELS[activeTab]}
         </div>
       </div>
