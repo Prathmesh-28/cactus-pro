@@ -105,12 +105,21 @@ export default function HomePage() {
       ═══════════════════════════════════════════════════════════════ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0A0F0D]/95 backdrop-blur-xl border-b border-white/10 shadow-xl shadow-black/20' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between py-4">
-          {/* Logo */}
+          {/* Logo — uses firm logo from Admin → Firm Settings */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105"
-              style={{ background: `linear-gradient(135deg, ${firm.primaryColor}, ${firm.accentColor})` }}>
-              <Leaf className="w-4.5 h-4.5 text-white" />
-            </div>
+            {firm.logoUrl ? (
+              <img
+                src={firm.logoUrl}
+                alt={firm.name}
+                className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105"
+                style={{ background: `linear-gradient(135deg, ${firm.primaryColor}, ${firm.accentColor})` }}>
+                <Leaf className="w-4.5 h-4.5 text-white" />
+              </div>
+            )}
             <span className="font-heading font-black text-xl text-white tracking-tight">{firm.name}</span>
           </Link>
 
