@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Wrench, Building2, Rocket, BarChart2, TrendingUp, Calculator, Globe, Activity, DoorOpen, ChevronRight, Sparkles } from 'lucide-react';
+import { Wrench, Building2, Rocket, BarChart2, TrendingUp, Calculator, Globe, Activity, DoorOpen, ChevronRight, Sparkles, X, Play } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { getToolComponent } from './tools/_registry';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -246,6 +247,7 @@ export default function VCToolkitPage() {
   const [activeSection, setActiveSection] = useState<string>('suite');
   const [activeCat, setActiveCat] = useState<CatId>('all');
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [launchedId, setLaunchedId] = useState<string | null>(null); // modal tool
 
   const section = TOOLKIT_SECTIONS.find(s => s.id === activeSection)!;
 
@@ -461,21 +463,71 @@ export default function VCToolkitPage() {
               </div>
             </div>
 
-            {/* Generate prompt CTA */}
-            <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+            {/* CTA */}
+            <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between gap-3 flex-wrap">
               <p className="text-xs text-gray-400">
-                Click another card to compare, or close this panel.
+                {selectedFw.tag === 'Built'
+                  ? 'This tool is live — click Launch to open it.'
+                  : 'Coming soon. Add your component to tools/ when ready.'}
               </p>
-              <button
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-medium text-gray-700 transition-colors"
-                onClick={() => setActiveId(null)}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Close
-                <ChevronRight className="w-3 h-3" />
-              </button>
+              <div className="flex items-center gap-2">
+                {selectedFw.tag === 'Built' && getToolComponent(selectedFw.id) && (
+                  <button
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors"
+                    style={{ backgroundColor: '#1C4B42' }}
+                    onClick={() => setLaunchedId(selectedFw.id)}
+                  >
+                    <Play className="w-3.5 h-3.5" />
+                    Launch Tool
+                  </button>
+                )}
+                <button
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-medium text-gray-700 transition-colors"
+                  onClick={() => setActiveId(null)}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Close
+                  <ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
+        );
+      })()}
+      {/* ── Tool modal — renders the actual live tool ────────────────────────── */}
+      {launchedId && (() => {
+        const ToolComponent = getToolComponent(launchedId);
+        const fw = FW.find(f => f.id === launchedId);
+        const cm = fw ? CAT_MAP[fw.cat] : CAT_MAP.all;
+        if (!ToolComponent || !fw) return null;
+        return (
+          <>
+            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setLaunchedId(null)} />
+            <div className="fixed inset-4 md:inset-8 z-50 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+              {/* Modal header */}
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 shrink-0"
+                style={{ backgroundColor: cm.bg }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: cm.text + '20', color: cm.text }}>
+                  <CatIcon id={fw.cat} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-heading font-bold text-gray-900 text-base">{fw.name}</h2>
+                  <p className="text-xs text-gray-500 truncate">{fw.desc.slice(0, 80)}…</p>
+                </div>
+                <button
+                  onClick={() => setLaunchedId(null)}
+                  className="p-2 rounded-xl hover:bg-white/60 text-gray-500 shrink-0 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              {/* Tool content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <ToolComponent />
+              </div>
+            </div>
+          </>
         );
       })()}
     </div>
