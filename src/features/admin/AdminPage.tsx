@@ -8,6 +8,7 @@ import SectorManager from './SectorManager';
 import MetricsManager from './MetricsManager';
 import PermissionsManager from './PermissionsManager';
 import AnnouncementManager from './AnnouncementManager';
+import SyncManager from './SyncManager';
 import {
   Settings,
   Building2,
@@ -17,6 +18,7 @@ import {
   ShieldCheck,
   Bell,
   RotateCcw,
+  RefreshCw,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -27,7 +29,8 @@ type AdminTab =
   | 'sectors'
   | 'metrics'
   | 'permissions'
-  | 'announcements';
+  | 'announcements'
+  | 'sync';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'firm', label: 'Firm Settings', Icon: Settings },
@@ -37,6 +40,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: 'metrics', label: 'Fund Metrics', Icon: BarChart2 },
   { key: 'permissions', label: 'Roles & Permissions', Icon: ShieldCheck },
   { key: 'announcements', label: 'Announcements', Icon: Bell },
+  { key: 'sync', label: 'Data Sync', Icon: RefreshCw },
 ];
 
 export default function AdminPage() {
@@ -54,6 +58,7 @@ export default function AdminPage() {
     metrics: <MetricsManager />,
     permissions: <PermissionsManager />,
     announcements: <AnnouncementManager />,
+    sync: <SyncManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);

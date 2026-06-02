@@ -4,6 +4,8 @@ const cors = require('cors');
 const { initDb } = require('./db');
 const notesRouter = require('./routes/notes');
 const filesRouter = require('./routes/files');
+const kvRouter    = require('./routes/kv');
+const syncRouter  = require('./routes/sync');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,12 +20,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 app.use('/api/notes', notesRouter);
 app.use('/api/files', filesRouter);
+app.use('/api/kv',    kvRouter);
+app.use('/api/sync',  syncRouter);
 
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
