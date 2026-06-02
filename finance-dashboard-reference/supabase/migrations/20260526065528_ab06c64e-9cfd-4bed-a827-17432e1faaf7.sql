@@ -1,1 +1,0 @@
-DROP POLICY IF EXISTS "authenticated can receive realtime" ON realtime.messages;

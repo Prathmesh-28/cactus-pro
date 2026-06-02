@@ -1,1 +1,0 @@
-ALTER TABLE public.work_updates ADD COLUMN IF NOT EXISTS original_id uuid REFERENCES public.work_updates(id) ON DELETE SET NULL;
