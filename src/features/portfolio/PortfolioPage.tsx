@@ -163,41 +163,38 @@ export default function PortfolioPage() {
           FILTERS + VIEW TOGGLE
           ══════════════════════════════════════════════════════════════════════ */}
       <section className="space-y-3">
-        {/* Sector filter bar */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveSector('all')}
-            className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-            style={activeSector === 'all'
-              ? { backgroundColor: firm.primaryColor, color: '#fff' }
-              : { backgroundColor: '#F3F4F6', color: '#374151' }}
-          >
-            All
-          </button>
-          {sectors.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setActiveSector(s.id)}
-              className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border"
-              style={activeSector === s.id
-                ? { backgroundColor: s.color, color: '#fff', borderColor: s.color }
-                : { backgroundColor: s.color + '15', color: s.color, borderColor: s.color + '30' }}
-            >
-              {s.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Search + view toggle + export */}
+        {/* Search + sector dropdown + view toggle + export — all in one row */}
         <div className="flex flex-wrap gap-2 items-center justify-between">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search companies, CEO, sector..."
-              className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 w-64"
-            />
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search companies, CEO, sector..."
+                className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 w-64"
+              />
+            </div>
+
+            {/* Sector dropdown */}
+            <div className="relative">
+              <select
+                value={activeSector}
+                onChange={(e) => setActiveSector(e.target.value)}
+                className="pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 bg-white appearance-none cursor-pointer"
+                style={{
+                  color: activeSector === 'all' ? '#374151' : (sectors.find(s=>s.id===activeSector)?.color ?? '#374151'),
+                  borderColor: activeSector === 'all' ? '#E5E7EB' : ((sectors.find(s=>s.id===activeSector)?.color ?? '') + '60') || '#E5E7EB',
+                }}
+              >
+                <option value="all">All Sectors</option>
+                {sectors.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
