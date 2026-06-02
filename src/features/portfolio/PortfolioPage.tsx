@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import MetricCard from '../finance/MetricCard';
 import SectorPill from '../../components/ui/SectorPill';
@@ -22,6 +23,7 @@ type ViewMode = 'table' | 'operational';
 
 export default function PortfolioPage() {
   const { store, canAccess, canExport } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCompany, setSelectedCompany] = useState<PortfolioCompany | null>(null);
   const [search, setSearch] = useState('');
   const [activeSector, setActiveSector] = useState<string>('all');
@@ -30,6 +32,22 @@ export default function PortfolioPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   if (!canAccess('portfolio')) return <AccessRestricted tab="portfolio" />;
+
+  // Auto-open company or set sector from URL params (?open=c3 or ?sector=s1)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    const openId   = searchParams.get('open');
+    const sectorId = searchParams.get('sector');
+    if (openId) {
+      const co = store.companies.find(c => c.id === openId);
+      if (co) { setSelectedCompany(co); }
+      setSearchParams({}, { replace: true }); // clean URL
+    }
+    if (sectorId) {
+      setActiveSector(sectorId);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams]);
 
   const { firm, fundMetrics, companies, sectors } = store;
 

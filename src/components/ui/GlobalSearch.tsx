@@ -48,7 +48,7 @@ interface Props {
   onSelectCompany?: (c: PortfolioCompany) => void;
 }
 
-export default function GlobalSearch({ onSelectCompany }: Props) {
+export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
   const { store, currentRole } = useApp();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -90,7 +90,7 @@ export default function GlobalSearch({ onSelectCompany }: Props) {
         id: `co-${c.id}`, kind: 'company', title: c.name,
         subtitle: `${store.sectors.find(s=>s.id===c.sectorId)?.name??''} · ${c.stage} · ${c.hqCity}`,
         logoUrl: c.logoUrl,
-        action: () => { onSelectCompany?.(c); setOpen(false); },
+        action: () => { navigate(`/dashboard?open=${c.id}`); setOpen(false); },
       }));
 
     // People (firm team)
@@ -106,7 +106,7 @@ export default function GlobalSearch({ onSelectCompany }: Props) {
         res.push({
           id: `kp-${c.id}-${i}`, kind: 'person', title: p.name,
           subtitle: `${p.title} · ${c.name}`,
-          action: () => { onSelectCompany?.(c); setOpen(false); },
+          action: () => { navigate(`/dashboard?open=${c.id}`); setOpen(false); },
         });
       });
     });
@@ -123,14 +123,14 @@ export default function GlobalSearch({ onSelectCompany }: Props) {
     store.sectors.filter(s => fuzzy(s.name, q)).forEach(s => res.push({
       id: `se-${s.id}`, kind: 'sector', title: s.name,
       subtitle: `${store.companies.filter(c=>c.sectorId===s.id).length} companies`,
-      action: () => { navigate('/dashboard'); setOpen(false); },
+      action: () => { navigate(`/dashboard?sector=${s.id}`); setOpen(false); },
     }));
 
     // Fund Metrics
     store.fundMetrics.filter(m => fuzzy(m.label + ' ' + m.value, q)).slice(0,2).forEach(m => res.push({
       id: `me-${m.id}`, kind: 'metric', title: m.label,
       subtitle: `${m.value}${m.delta ? ' · '+m.delta : ''}`,
-      action: () => { navigate('/dashboard'); setOpen(false); },
+      action: () => { navigate('/finance'); setOpen(false); },
     }));
 
     // Quick nav
