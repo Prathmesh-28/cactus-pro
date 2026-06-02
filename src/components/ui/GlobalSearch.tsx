@@ -158,17 +158,17 @@ export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
       <button
         onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
         className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors"
-        style={{ backgroundColor: '#F2F7F1', color: '#555951', border: '1px solid #E3EDE9' }}
+        style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.2)' }}
       >
         <Search className="w-3.5 h-3.5" />
         <span className="text-xs">Search everything…</span>
-        <kbd className="ml-2 text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: '#E3EDE9', color: '#555951' }}>⌘K</kbd>
+        <kbd className="ml-2 text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>⌘K</kbd>
       </button>
 
       {/* Mobile icon */}
       <button onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="md:hidden p-2 rounded-lg" style={{ backgroundColor: '#F2F7F1' }}>
-        <Search className="w-4 h-4" style={{ color: '#1C4B42' }} />
+        className="md:hidden p-2 rounded-lg hover:bg-white/10">
+        <Search className="w-4 h-4 text-white" />
       </button>
 
       {/* Modal overlay */}
