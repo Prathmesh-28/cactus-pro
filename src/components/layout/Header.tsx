@@ -9,12 +9,13 @@ import { cn } from '../../lib/utils';
 import { useState, useRef, useEffect } from 'react';
 
 const NAV_ITEMS: { tab: TabName; label: string; path: string }[] = [
-  { tab: 'portfolio',  label: 'Portfolio',   path: '/dashboard' },
-  { tab: 'finance',    label: 'Finance',     path: '/finance'   },
-  { tab: 'investment', label: 'Investment',  path: '/investment'},
-  { tab: 'toolkit',   label: 'VC Toolkit',  path: '/toolkit'   },
-  { tab: 'workspace',  label: 'Workspace',   path: '/workspace' },
-  { tab: 'admin',      label: 'Admin',       path: '/admin'     },
+  { tab: 'portfolio',   label: 'Portfolio',   path: '/dashboard'   },
+  { tab: 'finance',     label: 'Finance',     path: '/finance'     },
+  { tab: 'investment',  label: 'Investment',  path: '/investment'  },
+  { tab: 'operations',  label: 'Operations',  path: '/operations'  },
+  { tab: 'toolkit',     label: 'VC Toolkit',  path: '/toolkit'     },
+  { tab: 'workspace',   label: 'Workspace',   path: '/workspace'   },
+  { tab: 'admin',       label: 'Admin',       path: '/admin'       },
 ];
 
 export default function Header() {

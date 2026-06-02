@@ -14,6 +14,7 @@ import InvestmentPage from './features/investment/InvestmentPage';
 import AdminPage from './features/admin/AdminPage';
 import VCToolkitPage from './features/toolkit/VCToolkitPage';
 import WorkspacePage from './features/workspace/WorkspacePage';
+import OperationsHub from './features/operations/OperationsHub';
 
 // Redirect to login, remembering where the user wanted to go
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -48,12 +49,13 @@ function AppShell() {
         <Header />
         <div className="flex-1">
           <Routes>
-            <Route path="/dashboard"  element={<PortfolioPage />} />
-            <Route path="/finance"    element={<FinancePage />} />
-            <Route path="/investment" element={<InvestmentPage />} />
-            <Route path="/admin"      element={<AdminPage />} />
-            <Route path="/toolkit"    element={<VCToolkitPage />} />
-            <Route path="/workspace"  element={<WorkspacePage />} />
+            <Route path="/dashboard"   element={<PortfolioPage />} />
+            <Route path="/finance"     element={<FinancePage />} />
+            <Route path="/investment"  element={<InvestmentPage />} />
+            <Route path="/operations"  element={<OperationsHub />} />
+            <Route path="/admin"       element={<AdminPage />} />
+            <Route path="/toolkit"     element={<VCToolkitPage />} />
+            <Route path="/workspace"   element={<WorkspacePage />} />
             {/* Catch-all → dashboard */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

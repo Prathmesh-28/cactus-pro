@@ -1,15 +1,16 @@
 import { useApp } from '../../context/AppContext';
 import type { TabName, RolePermissions } from '../../data/types';
 
-const ALL_TABS: TabName[] = ['portfolio', 'finance', 'investment', 'toolkit', 'workspace', 'admin'];
+const ALL_TABS: TabName[] = ['portfolio', 'finance', 'investment', 'operations', 'toolkit', 'workspace', 'admin'];
 
 const TAB_LABELS: Record<TabName, string> = {
-  portfolio: 'Portfolio',
-  finance: 'Finance',
+  portfolio:  'Portfolio',
+  finance:    'Finance',
   investment: 'Investment',
-  toolkit: 'VC Toolkit',
-  workspace: 'Workspace',
-  admin: 'Admin',
+  operations: 'Operations',
+  toolkit:    'VC Toolkit',
+  workspace:  'Workspace',
+  admin:      'Admin',
 };
 
 export default function PermissionsManager() {

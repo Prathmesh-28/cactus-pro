@@ -12,12 +12,13 @@ export default function AccessRestricted({ tab }: Props) {
   const displayName = roleConfig?.displayName ?? currentRole;
 
   const tabLabels: Record<TabName, string> = {
-    portfolio: 'Portfolio',
-    finance: 'Finance',
+    portfolio:  'Portfolio',
+    finance:    'Finance',
     investment: 'Investment Pipeline',
-    toolkit: 'VC Toolkit',
-    workspace: 'Team Workspace',
-    admin: 'Admin Panel',
+    operations: 'Operations',
+    toolkit:    'VC Toolkit',
+    workspace:  'Team Workspace',
+    admin:      'Admin Panel',
   };
 
   return (

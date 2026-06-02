@@ -2,13 +2,25 @@ import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import SectorPill from '../../components/ui/SectorPill';
-import { Plus, Pencil, Trash2, X, Check, Calendar, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Check, Calendar, DollarSign, Kanban, FileText, ClipboardCheck, Users, CheckSquare } from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportPipelinePDF, exportPipelineExcel } from '../../lib/export';
 import { generateId } from '../../lib/utils';
 import type { Deal, DealStage } from '../../data/types';
+import IcMemoBuilder from './IcMemoBuilder';
+import DdChecklist from './DdChecklist';
+import CoInvestorCrm from './CoInvestorCrm';
+import ReferenceChecks from './ReferenceChecks';
 
-// Stages + colours come from Admin → Investment Settings
+type InvTab = 'pipeline' | 'ic_memos' | 'dd' | 'co_investors' | 'ref_checks';
+
+const TABS: { key: InvTab; label: string; Icon: React.ElementType }[] = [
+  { key: 'pipeline',     label: 'Pipeline',        Icon: Kanban },
+  { key: 'ic_memos',     label: 'IC Memos',         Icon: FileText },
+  { key: 'dd',           label: 'Due Diligence',    Icon: ClipboardCheck },
+  { key: 'co_investors', label: 'Co-investors',     Icon: Users },
+  { key: 'ref_checks',   label: 'Reference Checks', Icon: CheckSquare },
+];
 
 const EMPTY: Omit<Deal, 'id'> = {
   companyName: '',
@@ -20,8 +32,8 @@ const EMPTY: Omit<Deal, 'id'> = {
   notes: '',
 };
 
-export default function InvestmentPage() {
-  const { store, canAccess, addDeal, updateDeal, deleteDeal } = useApp();
+function PipelineView() {
+  const { store, addDeal, updateDeal, deleteDeal } = useApp();
   const STAGES = (store.dealStages ?? []).map(s => s.name) as DealStage[];
   const stageStyle = (name: string) => {
     const s = (store.dealStages ?? []).find(x => x.name === name);
@@ -30,11 +42,7 @@ export default function InvestmentPage() {
   const [editing, setEditing] = useState<Deal | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<Deal, 'id'>>(EMPTY);
-
-  if (!canAccess('investment')) return <AccessRestricted tab="investment" />;
-
   const { firm, deals, sectors, people } = store;
-
   const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cactus-accent/30 bg-white';
 
   const startCreate = () => {
@@ -42,15 +50,12 @@ export default function InvestmentPage() {
     setCreating(true);
     setEditing(null);
   };
-
   const startEdit = (d: Deal) => {
     setEditing(d);
     setForm({ companyName: d.companyName, sectorId: d.sectorId, ticketSize: d.ticketSize, leadPartnerId: d.leadPartnerId, dateAdded: d.dateAdded, stage: d.stage, notes: d.notes });
     setCreating(false);
   };
-
   const cancel = () => { setEditing(null); setCreating(false); };
-
   const save = () => {
     if (!form.companyName.trim()) return;
     if (creating) addDeal({ id: generateId(), ...form });
@@ -108,12 +113,9 @@ export default function InvestmentPage() {
   );
 
   return (
-    <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900 mb-1">Investment Pipeline</h1>
-          <p className="text-sm text-gray-500">{deals.length} deals tracked</p>
-        </div>
+        <p className="text-sm text-gray-500">{deals.length} deals tracked</p>
         <div className="flex items-center gap-2">
           <ExportMenu
             label="Export"
@@ -132,10 +134,7 @@ export default function InvestmentPage() {
           </button>
         </div>
       </div>
-
       {creating && <DealForm />}
-
-      {/* Kanban board */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {STAGES.map((stage) => {
           const stageDeals = deals.filter((d) => d.stage === stage);
@@ -167,9 +166,7 @@ export default function InvestmentPage() {
                               <DollarSign className="w-3 h-3" />
                               {deal.ticketSize}
                             </div>
-                            {partner && (
-                              <p className="text-xs text-gray-400">{partner.name}</p>
-                            )}
+                            {partner && <p className="text-xs text-gray-400">{partner.name}</p>}
                             <div className="flex items-center gap-1 text-xs text-gray-400">
                               <Calendar className="w-3 h-3" />
                               {deal.dateAdded}
@@ -192,6 +189,50 @@ export default function InvestmentPage() {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+export default function InvestmentPage() {
+  const { canAccess } = useApp();
+  const [activeTab, setActiveTab] = useState<InvTab>('pipeline');
+
+  if (!canAccess('investment')) return <AccessRestricted tab="investment" />;
+
+  return (
+    <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-gray-900 mb-1">Investment</h1>
+        <p className="text-sm text-gray-500">Pipeline, memos, diligence and relationships</p>
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex gap-1 border-b border-gray-200 overflow-x-auto">
+        {TABS.map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              activeTab === key
+                ? 'border-[#1C4B42] text-[#1C4B42]'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Icon size={15} />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div>
+        {activeTab === 'pipeline'     && <PipelineView />}
+        {activeTab === 'ic_memos'     && <IcMemoBuilder />}
+        {activeTab === 'dd'           && <DdChecklist />}
+        {activeTab === 'co_investors' && <CoInvestorCrm />}
+        {activeTab === 'ref_checks'   && <ReferenceChecks />}
       </div>
     </main>
   );

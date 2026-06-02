@@ -8,6 +8,11 @@ import type {
   RoleName, TabName, Resource, Gap, TeamNote,
   DealStageConfig, KpiThresholds, HomepageConfig, FinanceConfig,
   CompanyTaxonomy, PortfolioSnapshotRow,
+  PortfolioUpdate, MeetingNote, Task, IcMemo, DdChecklist,
+  CapitalEvent, ValuationMark, FounderContact, CoInvestor,
+  ReferenceCheck, NewsItem, SigningDoc, CompanyHealth,
+  IntroRequest, LpCommunication, LpCommitment, FirmEvent,
+  ResearchDocument, FounderPortalAccess,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -65,6 +70,27 @@ interface AppContextValue {
   addTeamNote: (n: TeamNote) => void;
   updateTeamNote: (n: TeamNote) => void;
   deleteTeamNote: (id: string) => void;
+  // Features 1–20 CRUD helpers
+  addPortfolioUpdate: (x: PortfolioUpdate) => void;   updatePortfolioUpdate: (x: PortfolioUpdate) => void;   deletePortfolioUpdate: (id: string) => void;
+  addMeetingNote: (x: MeetingNote) => void;           updateMeetingNote: (x: MeetingNote) => void;           deleteMeetingNote: (id: string) => void;
+  addTask: (x: Task) => void;                         updateTask: (x: Task) => void;                         deleteTask: (id: string) => void;
+  addIcMemo: (x: IcMemo) => void;                     updateIcMemo: (x: IcMemo) => void;                     deleteIcMemo: (id: string) => void;
+  addDdChecklist: (x: DdChecklist) => void;           updateDdChecklist: (x: DdChecklist) => void;           deleteDdChecklist: (id: string) => void;
+  addCapitalEvent: (x: CapitalEvent) => void;         updateCapitalEvent: (x: CapitalEvent) => void;         deleteCapitalEvent: (id: string) => void;
+  addValuationMark: (x: ValuationMark) => void;       updateValuationMark: (x: ValuationMark) => void;       deleteValuationMark: (id: string) => void;
+  addFounderContact: (x: FounderContact) => void;     updateFounderContact: (x: FounderContact) => void;     deleteFounderContact: (id: string) => void;
+  addCoInvestor: (x: CoInvestor) => void;             updateCoInvestor: (x: CoInvestor) => void;             deleteCoInvestor: (id: string) => void;
+  addReferenceCheck: (x: ReferenceCheck) => void;     updateReferenceCheck: (x: ReferenceCheck) => void;     deleteReferenceCheck: (id: string) => void;
+  addNewsItem: (x: NewsItem) => void;                 updateNewsItem: (x: NewsItem) => void;                  deleteNewsItem: (id: string) => void;
+  addSigningDoc: (x: SigningDoc) => void;             updateSigningDoc: (x: SigningDoc) => void;             deleteSigningDoc: (id: string) => void;
+  addCompanyHealth: (x: CompanyHealth) => void;       updateCompanyHealth: (x: CompanyHealth) => void;       deleteCompanyHealth: (id: string) => void;
+  addIntroRequest: (x: IntroRequest) => void;         updateIntroRequest: (x: IntroRequest) => void;         deleteIntroRequest: (id: string) => void;
+  addLpCommunication: (x: LpCommunication) => void;  updateLpCommunication: (x: LpCommunication) => void;  deleteLpCommunication: (id: string) => void;
+  addLpCommitment: (x: LpCommitment) => void;        updateLpCommitment: (x: LpCommitment) => void;        deleteLpCommitment: (id: string) => void;
+  addFirmEvent: (x: FirmEvent) => void;               updateFirmEvent: (x: FirmEvent) => void;               deleteFirmEvent: (id: string) => void;
+  addResearchDoc: (x: ResearchDocument) => void;      updateResearchDoc: (x: ResearchDocument) => void;      deleteResearchDoc: (id: string) => void;
+  addFounderPortalAccess: (x: FounderPortalAccess) => void; updateFounderPortalAccess: (x: FounderPortalAccess) => void; deleteFounderPortalAccess: (id: string) => void;
+
   // Config sections
   updateDealStages: (stages: DealStageConfig[]) => void;
   updateKpiThresholds: (t: KpiThresholds) => void;
@@ -184,6 +210,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateTeamNote = (n: TeamNote)  => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).map(x => x.id === n.id ? n : x) }));
   const deleteTeamNote = (id: string)   => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).filter(x => x.id !== id) }));
 
+
+  // ── Features 1–20 implementations ───────────────────────────────────────
+  const addPortfolioUpdate  = (x: PortfolioUpdate) => setStore(s => ({ ...s, portfolioUpdates: [...(s.portfolioUpdates??[]), x] }));
+  const updatePortfolioUpdate  = (x: PortfolioUpdate) => setStore(s => ({ ...s, portfolioUpdates: (s.portfolioUpdates??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deletePortfolioUpdate = (id: string) => setStore(s => ({ ...s, portfolioUpdates: (s.portfolioUpdates??[]).filter((i:any)=>i.id!==id) }));
+  const addMeetingNote  = (x: MeetingNote) => setStore(s => ({ ...s, meetingNotes: [...(s.meetingNotes??[]), x] }));
+  const updateMeetingNote  = (x: MeetingNote) => setStore(s => ({ ...s, meetingNotes: (s.meetingNotes??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteMeetingNote = (id: string) => setStore(s => ({ ...s, meetingNotes: (s.meetingNotes??[]).filter((i:any)=>i.id!==id) }));
+  const addTask  = (x: Task) => setStore(s => ({ ...s, tasks: [...(s.tasks??[]), x] }));
+  const updateTask  = (x: Task) => setStore(s => ({ ...s, tasks: (s.tasks??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteTask = (id: string) => setStore(s => ({ ...s, tasks: (s.tasks??[]).filter((i:any)=>i.id!==id) }));
+  const addIcMemo  = (x: IcMemo) => setStore(s => ({ ...s, icMemos: [...(s.icMemos??[]), x] }));
+  const updateIcMemo  = (x: IcMemo) => setStore(s => ({ ...s, icMemos: (s.icMemos??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteIcMemo = (id: string) => setStore(s => ({ ...s, icMemos: (s.icMemos??[]).filter((i:any)=>i.id!==id) }));
+  const addDdChecklist  = (x: DdChecklist) => setStore(s => ({ ...s, ddChecklists: [...(s.ddChecklists??[]), x] }));
+  const updateDdChecklist  = (x: DdChecklist) => setStore(s => ({ ...s, ddChecklists: (s.ddChecklists??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteDdChecklist = (id: string) => setStore(s => ({ ...s, ddChecklists: (s.ddChecklists??[]).filter((i:any)=>i.id!==id) }));
+  const addCapitalEvent  = (x: CapitalEvent) => setStore(s => ({ ...s, capitalEvents: [...(s.capitalEvents??[]), x] }));
+  const updateCapitalEvent  = (x: CapitalEvent) => setStore(s => ({ ...s, capitalEvents: (s.capitalEvents??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteCapitalEvent = (id: string) => setStore(s => ({ ...s, capitalEvents: (s.capitalEvents??[]).filter((i:any)=>i.id!==id) }));
+  const addValuationMark  = (x: ValuationMark) => setStore(s => ({ ...s, valuationMarks: [...(s.valuationMarks??[]), x] }));
+  const updateValuationMark  = (x: ValuationMark) => setStore(s => ({ ...s, valuationMarks: (s.valuationMarks??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteValuationMark = (id: string) => setStore(s => ({ ...s, valuationMarks: (s.valuationMarks??[]).filter((i:any)=>i.id!==id) }));
+  const addFounderContact  = (x: FounderContact) => setStore(s => ({ ...s, founderContacts: [...(s.founderContacts??[]), x] }));
+  const updateFounderContact  = (x: FounderContact) => setStore(s => ({ ...s, founderContacts: (s.founderContacts??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteFounderContact = (id: string) => setStore(s => ({ ...s, founderContacts: (s.founderContacts??[]).filter((i:any)=>i.id!==id) }));
+  const addCoInvestor  = (x: CoInvestor) => setStore(s => ({ ...s, coInvestors: [...(s.coInvestors??[]), x] }));
+  const updateCoInvestor  = (x: CoInvestor) => setStore(s => ({ ...s, coInvestors: (s.coInvestors??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteCoInvestor = (id: string) => setStore(s => ({ ...s, coInvestors: (s.coInvestors??[]).filter((i:any)=>i.id!==id) }));
+  const addReferenceCheck  = (x: ReferenceCheck) => setStore(s => ({ ...s, referenceChecks: [...(s.referenceChecks??[]), x] }));
+  const updateReferenceCheck  = (x: ReferenceCheck) => setStore(s => ({ ...s, referenceChecks: (s.referenceChecks??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteReferenceCheck = (id: string) => setStore(s => ({ ...s, referenceChecks: (s.referenceChecks??[]).filter((i:any)=>i.id!==id) }));
+  const addNewsItem  = (x: NewsItem) => setStore(s => ({ ...s, newsItems: [...(s.newsItems??[]), x] }));
+  const updateNewsItem  = (x: NewsItem) => setStore(s => ({ ...s, newsItems: (s.newsItems??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteNewsItem = (id: string) => setStore(s => ({ ...s, newsItems: (s.newsItems??[]).filter((i:any)=>i.id!==id) }));
+  const addSigningDoc  = (x: SigningDoc) => setStore(s => ({ ...s, signingDocs: [...(s.signingDocs??[]), x] }));
+  const updateSigningDoc  = (x: SigningDoc) => setStore(s => ({ ...s, signingDocs: (s.signingDocs??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteSigningDoc = (id: string) => setStore(s => ({ ...s, signingDocs: (s.signingDocs??[]).filter((i:any)=>i.id!==id) }));
+  const addCompanyHealth  = (x: CompanyHealth) => setStore(s => ({ ...s, companyHealth: [...(s.companyHealth??[]), x] }));
+  const updateCompanyHealth  = (x: CompanyHealth) => setStore(s => ({ ...s, companyHealth: (s.companyHealth??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteCompanyHealth = (id: string) => setStore(s => ({ ...s, companyHealth: (s.companyHealth??[]).filter((i:any)=>i.id!==id) }));
+  const addIntroRequest  = (x: IntroRequest) => setStore(s => ({ ...s, introRequests: [...(s.introRequests??[]), x] }));
+  const updateIntroRequest  = (x: IntroRequest) => setStore(s => ({ ...s, introRequests: (s.introRequests??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteIntroRequest = (id: string) => setStore(s => ({ ...s, introRequests: (s.introRequests??[]).filter((i:any)=>i.id!==id) }));
+  const addLpCommunication  = (x: LpCommunication) => setStore(s => ({ ...s, lpCommunications: [...(s.lpCommunications??[]), x] }));
+  const updateLpCommunication  = (x: LpCommunication) => setStore(s => ({ ...s, lpCommunications: (s.lpCommunications??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteLpCommunication = (id: string) => setStore(s => ({ ...s, lpCommunications: (s.lpCommunications??[]).filter((i:any)=>i.id!==id) }));
+  const addLpCommitment  = (x: LpCommitment) => setStore(s => ({ ...s, lpCommitments: [...(s.lpCommitments??[]), x] }));
+  const updateLpCommitment  = (x: LpCommitment) => setStore(s => ({ ...s, lpCommitments: (s.lpCommitments??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteLpCommitment = (id: string) => setStore(s => ({ ...s, lpCommitments: (s.lpCommitments??[]).filter((i:any)=>i.id!==id) }));
+  const addFirmEvent  = (x: FirmEvent) => setStore(s => ({ ...s, firmEvents: [...(s.firmEvents??[]), x] }));
+  const updateFirmEvent  = (x: FirmEvent) => setStore(s => ({ ...s, firmEvents: (s.firmEvents??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteFirmEvent = (id: string) => setStore(s => ({ ...s, firmEvents: (s.firmEvents??[]).filter((i:any)=>i.id!==id) }));
+  const addResearchDoc  = (x: ResearchDocument) => setStore(s => ({ ...s, researchDocs: [...(s.researchDocs??[]), x] }));
+  const updateResearchDoc  = (x: ResearchDocument) => setStore(s => ({ ...s, researchDocs: (s.researchDocs??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteResearchDoc = (id: string) => setStore(s => ({ ...s, researchDocs: (s.researchDocs??[]).filter((i:any)=>i.id!==id) }));
+  const addFounderPortalAccess  = (x: FounderPortalAccess) => setStore(s => ({ ...s, founderPortalAccess: [...(s.founderPortalAccess??[]), x] }));
+  const updateFounderPortalAccess  = (x: FounderPortalAccess) => setStore(s => ({ ...s, founderPortalAccess: (s.founderPortalAccess??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteFounderPortalAccess = (id: string) => setStore(s => ({ ...s, founderPortalAccess: (s.founderPortalAccess??[]).filter((i:any)=>i.id!==id) }));
+
   // ── New config sections ──────────────────────────────────────────────────
   const updateDealStages       = (stages: DealStageConfig[])      => setStore(s => ({ ...s, dealStages: stages }));
   const updateKpiThresholds    = (t: KpiThresholds)               => setStore(s => ({ ...s, kpiThresholds: t }));
@@ -215,6 +301,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addResource, updateResource, deleteResource,
     addGap, updateGap, deleteGap,
     addTeamNote, updateTeamNote, deleteTeamNote,
+
+    // Features 1–20
+    addPortfolioUpdate, updatePortfolioUpdate, deletePortfolioUpdate,
+    addMeetingNote, updateMeetingNote, deleteMeetingNote,
+    addTask, updateTask, deleteTask,
+    addIcMemo, updateIcMemo, deleteIcMemo,
+    addDdChecklist, updateDdChecklist, deleteDdChecklist,
+    addCapitalEvent, updateCapitalEvent, deleteCapitalEvent,
+    addValuationMark, updateValuationMark, deleteValuationMark,
+    addFounderContact, updateFounderContact, deleteFounderContact,
+    addCoInvestor, updateCoInvestor, deleteCoInvestor,
+    addReferenceCheck, updateReferenceCheck, deleteReferenceCheck,
+    addNewsItem, updateNewsItem, deleteNewsItem,
+    addSigningDoc, updateSigningDoc, deleteSigningDoc,
+    addCompanyHealth, updateCompanyHealth, deleteCompanyHealth,
+    addIntroRequest, updateIntroRequest, deleteIntroRequest,
+    addLpCommunication, updateLpCommunication, deleteLpCommunication,
+    addLpCommitment, updateLpCommitment, deleteLpCommitment,
+    addFirmEvent, updateFirmEvent, deleteFirmEvent,
+    addResearchDoc, updateResearchDoc, deleteResearchDoc,
+    addFounderPortalAccess, updateFounderPortalAccess, deleteFounderPortalAccess,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,

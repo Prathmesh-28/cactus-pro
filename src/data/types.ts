@@ -169,7 +169,7 @@ export interface FundMetric {
 
 // ─── Roles & Permissions ─────────────────────────────────────────────────────
 
-export type TabName = 'portfolio' | 'finance' | 'investment' | 'admin' | 'toolkit' | 'workspace';
+export type TabName = 'portfolio' | 'finance' | 'investment' | 'admin' | 'toolkit' | 'workspace' | 'operations';
 
 export type RoleName = 'super_admin' | 'portfolio_team' | 'finance_team' | 'investment_team';
 
@@ -363,4 +363,377 @@ export interface AppStore {
   financeConfig: FinanceConfig;
   taxonomy: CompanyTaxonomy;
   portfolioSnapshot: PortfolioSnapshotRow[];
+  // ── Features 1–20 ───────────────────────────────────────────────────────
+  portfolioUpdates:    PortfolioUpdate[];
+  meetingNotes:        MeetingNote[];
+  tasks:               Task[];
+  icMemos:             IcMemo[];
+  ddChecklists:        DdChecklist[];
+  capitalEvents:       CapitalEvent[];
+  valuationMarks:      ValuationMark[];
+  founderContacts:     FounderContact[];
+  coInvestors:         CoInvestor[];
+  referenceChecks:     ReferenceCheck[];
+  newsItems:           NewsItem[];
+  signingDocs:         SigningDoc[];
+  companyHealth:       CompanyHealth[];
+  introRequests:       IntroRequest[];
+  lpCommunications:    LpCommunication[];
+  lpCommitments:       LpCommitment[];
+  firmEvents:          FirmEvent[];
+  researchDocs:        ResearchDocument[];
+  founderPortalAccess: FounderPortalAccess[];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FEATURES 1–20: NEW TYPES
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 1. Monthly Portfolio Updates ────────────────────────────────────────────
+export type UpdateStatus = 'draft' | 'submitted' | 'reviewed';
+export interface PortfolioUpdate {
+  id: string;
+  companyId: string;
+  month: string;                // "2025-06"
+  submittedBy: string;
+  status: UpdateStatus;
+  revenue: string;
+  burn: string;
+  cash: string;
+  headcount: number;
+  highlights: string;
+  challenges: string;
+  asks: string;
+  nextMonthGoals: string;
+  createdAt: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+}
+
+// ─── 2. Meeting Notes & Call Logs ────────────────────────────────────────────
+export type MeetingType = 'founder_call' | 'lp_meeting' | 'board_meeting' | 'co_investor' | 'intro' | 'internal' | 'other';
+export interface MeetingNote {
+  id: string;
+  companyId?: string;
+  title: string;
+  type: MeetingType;
+  date: string;
+  attendees: string[];
+  summary: string;
+  actionItems: Array<{ text: string; assignee: string; dueDate: string; done: boolean }>;
+  nextMeetingDate?: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+// ─── 3. Task Manager ─────────────────────────────────────────────────────────
+export type TaskStatus   = 'todo' | 'in_progress' | 'done';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  companyId?: string;
+  dealId?: string;
+  assignee: string;
+  dueDate: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  tags: string[];
+  linkedMeetingId?: string;
+  createdBy: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+// ─── 4. IC Memo ───────────────────────────────────────────────────────────────
+export type IcMemoStatus = 'draft' | 'under_review' | 'approved' | 'rejected';
+export interface IcMemo {
+  id: string;
+  companyId: string;
+  version: number;
+  status: IcMemoStatus;
+  roundName: string;
+  askAmount: string;
+  proposedValuation: string;
+  // Sections
+  executiveSummary: string;
+  companyBackground: string;
+  productDescription: string;
+  marketOpportunity: string;
+  businessModel: string;
+  tractionHighlights: string;
+  teamAssessment: string;
+  financialSummary: string;
+  competitiveLandscape: string;
+  investmentThesis: string;
+  keyRisks: string;
+  mitigants: string;
+  dealTerms: string;
+  recommendation: 'invest' | 'pass' | 'follow_up';
+  recommendationNote: string;
+  // Meta
+  preparedBy: string;
+  reviewedBy: string[];
+  icDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── 5. Due Diligence Checklist ───────────────────────────────────────────────
+export type DdItemStatus = 'pending' | 'in_progress' | 'complete' | 'na' | 'red_flag';
+export interface DdItem {
+  id: string;
+  category: string;
+  item: string;
+  status: DdItemStatus;
+  assignee: string;
+  note: string;
+  completedAt?: string;
+}
+export interface DdChecklist {
+  id: string;
+  dealId: string;
+  companyName: string;
+  items: DdItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── 6. Capital Calls & Distributions ────────────────────────────────────────
+export type CapEventType = 'capital_call' | 'distribution';
+export interface CapitalEvent {
+  id: string;
+  type: CapEventType;
+  noticeDate: string;
+  dueDate: string;
+  amount: string;
+  fund: string;
+  purpose: string;
+  status: 'draft' | 'sent' | 'partial' | 'complete';
+  lpReceipts: Array<{ lpId: string; amount: string; receivedAt?: string }>;
+  notes: string;
+  createdAt: string;
+}
+
+// ─── 7. Valuation Log ────────────────────────────────────────────────────────
+export interface ValuationMark {
+  id: string;
+  companyId: string;
+  quarter: string;         // "Q4 2024"
+  fmv: string;             // Fair Market Value
+  methodology: string;     // "Last round", "Revenue multiple", "DCF"
+  moicAtMark: number;
+  notes: string;
+  markedBy: string;
+  markedAt: string;
+}
+
+// ─── 8. Founder Directory ────────────────────────────────────────────────────
+export interface FounderContact {
+  id: string;
+  companyId: string;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  linkedInUrl: string;
+  twitterUrl: string;
+  birthday?: string;
+  location: string;
+  notes: string;
+  lastContactedAt?: string;
+  tags: string[];
+}
+
+// ─── 9. Co-investor CRM ──────────────────────────────────────────────────────
+export interface CoInvestor {
+  id: string;
+  firmName: string;
+  partnerName: string;
+  email: string;
+  phone: string;
+  linkedInUrl: string;
+  sectors: string[];
+  stages: string[];
+  checkSizeMin: string;
+  checkSizeMax: string;
+  geography: string;
+  warmth: 'hot' | 'warm' | 'cold' | 'unknown';
+  sharedDeals: string[];     // company names
+  notes: string;
+  lastInteractionAt?: string;
+  tags: string[];
+}
+
+// ─── 10. Reference Checks ────────────────────────────────────────────────────
+export type RefCheckSentiment = 'very_positive' | 'positive' | 'neutral' | 'negative' | 'very_negative';
+export interface ReferenceCheck {
+  id: string;
+  companyId: string;
+  subjectName: string;
+  subjectRole: string;
+  referentName: string;
+  referentRole: string;
+  referentCompany: string;
+  relationship: string;
+  date: string;
+  conductedBy: string;
+  sentiment: RefCheckSentiment;
+  strengthsNoted: string;
+  weaknessesNoted: string;
+  wouldWorkAgain: boolean;
+  rawNotes: string;
+}
+
+// ─── 11. News & Monitoring ───────────────────────────────────────────────────
+export interface NewsItem {
+  id: string;
+  companyId?: string;
+  title: string;
+  summary: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  sentiment: 'positive' | 'neutral' | 'negative' | 'unknown';
+  tags: string[];
+  isManuallyAdded: boolean;
+  addedBy?: string;
+  savedAt: string;
+}
+
+// ─── 12. Document Signing Workflow ───────────────────────────────────────────
+export type DocSignStatus = 'draft' | 'sent' | 'partially_signed' | 'signed' | 'expired' | 'cancelled';
+export interface SigningDoc {
+  id: string;
+  companyId?: string;
+  dealId?: string;
+  title: string;
+  type: 'term_sheet' | 'sha' | 'ssha' | 'investment_agreement' | 'nda' | 'other';
+  status: DocSignStatus;
+  sentDate?: string;
+  expiryDate?: string;
+  signatories: Array<{ name: string; email: string; role: string; signedAt?: string }>;
+  fileUrl?: string;
+  notes: string;
+  createdAt: string;
+}
+
+// ─── 13. Portfolio Health Dashboard ──────────────────────────────────────────
+export type HealthSignal = 'green' | 'amber' | 'red' | 'grey';
+export interface CompanyHealth {
+  id: string;
+  companyId: string;
+  quarter: string;
+  revenueGrowth: HealthSignal;
+  burn: HealthSignal;
+  teamRetention: HealthSignal;
+  productProgress: HealthSignal;
+  fundraising: HealthSignal;
+  overallSignal: HealthSignal;
+  notes: string;
+  reviewedBy: string;
+  reviewedAt: string;
+}
+
+// ─── 14. Intro Request Tracker ───────────────────────────────────────────────
+export type IntroStatus = 'requested' | 'intro_sent' | 'responded' | 'meeting_scheduled' | 'closed_won' | 'closed_lost';
+export interface IntroRequest {
+  id: string;
+  requestedBy: string;        // founder name / company
+  requestedByCompanyId?: string;
+  targetName: string;         // person they want intro to
+  targetRole: string;
+  targetCompany: string;
+  purpose: string;
+  status: IntroStatus;
+  assignedTo: string;         // team member handling it
+  introducedVia?: string;     // who made the intro
+  requestDate: string;
+  closedDate?: string;
+  notes: string;
+}
+
+// ─── 15. LP Communication Hub ────────────────────────────────────────────────
+export type LpCommType = 'quarterly_update' | 'capital_call_notice' | 'distribution_notice' | 'annual_report' | 'ad_hoc';
+export interface LpCommunication {
+  id: string;
+  type: LpCommType;
+  subject: string;
+  body: string;
+  attachmentUrls: string[];
+  targetLpIds: string[];     // 'all' or specific LP ids
+  sentAt?: string;
+  sentBy?: string;
+  status: 'draft' | 'sent';
+  openCount: number;
+  createdAt: string;
+}
+
+// ─── 16. Fund Closing Tracker ────────────────────────────────────────────────
+export type ClosingStatus = 'targeted' | 'soft_circled' | 'lpa_sent' | 'lpa_signed' | 'funded' | 'declined';
+export interface LpCommitment {
+  id: string;
+  fund: string;
+  lpName: string;
+  lpEmail: string;
+  targetCommitment: string;
+  softCircledAmount: string;
+  signedAmount: string;
+  calledAmount: string;
+  status: ClosingStatus;
+  lpaSentDate?: string;
+  lpaSignedDate?: string;
+  firstCloseDate?: string;
+  notes: string;
+  leadPartner: string;
+}
+
+// ─── 17. Event Calendar ──────────────────────────────────────────────────────
+export type EventType = 'board_meeting' | 'lp_meeting' | 'demo_day' | 'conference' | 'team_offsite' | 'founder_meeting' | 'ic_meeting' | 'other';
+export interface FirmEvent {
+  id: string;
+  title: string;
+  type: EventType;
+  date: string;
+  endDate?: string;
+  time?: string;
+  location: string;
+  isVirtual: boolean;
+  meetingLink?: string;
+  companyId?: string;
+  attendees: string[];
+  agenda: string;
+  notes: string;
+  reminderDays: number;
+  createdBy: string;
+  createdAt: string;
+}
+
+// ─── 18. Sector Research Library ─────────────────────────────────────────────
+export interface ResearchDocument {
+  id: string;
+  title: string;
+  sectorId?: string;
+  type: 'market_map' | 'thesis' | 'report' | 'article' | 'deck' | 'model' | 'other';
+  source: string;
+  url?: string;
+  fileUrl?: string;
+  summary: string;
+  tags: string[];
+  addedBy: string;
+  addedAt: string;
+  isFeatured: boolean;
+}
+
+// ─── 19. Founder Portal Submissions ──────────────────────────────────────────
+export interface FounderPortalAccess {
+  id: string;
+  companyId: string;
+  founderEmail: string;
+  founderName: string;
+  isActive: boolean;
+  lastLoginAt?: string;
+  invitedAt: string;
+  invitedBy: string;
 }

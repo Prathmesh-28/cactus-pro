@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
-import { LayoutDashboard, Receipt, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target } from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
@@ -10,13 +10,21 @@ import { Toaster } from 'sonner';
 import FundOverviewPage from './FundOverviewPage';
 import ExpensesPage from './ExpensesPage';
 import CompliancesPage from './CompliancesPage';
+import CapitalCallTracker from './CapitalCallTracker';
+import ValuationLog from './ValuationLog';
+import LpCommHub from './LpCommHub';
+import FundClosingTracker from './FundClosingTracker';
 
-type FinanceTab = 'overview' | 'expenses' | 'compliances';
+type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing';
 
 const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'overview',     label: 'Fund Overview', Icon: LayoutDashboard },
-  { key: 'expenses',     label: 'Expenses',       Icon: Receipt },
-  { key: 'compliances',  label: 'Compliances',    Icon: CalendarCheck },
+  { key: 'overview',      label: 'Fund Overview',   Icon: LayoutDashboard },
+  { key: 'expenses',      label: 'Expenses',         Icon: Receipt },
+  { key: 'compliances',   label: 'Compliances',      Icon: CalendarCheck },
+  { key: 'capital_calls', label: 'Capital Calls',    Icon: PhoneCall },
+  { key: 'valuations',    label: 'Valuation Log',    Icon: TrendingUp },
+  { key: 'lp_comms',      label: 'LP Comms',         Icon: Mail },
+  { key: 'fund_closing',  label: 'Fund Closing',     Icon: Target },
 ];
 
 function FinanceExportMenu() {
@@ -129,9 +137,13 @@ export default function FinancePage() {
 
         {/* Content */}
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pb-16 md:pb-0">
-          {activeTab === 'overview'     && <FundOverviewPage />}
-          {activeTab === 'expenses'     && <ExpensesPage />}
-          {activeTab === 'compliances'  && <CompliancesPage />}
+          {activeTab === 'overview'      && <FundOverviewPage />}
+          {activeTab === 'expenses'      && <ExpensesPage />}
+          {activeTab === 'compliances'   && <CompliancesPage />}
+          {activeTab === 'capital_calls' && <div className="p-6"><CapitalCallTracker /></div>}
+          {activeTab === 'valuations'    && <div className="p-6"><ValuationLog /></div>}
+          {activeTab === 'lp_comms'      && <div className="p-6"><LpCommHub /></div>}
+          {activeTab === 'fund_closing'  && <div className="p-6"><FundClosingTracker /></div>}
         </div>
       </div>
     </FundProvider>

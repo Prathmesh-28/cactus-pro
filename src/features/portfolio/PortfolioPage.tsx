@@ -11,11 +11,27 @@ import AccessRestricted from '../../components/layout/AccessRestricted';
 import {
   Building2, Search, TrendingUp, TrendingDown, Minus,
   ChevronUp, ChevronDown, BarChart2, Layers, LayoutList, CalendarDays,
+  Users, Activity, Newspaper, BookOpen, Globe,
 } from 'lucide-react';
 import { exportToCSV } from '../../lib/utils';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportPortfolioPDF, exportPortfolioExcel } from '../../lib/export';
 import type { PortfolioCompany } from '../../data/types';
+import FounderDirectory from './FounderDirectory';
+import HealthDashboard from './HealthDashboard';
+import NewsFeed from './NewsFeed';
+import ResearchLibrary from './ResearchLibrary';
+import FounderPortalManager from './FounderPortalManager';
+
+type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal';
+const PORTFOLIO_TABS: { key: PortfolioTab; label: string; Icon: React.ElementType }[] = [
+  { key: 'companies', label: 'Companies',        Icon: Building2 },
+  { key: 'founders',  label: 'Founder Directory', Icon: Users },
+  { key: 'health',    label: 'Health Dashboard',  Icon: Activity },
+  { key: 'news',      label: 'News Feed',          Icon: Newspaper },
+  { key: 'research',  label: 'Research Library',  Icon: BookOpen },
+  { key: 'portal',    label: 'Founder Portal',    Icon: Globe },
+];
 
 type SortKey = keyof Pick<PortfolioCompany, 'name' | 'stage' | 'cactusInvestment' | 'currentValuation' | 'moic' | 'irr' | 'status'>;
 type SortDir = 'asc' | 'desc';
@@ -23,6 +39,7 @@ type ViewMode = 'table' | 'operational';
 
 export default function PortfolioPage() {
   const { store, canAccess, canExport } = useApp();
+  const [activePortfolioTab, setActivePortfolioTab] = useState<PortfolioTab>('companies');
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCompany, setSelectedCompany] = useState<PortfolioCompany | null>(null);
   const [search, setSearch] = useState('');
@@ -116,7 +133,34 @@ export default function PortfolioPage() {
   };
 
   return (
-    <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      {/* Portfolio tab bar */}
+      <div className="flex gap-1 border-b border-gray-200 overflow-x-auto">
+        {PORTFOLIO_TABS.map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            onClick={() => setActivePortfolioTab(key)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              activePortfolioTab === key
+                ? 'border-[#1C4B42] text-[#1C4B42]'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Icon size={15} />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Non-companies tabs */}
+      {activePortfolioTab === 'founders'  && <FounderDirectory />}
+      {activePortfolioTab === 'health'    && <HealthDashboard />}
+      {activePortfolioTab === 'news'      && <NewsFeed />}
+      {activePortfolioTab === 'research'  && <ResearchLibrary />}
+      {activePortfolioTab === 'portal'    && <FounderPortalManager />}
+
+      {/* Companies tab — existing content */}
+      {activePortfolioTab === 'companies' && <div className="space-y-8">
 
       {/* ══════════════════════════════════════════════════════════════════════
           SECTION 1 — PORTFOLIO KEY METRICS
@@ -441,6 +485,7 @@ export default function PortfolioPage() {
           allCompanies={store.companies.map(c => ({ id: c.id, name: c.name }))}
         />
       </section>
+      </div>}
     </main>
   );
 }
