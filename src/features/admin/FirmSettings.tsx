@@ -1,13 +1,38 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Upload, ImageIcon, Trash2 } from 'lucide-react';
 import type { FirmConfig } from '../../data/types';
+
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+async function uploadFirmLogo(file: File): Promise<string | null> {
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch(`${BASE}/api/files/firm-logo`, { method: 'POST', body: fd });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return `${BASE}/api/files/download/${data.id}`;
+  } catch { return null; }
+}
 
 export default function FirmSettings() {
   const { store, updateFirm } = useApp();
   const [form, setForm] = useState<FirmConfig>({ ...store.firm });
   const [newLocation, setNewLocation] = useState('');
   const [saved, setSaved] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    const url = await uploadFirmLogo(file);
+    if (url) { setForm(f => ({ ...f, logoUrl: url })); setSaved(false); }
+    setLogoUploading(false);
+    if (logoRef.current) logoRef.current.value = '';
+  };
 
   const handleChange = (field: keyof FirmConfig, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -49,10 +74,51 @@ export default function FirmSettings() {
           <label className="block text-xs font-medium text-gray-600 mb-1">Tagline</label>
           <input className={inputCls} value={form.tagline} onChange={(e) => handleChange('tagline', e.target.value)} />
         </div>
-        {/* Logo URL */}
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Logo URL</label>
-          <input className={inputCls} value={form.logoUrl} onChange={(e) => handleChange('logoUrl', e.target.value)} placeholder="https://..." />
+        {/* Logo upload */}
+        <div className="sm:col-span-2">
+          <label className="block text-xs font-medium text-gray-600 mb-2">Firm Logo</label>
+          <div className="flex items-start gap-4">
+            {/* Preview */}
+            <div className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+              {form.logoUrl
+                ? <img src={form.logoUrl} alt="Firm logo" className="w-full h-full object-contain p-2" />
+                : <ImageIcon className="w-8 h-8 text-gray-300" />}
+            </div>
+            <div className="flex-1 space-y-2">
+              {/* Upload button */}
+              <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={handleLogoUpload} />
+              <button
+                onClick={() => logoRef.current?.click()}
+                disabled={logoUploading}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border-2 border-dashed border-gray-200 text-gray-600 hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                <Upload className="w-4 h-4" />
+                {logoUploading ? 'Uploading…' : 'Upload logo from computer'}
+              </button>
+              <p className="text-[11px] text-gray-400 text-center">PNG, JPG, SVG or WebP · max 20 MB</p>
+              {/* URL fallback */}
+              <div className="flex gap-2">
+                <input
+                  className={inputCls + ' flex-1 text-xs'}
+                  value={form.logoUrl}
+                  onChange={(e) => handleChange('logoUrl', e.target.value)}
+                  placeholder="or paste a public image URL"
+                />
+                {form.logoUrl && (
+                  <button
+                    onClick={() => { handleChange('logoUrl', ''); setSaved(false); }}
+                    className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 shrink-0"
+                    title="Remove logo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-gray-400">
+                Appears in: <span className="font-medium text-gray-600">Header · Homepage · Footer · CompanyDrawer header</span>
+              </p>
+            </div>
+          </div>
         </div>
         {/* Website */}
         <div>
