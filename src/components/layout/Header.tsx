@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Bell, Menu, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import RoleSwitcher from './RoleSwitcher';
+import GlobalSearch from '../ui/GlobalSearch';
 import type { TabName } from '../../data/types';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
@@ -103,6 +104,9 @@ export default function Header() {
                   <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#86CA0F' }} />
                 </button>
               )}
+
+              {/* Global Search */}
+              <GlobalSearch />
 
               {/* Role switcher */}
               <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400 border border-gray-100 rounded-lg px-2 py-1.5">
