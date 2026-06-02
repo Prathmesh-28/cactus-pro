@@ -8,8 +8,8 @@ import type {
   PortfolioCompany, CompanyStage, CompanyStatus,
   FundingRound, FinancialYear, CapTableEntry, Patent, CompanyKeyPerson,
 } from '../../data/types';
-import SectorPill from '../ui/SectorPill';
-import StatusBadge from '../ui/StatusBadge';
+import SectorPill from '../../components/ui/SectorPill';
+import StatusBadge from '../../components/ui/StatusBadge';
 
 // ─── Empty templates ──────────────────────────────────────────────────────────
 

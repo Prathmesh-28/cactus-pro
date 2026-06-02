@@ -5,9 +5,9 @@ import {
   MessageSquare, ChevronDown, ChevronUp, Search, Tag, Filter,
   BookOpen, Wrench, Users, Mail, Star,
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import type { Resource, ResourceType, Gap, GapStatus, GapPriority, GapCategory } from '../data/types';
-import { cn } from '../lib/utils';
+import { useApp } from '../../context/AppContext';
+import type { Resource, ResourceType, Gap, GapStatus, GapPriority, GapCategory } from '../../data/types';
+import { cn } from '../../lib/utils';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

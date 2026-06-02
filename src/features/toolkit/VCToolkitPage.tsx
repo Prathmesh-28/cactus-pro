@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Wrench, Building2, Rocket, BarChart2, TrendingUp, Calculator, Globe, Activity, DoorOpen, ChevronRight, Sparkles } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../../lib/utils';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 

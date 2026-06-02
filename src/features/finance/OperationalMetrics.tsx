@@ -6,8 +6,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { PortfolioCompany } from '../../data/types';
-import SectorPill from './SectorPill';
-import StatusBadge from './StatusBadge';
+import SectorPill from '../../components/ui/SectorPill';
+import StatusBadge from '../../components/ui/StatusBadge';
 
 interface Props {
   companies: PortfolioCompany[];

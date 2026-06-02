@@ -1,6 +1,6 @@
-import { useApp } from '../context/AppContext';
-import AccessRestricted from '../components/layout/AccessRestricted';
-import MetricCard from '../components/ui/MetricCard';
+import { useApp } from '../../context/AppContext';
+import AccessRestricted from '../../components/layout/AccessRestricted';
+import MetricCard from './MetricCard';
 import {
   AreaChart,
   Area,

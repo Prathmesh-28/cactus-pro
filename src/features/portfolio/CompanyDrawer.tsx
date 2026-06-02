@@ -16,9 +16,9 @@ import {
 } from 'recharts';
 import { useApp } from '../../context/AppContext';
 import type { PortfolioCompany } from '../../data/types';
-import SectorPill from './SectorPill';
-import StatusBadge from './StatusBadge';
-import AvatarChip from './AvatarChip';
+import SectorPill from '../../components/ui/SectorPill';
+import StatusBadge from '../../components/ui/StatusBadge';
+import AvatarChip from '../../components/ui/AvatarChip';
 
 interface Props {
   company: PortfolioCompany | null;

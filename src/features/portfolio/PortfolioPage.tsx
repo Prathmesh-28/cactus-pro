@@ -1,17 +1,17 @@
 import { useState, useMemo } from 'react';
-import { useApp } from '../context/AppContext';
-import MetricCard from '../components/ui/MetricCard';
-import SectorPill from '../components/ui/SectorPill';
-import StatusBadge from '../components/ui/StatusBadge';
-import CompanyDrawer from '../components/ui/CompanyDrawer';
-import OperationalMetrics from '../components/ui/OperationalMetrics';
-import AccessRestricted from '../components/layout/AccessRestricted';
+import { useApp } from '../../context/AppContext';
+import MetricCard from '../finance/MetricCard';
+import SectorPill from '../../components/ui/SectorPill';
+import StatusBadge from '../../components/ui/StatusBadge';
+import CompanyDrawer from './CompanyDrawer';
+import OperationalMetrics from '../finance/OperationalMetrics';
+import AccessRestricted from '../../components/layout/AccessRestricted';
 import {
   Building2, Search, Download, TrendingUp, TrendingDown, Minus,
   ChevronUp, ChevronDown, BarChart2, Layers, LayoutList,
 } from 'lucide-react';
-import { exportToCSV } from '../lib/utils';
-import type { PortfolioCompany } from '../data/types';
+import { exportToCSV } from '../../lib/utils';
+import type { PortfolioCompany } from '../../data/types';
 
 type SortKey = keyof Pick<PortfolioCompany, 'name' | 'stage' | 'cactusInvestment' | 'currentValuation' | 'moic' | 'irr' | 'status'>;
 type SortDir = 'asc' | 'desc';

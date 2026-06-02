@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import AccessRestricted from '../components/layout/AccessRestricted';
-import SectorPill from '../components/ui/SectorPill';
+import { useApp } from '../../context/AppContext';
+import AccessRestricted from '../../components/layout/AccessRestricted';
+import SectorPill from '../../components/ui/SectorPill';
 import { Plus, Pencil, Trash2, X, Check, Calendar, DollarSign } from 'lucide-react';
-import { generateId } from '../lib/utils';
-import type { Deal, DealStage } from '../data/types';
+import { generateId } from '../../lib/utils';
+import type { Deal, DealStage } from '../../data/types';
 
 const STAGES: DealStage[] = [
   'Sourcing',

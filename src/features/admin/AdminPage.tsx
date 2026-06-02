@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import AccessRestricted from '../components/layout/AccessRestricted';
-import FirmSettings from '../components/admin/FirmSettings';
-import CompanyManager from '../components/admin/CompanyManager';
-import PeopleManager from '../components/admin/PeopleManager';
-import SectorManager from '../components/admin/SectorManager';
-import MetricsManager from '../components/admin/MetricsManager';
-import PermissionsManager from '../components/admin/PermissionsManager';
-import AnnouncementManager from '../components/admin/AnnouncementManager';
+import { useApp } from '../../context/AppContext';
+import AccessRestricted from '../../components/layout/AccessRestricted';
+import FirmSettings from './FirmSettings';
+import CompanyManager from './CompanyManager';
+import PeopleManager from './PeopleManager';
+import SectorManager from './SectorManager';
+import MetricsManager from './MetricsManager';
+import PermissionsManager from './PermissionsManager';
+import AnnouncementManager from './AnnouncementManager';
 import {
   Settings,
   Building2,
@@ -18,7 +18,7 @@ import {
   Bell,
   RotateCcw,
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '../../lib/utils';
 
 type AdminTab =
   | 'firm'

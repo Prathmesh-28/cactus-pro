@@ -3,12 +3,12 @@ import { AppProvider } from './context/AppContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
-import PortfolioPage from './pages/PortfolioPage';
-import FinancePage from './pages/FinancePage';
-import InvestmentPage from './pages/InvestmentPage';
-import AdminPage from './pages/AdminPage';
-import VCToolkitPage from './pages/VCToolkitPage';
-import WorkspacePage from './pages/WorkspacePage';
+import PortfolioPage from './features/portfolio/PortfolioPage';
+import FinancePage from './features/finance/FinancePage';
+import InvestmentPage from './features/investment/InvestmentPage';
+import AdminPage from './features/admin/AdminPage';
+import VCToolkitPage from './features/toolkit/VCToolkitPage';
+import WorkspacePage from './features/workspace/WorkspacePage';
 
 function AppShell() {
   const location = useLocation();
