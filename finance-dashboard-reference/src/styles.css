@@ -1,0 +1,154 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+@theme inline {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "Times New Roman", Times, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-gold: var(--gold);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Monochrome Green palette */
+  --background: #F0F7E6;
+  --foreground: #1A1A1A;
+
+  --card: #ffffff;
+  --card-foreground: #1A1A1A;
+
+  --popover: #ffffff;
+  --popover-foreground: #1A1A1A;
+
+  --primary: #5A9E1B;
+  --primary-foreground: #ffffff;
+
+  --secondary: #e8f5d0;
+  --secondary-foreground: #3B6D11;
+
+  --muted: #e8f5d0;
+  --muted-foreground: #5a7a3a;
+
+  --accent: #5A9E1B;
+  --accent-foreground: #ffffff;
+
+  --destructive: oklch(0.55 0.21 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: #5A9E1B;
+  --success-foreground: #ffffff;
+
+  --warning: oklch(0.72 0.15 70);
+  --warning-foreground: oklch(0.2 0.05 60);
+
+  --gold: #6ba832;
+
+  --border: #D4EDAA;
+  --input: #D4EDAA;
+  --ring: #5A9E1B;
+
+  /* Sidebar */
+  --sidebar: #8DC63F;
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: rgba(255,255,255,0.25);
+  --sidebar-border: #D4EDAA;
+
+  /* Gradients & shadows */
+  --gradient-primary: linear-gradient(135deg, #3B6D11, #3B6D11);
+  --gradient-accent: linear-gradient(135deg, #5A9E1B, #3B6D11);
+  --shadow-card: 0 1px 2px 0 rgb(59 109 17 / 0.06), 0 4px 16px -4px rgb(59 109 17 / 0.10);
+  --shadow-elevated: 0 8px 32px -8px rgb(59 109 17 / 0.20);
+}
+
+.dark {
+  --background: oklch(0.13 0.03 260);
+  --foreground: oklch(0.96 0.01 240);
+  --card: oklch(0.18 0.04 260);
+  --card-foreground: oklch(0.96 0.01 240);
+  --popover: oklch(0.18 0.04 260);
+  --popover-foreground: oklch(0.96 0.01 240);
+  --primary: oklch(0.92 0.015 240);
+  --primary-foreground: oklch(0.18 0.04 260);
+  --secondary: oklch(0.25 0.04 260);
+  --secondary-foreground: oklch(0.96 0.01 240);
+  --muted: oklch(0.25 0.04 260);
+  --muted-foreground: oklch(0.7 0.025 250);
+  --accent: oklch(0.6 0.13 250);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.55 0.11 250);
+  --sidebar: oklch(0.16 0.04 260);
+  --sidebar-foreground: oklch(0.92 0.015 240);
+  --sidebar-accent: oklch(0.55 0.11 250);
+  --sidebar-border: oklch(1 0 0 / 8%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  thead th {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #6ba832;
+  }
+  .font-numeric {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  [data-slot="card"] {
+    border-width: 0.5px;
+    border-color: #D4EDAA;
+  }
+}
