@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
-  Pencil, Trash2, Plus, X, ChevronDown, ChevronUp, Check,
+  Pencil, Trash2, Plus, X, ChevronDown, ChevronUp, Check, Upload, ImageIcon,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
@@ -10,6 +10,19 @@ import type {
 } from '../../data/types';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
+
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+async function uploadLogoFile(companyId: string, file: File): Promise<string | null> {
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch(`${BASE}/api/files/${companyId || 'logos'}`, { method: 'POST', body: fd });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return `${BASE}/api/files/download/${data.id}`;
+  } catch { return null; }
+}
 
 // ─── Empty templates ──────────────────────────────────────────────────────────
 
@@ -113,9 +126,21 @@ function CompanyForm({ company, onSave, onCancel }: {
   const [form, setForm] = useState<Omit<PortfolioCompany, 'id'>>(
     company ? { ...company } : { ...EMPTY_COMPANY, sectorId: store.sectors[0]?.id ?? '' }
   );
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const set = <K extends keyof typeof form>(k: K, v: typeof form[K]) =>
     setForm(f => ({ ...f, [k]: v }));
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    const url = await uploadLogoFile(company?.id ?? 'new', file);
+    if (url) set('logoUrl', url);
+    setLogoUploading(false);
+    if (logoInputRef.current) logoInputRef.current.value = '';
+  };
 
   // ── Funding Rounds ──────────────────────────────────────────────────────────
   const [newRound, setNewRound] = useState<FundingRound>(EMPTY_ROUND);
@@ -150,7 +175,35 @@ function CompanyForm({ company, onSave, onCancel }: {
       <Accordion title="Basic Info" defaultOpen>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Company Name *"><input className={ic} value={form.name} onChange={e => set('name', e.target.value)} /></Field>
-          <Field label="Logo URL"><input className={ic} value={form.logoUrl} onChange={e => set('logoUrl', e.target.value)} placeholder="https://..." /></Field>
+
+          {/* Logo editor */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Company Logo</label>
+            <div className="flex items-center gap-3">
+              {/* Preview */}
+              <div className="w-14 h-14 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+                {form.logoUrl
+                  ? <img src={form.logoUrl} alt="logo" className="w-full h-full object-contain p-1" />
+                  : <ImageIcon className="w-6 h-6 text-gray-300" />}
+              </div>
+              <div className="flex-1 space-y-1.5">
+                {/* Upload button */}
+                <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={handleLogoUpload} />
+                <button type="button" onClick={() => logoInputRef.current?.click()} disabled={logoUploading}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+                  <Upload className="w-3.5 h-3.5" />
+                  {logoUploading ? 'Uploading…' : 'Upload from computer'}
+                </button>
+                {/* URL input */}
+                <input className={ic + ' text-xs'} value={form.logoUrl} onChange={e => set('logoUrl', e.target.value)}
+                  placeholder="or paste image URL" />
+                {form.logoUrl && (
+                  <button type="button" onClick={() => set('logoUrl', '')}
+                    className="text-[10px] text-red-400 hover:text-red-600">Remove logo</button>
+                )}
+              </div>
+            </div>
+          </div>
           <Field label="Sector">
             <select className={ic} value={form.sectorId} onChange={e => set('sectorId', e.target.value)}>
               {store.sectors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
