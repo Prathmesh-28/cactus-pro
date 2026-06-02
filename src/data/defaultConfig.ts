@@ -74,7 +74,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c3',
       name: 'Lohum',
-      logoUrl: '',
+      logoUrl: '/logos/lohum.png',
       sectorId: 's3',
       stage: 'Series B',
       status: 'Active',
@@ -165,7 +165,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c1',
       name: 'Bellatrix Aerospace',
-      logoUrl: '',
+      logoUrl: '/logos/bellatrix.png',
       sectorId: 's1',
       stage: 'Series A',
       status: 'Active',
@@ -248,7 +248,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c2',
       name: 'Showroom B2B',
-      logoUrl: '',
+      logoUrl: '/logos/showroomb2b.png',
       sectorId: 's2',
       stage: 'Series A',
       status: 'Active',
@@ -322,7 +322,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c4',
       name: 'Indigrid Technology',
-      logoUrl: '',
+      logoUrl: '/logos/indigrid.png',
       sectorId: 's5',
       stage: 'Series A',
       status: 'Active',
@@ -400,7 +400,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c5',
       name: 'Brandworks Technologies',
-      logoUrl: '',
+      logoUrl: '/logos/brandworks.png',
       sectorId: 's4',
       stage: 'Series A',
       status: 'Active',
@@ -470,7 +470,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c6',
       name: 'Intangles',
-      logoUrl: '',
+      logoUrl: '/logos/intangles.png',
       sectorId: 's5',
       stage: 'Series B',
       status: 'Active',
@@ -554,7 +554,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c7',
       name: 'Kapture CRM',
-      logoUrl: '',
+      logoUrl: '/logos/kapture.png',
       sectorId: 's6',
       stage: 'Series A',
       status: 'Active',
@@ -630,7 +630,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c8',
       name: 'Auric',
-      logoUrl: '',
+      logoUrl: '/logos/auric.png',
       sectorId: 's7',
       stage: 'Seed',
       status: 'Active',
@@ -711,7 +711,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c9',
       name: 'AMPM',
-      logoUrl: '',
+      logoUrl: '/logos/ampm.png',
       sectorId: 's8',
       stage: 'Seed',
       status: 'Active',
@@ -782,7 +782,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c10',
       name: 'Ananant Systems',
-      logoUrl: '',
+      logoUrl: '/logos/ananant.png',
       sectorId: 's9',
       stage: 'Seed',
       status: 'Active',
@@ -855,7 +855,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c11',
       name: 'Vitraya',
-      logoUrl: '',
+      logoUrl: '/logos/vitraya.png',
       sectorId: 's10',
       stage: 'Series A',
       status: 'Active',
@@ -929,7 +929,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c12',
       name: 'ParkMate',
-      logoUrl: '',
+      logoUrl: '/logos/parkmate.png',
       sectorId: 's5',
       stage: 'Seed',
       status: 'Active',
@@ -990,7 +990,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c13',
       name: 'Rubix',
-      logoUrl: '',
+      logoUrl: '/logos/rubix.png',
       sectorId: 's11',
       stage: 'Exited',
       status: 'Exited',
