@@ -307,30 +307,28 @@ export default function SyncManager() {
       )}
 
       {/* Storage explanation */}
-      <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 space-y-2">
-        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Where your data is stored</p>
+      <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 space-y-2">
+        <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Where your data is stored</p>
         <div className="space-y-1.5 text-xs text-gray-600">
-          <div className="flex justify-between gap-4 py-1 border-b border-gray-100">
-            <span className="font-medium">Portfolio companies, valuations, financials</span>
-            <span className="text-amber-600 shrink-0">defaultConfig.ts (code)</span>
-          </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-gray-100">
-            <span className="font-medium">Internal notes</span>
-            <span className="text-emerald-600 shrink-0">PostgreSQL ✓</span>
-          </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-gray-100">
-            <span className="font-medium">File uploads (PDFs, docs)</span>
-            <span className="text-emerald-600 shrink-0">PostgreSQL ✓</span>
-          </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-gray-100">
-            <span className="font-medium">Finance data (after sync)</span>
-            <span className="text-emerald-600 shrink-0">PostgreSQL ✓</span>
-          </div>
-          <div className="flex justify-between gap-4 py-1">
-            <span className="font-medium">Finance data (before first sync)</span>
-            <span className="text-orange-500 shrink-0">Browser only ⚠</span>
-          </div>
+          {[
+            'Portfolio companies, valuations, financials',
+            'Internal notes',
+            'File uploads (PDFs, docs)',
+            'Finance metrics & expense tables',
+            'Compliance calendar events',
+            'Deals pipeline',
+            'LP data & cash flows',
+            'SharePoint synced data',
+          ].map(item => (
+            <div key={item} className="flex justify-between gap-4 py-1 border-b border-emerald-100 last:border-0">
+              <span className="font-medium">{item}</span>
+              <span className="text-emerald-600 shrink-0 font-semibold">PostgreSQL ✓</span>
+            </div>
+          ))}
         </div>
+        <p className="text-[11px] text-emerald-600 mt-2">
+          All data is shared across all users and devices. Changes made in Admin are saved automatically.
+        </p>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Pencil, Trash2, Plus, X, Building2, ChevronDown, ChevronUp, Check,
+  Pencil, Trash2, Plus, X, ChevronDown, ChevronUp, Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
@@ -569,10 +569,16 @@ export default function CompanyManager() {
       <div className="space-y-2">
         {filtered.map(c => (
           <div key={c.id} className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50">
-            <div className="w-10 h-10 rounded-lg border border-gray-100 bg-gray-50 flex items-center justify-center flex-shrink-0">
+            {/* Logo — larger, prominent */}
+            <div className="w-14 h-14 rounded-xl border border-gray-100 bg-white flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-1">
               {c.logoUrl
-                ? <img src={c.logoUrl} alt={c.name} className="w-8 h-8 object-contain" />
-                : <Building2 className="w-5 h-5 text-gray-300" />}
+                ? <img src={c.logoUrl} alt={c.name} className="w-full h-full object-contain" />
+                : (
+                  <div className="w-full h-full rounded-lg flex items-center justify-center text-white text-sm font-bold"
+                    style={{ background: 'linear-gradient(135deg,#3B6D11,#5A9E1B)' }}>
+                    {c.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
+                  </div>
+                )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -581,11 +587,14 @@ export default function CompanyManager() {
                 <StatusBadge status={c.status} />
                 <span className="text-xs text-gray-400">{c.stage}</span>
               </div>
-              <div className="flex gap-3 mt-0.5 text-xs text-gray-400">
+              <div className="flex gap-3 mt-0.5 text-xs text-gray-400 flex-wrap">
                 <span>{c.ceoName}</span>
                 {c.revenue && <span>Rev: {c.revenue}</span>}
+                {c.currentValuation && <span>Val: {c.currentValuation}</span>}
                 {c.ownershipPct > 0 && <span>{c.ownershipPct}% Cactus</span>}
-                <span>{c.fundingRounds.length} rounds · {c.financialHistory.length} FY · {c.capTable.length} cap entries · {c.keyPeople.length} leaders</span>
+                <span className="text-gray-300">
+                  {c.fundingRounds.length} rounds · {c.financialHistory.length} FY · {c.capTable.length} cap · {c.keyPeople.length} leaders
+                </span>
               </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">

@@ -1,299 +1,199 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { defaultConfig } from '../data/defaultConfig';
+import { kvGet, kvSet } from '../lib/api';
 import type {
-  AppStore,
-  FirmConfig,
-  Sector,
-  Person,
-  PortfolioCompany,
-  FundMetric,
-  RolePermissions,
-  Announcement,
-  Deal,
-  LP,
-  CashFlowPoint,
-  RoleName,
-  TabName,
-  Resource,
-  Gap,
-  TeamNote,
+  AppStore, FirmConfig, Sector, Person, PortfolioCompany,
+  FundMetric, RolePermissions, Announcement, Deal, LP, CashFlowPoint,
+  RoleName, TabName, Resource, Gap, TeamNote,
 } from '../data/types';
 
-const STORAGE_KEY = 'cactus_store';
+const LS_KEY   = 'cactus_store';
 const ROLE_KEY = 'cactus_role';
+const KV_NS    = 'app';
+const KV_KEY   = 'store';
 
+// ─── Read from localStorage (fast, synchronous) ───────────────────────────────
+function loadLocal(): AppStore | null {
+  try {
+    const s = localStorage.getItem(LS_KEY);
+    return s ? (JSON.parse(s) as AppStore) : null;
+  } catch { return null; }
+}
+
+// ─── Context shape ────────────────────────────────────────────────────────────
 interface AppContextValue {
   store: AppStore;
+  loading: boolean;
   currentRole: RoleName;
-  setCurrentRole: (role: RoleName) => void;
+  setCurrentRole: (r: RoleName) => void;
   canAccess: (tab: TabName) => boolean;
   canExport: () => boolean;
   canAddNotes: () => boolean;
-  // Firm
-  updateFirm: (firm: FirmConfig) => void;
-  // Sectors
-  addSector: (sector: Sector) => void;
-  updateSector: (sector: Sector) => void;
+  updateFirm: (f: FirmConfig) => void;
+  addSector: (s: Sector) => void;
+  updateSector: (s: Sector) => void;
   deleteSector: (id: string) => void;
-  // People
-  addPerson: (person: Person) => void;
-  updatePerson: (person: Person) => void;
+  addPerson: (p: Person) => void;
+  updatePerson: (p: Person) => void;
   deletePerson: (id: string) => void;
-  // Companies
-  addCompany: (company: PortfolioCompany) => void;
-  updateCompany: (company: PortfolioCompany) => void;
+  addCompany: (c: PortfolioCompany) => void;
+  updateCompany: (c: PortfolioCompany) => void;
   deleteCompany: (id: string) => void;
-  // Metrics
-  addMetric: (metric: FundMetric) => void;
-  updateMetric: (metric: FundMetric) => void;
+  addMetric: (m: FundMetric) => void;
+  updateMetric: (m: FundMetric) => void;
   deleteMetric: (id: string) => void;
-  // Roles
-  updateRole: (role: RolePermissions) => void;
-  // Announcements
-  addAnnouncement: (ann: Announcement) => void;
-  updateAnnouncement: (ann: Announcement) => void;
+  updateRole: (r: RolePermissions) => void;
+  addAnnouncement: (a: Announcement) => void;
+  updateAnnouncement: (a: Announcement) => void;
   deleteAnnouncement: (id: string) => void;
-  // Deals
-  addDeal: (deal: Deal) => void;
-  updateDeal: (deal: Deal) => void;
+  addDeal: (d: Deal) => void;
+  updateDeal: (d: Deal) => void;
   deleteDeal: (id: string) => void;
-  // LPs
   addLP: (lp: LP) => void;
   updateLP: (lp: LP) => void;
   deleteLP: (id: string) => void;
-  // Cash flow
-  updateCashFlow: (data: CashFlowPoint[]) => void;
-  // Resources
+  updateCashFlow: (d: CashFlowPoint[]) => void;
   addResource: (r: Resource) => void;
   updateResource: (r: Resource) => void;
   deleteResource: (id: string) => void;
-  // Gaps
   addGap: (g: Gap) => void;
   updateGap: (g: Gap) => void;
   deleteGap: (id: string) => void;
-  // Team Notes
   addTeamNote: (n: TeamNote) => void;
   updateTeamNote: (n: TeamNote) => void;
   deleteTeamNote: (id: string) => void;
-  // Reset
   resetToDefaults: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [store, setStore] = useState<AppStore>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? (JSON.parse(saved) as AppStore) : defaultConfig;
-    } catch {
-      return defaultConfig;
-    }
-  });
+  // Start with localStorage for instant render, then hydrate from PostgreSQL
+  const [store, setStoreRaw] = useState<AppStore>(loadLocal() ?? defaultConfig);
+  const [loading, setLoading] = useState(true);
+  const [currentRole, setCurrentRoleState] = useState<RoleName>(
+    () => (localStorage.getItem(ROLE_KEY) as RoleName) ?? 'super_admin'
+  );
 
-  const [currentRole, setCurrentRoleState] = useState<RoleName>(() => {
-    const saved = localStorage.getItem(ROLE_KEY);
-    return (saved as RoleName) ?? 'super_admin';
-  });
+  // Debounce timer for backend saves
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── Hydrate from PostgreSQL on mount ────────────────────────────────────────
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-  }, [store]);
+    kvGet(KV_NS, KV_KEY).then(remote => {
+      if (remote && typeof remote === 'object') {
+        const remoteStore = remote as AppStore;
+        setStoreRaw(remoteStore);
+        localStorage.setItem(LS_KEY, JSON.stringify(remoteStore));
+      }
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  // ── Save to localStorage immediately + PostgreSQL debounced ─────────────────
+  const setStore = useCallback((updater: AppStore | ((prev: AppStore) => AppStore)) => {
+    setStoreRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      // Instant local save
+      localStorage.setItem(LS_KEY, JSON.stringify(next));
+      // Debounced backend save (400ms after last change)
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        kvSet(KV_NS, KV_KEY, next).catch(() => {});
+      }, 400);
+      return next;
+    });
+  }, []);
 
   const setCurrentRole = (role: RoleName) => {
     setCurrentRoleState(role);
     localStorage.setItem(ROLE_KEY, role);
   };
 
-  const getRoleConfig = () =>
-    store.roles.find((r) => r.role === currentRole) ?? store.roles[0];
-
-  const canAccess = (tab: TabName) =>
-    getRoleConfig().accessibleTabs.includes(tab);
-
-  const canExport = () => getRoleConfig().canExport;
-
+  const getRoleConfig = () => store.roles.find(r => r.role === currentRole) ?? store.roles[0];
+  const canAccess  = (tab: TabName) => getRoleConfig().accessibleTabs.includes(tab);
+  const canExport  = () => getRoleConfig().canExport;
   const canAddNotes = () => getRoleConfig().canAddNotes;
 
-  // ─── Firm ─────────────────────────────────────────────────────────────────
-  const updateFirm = (firm: FirmConfig) =>
-    setStore((s) => ({ ...s, firm }));
+  // ── Firm ──────────────────────────────────────────────────────────────────
+  const updateFirm = (firm: FirmConfig) => setStore(s => ({ ...s, firm }));
 
-  // ─── Sectors ──────────────────────────────────────────────────────────────
-  const addSector = (sector: Sector) =>
-    setStore((s) => ({ ...s, sectors: [...s.sectors, sector] }));
+  // ── Sectors ───────────────────────────────────────────────────────────────
+  const addSector    = (sector: Sector)  => setStore(s => ({ ...s, sectors: [...s.sectors, sector] }));
+  const updateSector = (sector: Sector)  => setStore(s => ({ ...s, sectors: s.sectors.map(x => x.id === sector.id ? sector : x) }));
+  const deleteSector = (id: string)      => setStore(s => ({ ...s, sectors: s.sectors.filter(x => x.id !== id) }));
 
-  const updateSector = (sector: Sector) =>
-    setStore((s) => ({
-      ...s,
-      sectors: s.sectors.map((x) => (x.id === sector.id ? sector : x)),
-    }));
+  // ── People ────────────────────────────────────────────────────────────────
+  const addPerson    = (p: Person)  => setStore(s => ({ ...s, people: [...s.people, p] }));
+  const updatePerson = (p: Person)  => setStore(s => ({ ...s, people: s.people.map(x => x.id === p.id ? p : x) }));
+  const deletePerson = (id: string) => setStore(s => ({ ...s, people: s.people.filter(x => x.id !== id) }));
 
-  const deleteSector = (id: string) =>
-    setStore((s) => ({ ...s, sectors: s.sectors.filter((x) => x.id !== id) }));
+  // ── Companies ─────────────────────────────────────────────────────────────
+  const addCompany    = (c: PortfolioCompany)  => setStore(s => ({ ...s, companies: [...s.companies, c] }));
+  const updateCompany = (c: PortfolioCompany)  => setStore(s => ({ ...s, companies: s.companies.map(x => x.id === c.id ? c : x) }));
+  const deleteCompany = (id: string)           => setStore(s => ({ ...s, companies: s.companies.filter(x => x.id !== id) }));
 
-  // ─── People ───────────────────────────────────────────────────────────────
-  const addPerson = (person: Person) =>
-    setStore((s) => ({ ...s, people: [...s.people, person] }));
+  // ── Metrics ───────────────────────────────────────────────────────────────
+  const addMetric    = (m: FundMetric)  => setStore(s => ({ ...s, fundMetrics: [...s.fundMetrics, m] }));
+  const updateMetric = (m: FundMetric)  => setStore(s => ({ ...s, fundMetrics: s.fundMetrics.map(x => x.id === m.id ? m : x) }));
+  const deleteMetric = (id: string)     => setStore(s => ({ ...s, fundMetrics: s.fundMetrics.filter(x => x.id !== id) }));
 
-  const updatePerson = (person: Person) =>
-    setStore((s) => ({
-      ...s,
-      people: s.people.map((x) => (x.id === person.id ? person : x)),
-    }));
+  // ── Roles ─────────────────────────────────────────────────────────────────
+  const updateRole = (role: RolePermissions) => setStore(s => ({ ...s, roles: s.roles.map(x => x.role === role.role ? role : x) }));
 
-  const deletePerson = (id: string) =>
-    setStore((s) => ({ ...s, people: s.people.filter((x) => x.id !== id) }));
+  // ── Announcements ─────────────────────────────────────────────────────────
+  const addAnnouncement    = (a: Announcement)  => setStore(s => ({ ...s, announcements: [...s.announcements, a] }));
+  const updateAnnouncement = (a: Announcement)  => setStore(s => ({ ...s, announcements: s.announcements.map(x => x.id === a.id ? a : x) }));
+  const deleteAnnouncement = (id: string)       => setStore(s => ({ ...s, announcements: s.announcements.filter(x => x.id !== id) }));
 
-  // ─── Companies ────────────────────────────────────────────────────────────
-  const addCompany = (company: PortfolioCompany) =>
-    setStore((s) => ({ ...s, companies: [...s.companies, company] }));
+  // ── Deals ─────────────────────────────────────────────────────────────────
+  const addDeal    = (d: Deal)   => setStore(s => ({ ...s, deals: [...s.deals, d] }));
+  const updateDeal = (d: Deal)   => setStore(s => ({ ...s, deals: s.deals.map(x => x.id === d.id ? d : x) }));
+  const deleteDeal = (id: string) => setStore(s => ({ ...s, deals: s.deals.filter(x => x.id !== id) }));
 
-  const updateCompany = (company: PortfolioCompany) =>
-    setStore((s) => ({
-      ...s,
-      companies: s.companies.map((x) => (x.id === company.id ? company : x)),
-    }));
+  // ── LPs ───────────────────────────────────────────────────────────────────
+  const addLP    = (lp: LP)    => setStore(s => ({ ...s, lps: [...s.lps, lp] }));
+  const updateLP = (lp: LP)    => setStore(s => ({ ...s, lps: s.lps.map(x => x.id === lp.id ? lp : x) }));
+  const deleteLP = (id: string) => setStore(s => ({ ...s, lps: s.lps.filter(x => x.id !== id) }));
 
-  const deleteCompany = (id: string) =>
-    setStore((s) => ({
-      ...s,
-      companies: s.companies.filter((x) => x.id !== id),
-    }));
+  // ── Cash Flow ─────────────────────────────────────────────────────────────
+  const updateCashFlow = (data: CashFlowPoint[]) => setStore(s => ({ ...s, cashFlow: data }));
 
-  // ─── Metrics ──────────────────────────────────────────────────────────────
-  const addMetric = (metric: FundMetric) =>
-    setStore((s) => ({ ...s, fundMetrics: [...s.fundMetrics, metric] }));
+  // ── Resources ─────────────────────────────────────────────────────────────
+  const addResource    = (r: Resource)  => setStore(s => ({ ...s, resources: [...(s.resources ?? []), r] }));
+  const updateResource = (r: Resource)  => setStore(s => ({ ...s, resources: (s.resources ?? []).map(x => x.id === r.id ? r : x) }));
+  const deleteResource = (id: string)   => setStore(s => ({ ...s, resources: (s.resources ?? []).filter(x => x.id !== id) }));
 
-  const updateMetric = (metric: FundMetric) =>
-    setStore((s) => ({
-      ...s,
-      fundMetrics: s.fundMetrics.map((x) => (x.id === metric.id ? metric : x)),
-    }));
+  // ── Gaps ──────────────────────────────────────────────────────────────────
+  const addGap    = (g: Gap)    => setStore(s => ({ ...s, gaps: [...(s.gaps ?? []), g] }));
+  const updateGap = (g: Gap)    => setStore(s => ({ ...s, gaps: (s.gaps ?? []).map(x => x.id === g.id ? g : x) }));
+  const deleteGap = (id: string) => setStore(s => ({ ...s, gaps: (s.gaps ?? []).filter(x => x.id !== id) }));
 
-  const deleteMetric = (id: string) =>
-    setStore((s) => ({
-      ...s,
-      fundMetrics: s.fundMetrics.filter((x) => x.id !== id),
-    }));
+  // ── Team Notes ────────────────────────────────────────────────────────────
+  const addTeamNote    = (n: TeamNote)  => setStore(s => ({ ...s, teamNotes: [...(s.teamNotes ?? []), n] }));
+  const updateTeamNote = (n: TeamNote)  => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).map(x => x.id === n.id ? n : x) }));
+  const deleteTeamNote = (id: string)   => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).filter(x => x.id !== id) }));
 
-  // ─── Roles ────────────────────────────────────────────────────────────────
-  const updateRole = (role: RolePermissions) =>
-    setStore((s) => ({
-      ...s,
-      roles: s.roles.map((x) => (x.role === role.role ? role : x)),
-    }));
-
-  // ─── Announcements ────────────────────────────────────────────────────────
-  const addAnnouncement = (ann: Announcement) =>
-    setStore((s) => ({
-      ...s,
-      announcements: [...s.announcements, ann],
-    }));
-
-  const updateAnnouncement = (ann: Announcement) =>
-    setStore((s) => ({
-      ...s,
-      announcements: s.announcements.map((x) => (x.id === ann.id ? ann : x)),
-    }));
-
-  const deleteAnnouncement = (id: string) =>
-    setStore((s) => ({
-      ...s,
-      announcements: s.announcements.filter((x) => x.id !== id),
-    }));
-
-  // ─── Deals ────────────────────────────────────────────────────────────────
-  const addDeal = (deal: Deal) =>
-    setStore((s) => ({ ...s, deals: [...s.deals, deal] }));
-
-  const updateDeal = (deal: Deal) =>
-    setStore((s) => ({
-      ...s,
-      deals: s.deals.map((x) => (x.id === deal.id ? deal : x)),
-    }));
-
-  const deleteDeal = (id: string) =>
-    setStore((s) => ({ ...s, deals: s.deals.filter((x) => x.id !== id) }));
-
-  // ─── LPs ──────────────────────────────────────────────────────────────────
-  const addLP = (lp: LP) =>
-    setStore((s) => ({ ...s, lps: [...s.lps, lp] }));
-
-  const updateLP = (lp: LP) =>
-    setStore((s) => ({
-      ...s,
-      lps: s.lps.map((x) => (x.id === lp.id ? lp : x)),
-    }));
-
-  const deleteLP = (id: string) =>
-    setStore((s) => ({ ...s, lps: s.lps.filter((x) => x.id !== id) }));
-
-  // ─── Cash Flow ────────────────────────────────────────────────────────────
-  const updateCashFlow = (data: CashFlowPoint[]) =>
-    setStore((s) => ({ ...s, cashFlow: data }));
-
-  // ─── Resources ────────────────────────────────────────────────────────────
-  const addResource = (r: Resource) =>
-    setStore(s => ({ ...s, resources: [...(s.resources ?? []), r] }));
-  const updateResource = (r: Resource) =>
-    setStore(s => ({ ...s, resources: (s.resources ?? []).map(x => x.id === r.id ? r : x) }));
-  const deleteResource = (id: string) =>
-    setStore(s => ({ ...s, resources: (s.resources ?? []).filter(x => x.id !== id) }));
-
-  // ─── Gaps ─────────────────────────────────────────────────────────────────
-  const addGap = (g: Gap) =>
-    setStore(s => ({ ...s, gaps: [...(s.gaps ?? []), g] }));
-  const updateGap = (g: Gap) =>
-    setStore(s => ({ ...s, gaps: (s.gaps ?? []).map(x => x.id === g.id ? g : x) }));
-  const deleteGap = (id: string) =>
-    setStore(s => ({ ...s, gaps: (s.gaps ?? []).filter(x => x.id !== id) }));
-
-  // ─── Team Notes ───────────────────────────────────────────────────────────
-  const addTeamNote = (n: TeamNote) =>
-    setStore(s => ({ ...s, teamNotes: [...(s.teamNotes ?? []), n] }));
-  const updateTeamNote = (n: TeamNote) =>
-    setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).map(x => x.id === n.id ? n : x) }));
-  const deleteTeamNote = (id: string) =>
-    setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).filter(x => x.id !== id) }));
-
-  // ─── Reset ────────────────────────────────────────────────────────────────
+  // ── Reset ─────────────────────────────────────────────────────────────────
   const resetToDefaults = () => {
-    setStore(defaultConfig);
-    localStorage.removeItem(STORAGE_KEY);
+    setStoreRaw(defaultConfig);
+    localStorage.setItem(LS_KEY, JSON.stringify(defaultConfig));
+    kvSet(KV_NS, KV_KEY, defaultConfig).catch(() => {});
   };
 
   const value: AppContextValue = {
-    store,
-    currentRole,
-    setCurrentRole,
-    canAccess,
-    canExport,
-    canAddNotes,
+    store, loading, currentRole, setCurrentRole,
+    canAccess, canExport, canAddNotes,
     updateFirm,
-    addSector,
-    updateSector,
-    deleteSector,
-    addPerson,
-    updatePerson,
-    deletePerson,
-    addCompany,
-    updateCompany,
-    deleteCompany,
-    addMetric,
-    updateMetric,
-    deleteMetric,
+    addSector, updateSector, deleteSector,
+    addPerson, updatePerson, deletePerson,
+    addCompany, updateCompany, deleteCompany,
+    addMetric, updateMetric, deleteMetric,
     updateRole,
-    addAnnouncement,
-    updateAnnouncement,
-    deleteAnnouncement,
-    addDeal,
-    updateDeal,
-    deleteDeal,
-    addLP,
-    updateLP,
-    deleteLP,
+    addAnnouncement, updateAnnouncement, deleteAnnouncement,
+    addDeal, updateDeal, deleteDeal,
+    addLP, updateLP, deleteLP,
     updateCashFlow,
     addResource, updateResource, deleteResource,
     addGap, updateGap, deleteGap,
