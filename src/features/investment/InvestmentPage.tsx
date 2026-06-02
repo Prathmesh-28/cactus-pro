@@ -3,6 +3,8 @@ import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import SectorPill from '../../components/ui/SectorPill';
 import { Plus, Pencil, Trash2, X, Check, Calendar, DollarSign } from 'lucide-react';
+import ExportMenu from '../../components/ui/ExportMenu';
+import { exportPipelinePDF, exportPipelineExcel } from '../../lib/export';
 import { generateId } from '../../lib/utils';
 import type { Deal, DealStage } from '../../data/types';
 
@@ -112,14 +114,23 @@ export default function InvestmentPage() {
           <h1 className="font-heading text-2xl font-bold text-gray-900 mb-1">Investment Pipeline</h1>
           <p className="text-sm text-gray-500">{deals.length} deals tracked</p>
         </div>
-        <button
-          onClick={startCreate}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg text-white"
-          style={{ backgroundColor: firm.primaryColor }}
-        >
-          <Plus className="w-4 h-4" />
-          Add Deal
-        </button>
+        <div className="flex items-center gap-2">
+          <ExportMenu
+            label="Export"
+            options={[
+              { label: 'Deal Pipeline — PDF',   format: 'pdf',   onExport: () => exportPipelinePDF(store)   },
+              { label: 'Deal Pipeline — Excel', format: 'excel', onExport: () => exportPipelineExcel(store) },
+            ]}
+          />
+          <button
+            onClick={startCreate}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg text-white"
+            style={{ backgroundColor: firm.primaryColor }}
+          >
+            <Plus className="w-4 h-4" />
+            Add Deal
+          </button>
+        </div>
       </div>
 
       {creating && <DealForm />}

@@ -20,6 +20,8 @@ import type { PortfolioCompany } from '../../data/types';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
 import AvatarChip from '../../components/ui/AvatarChip';
+import ExportMenu from '../../components/ui/ExportMenu';
+import { exportCompanyPDF, exportCompanyExcel } from '../../lib/export';
 
 interface Props {
   company: PortfolioCompany | null;
@@ -911,9 +913,19 @@ export default function CompanyDrawer({ company, onClose }: Props) {
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 ml-2 flex-shrink-0">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+            <ExportMenu
+              size="sm"
+              label="Export"
+              options={[
+                { label: 'Company Report — PDF',   format: 'pdf',   onExport: () => exportCompanyPDF(company, store)   },
+                { label: 'Company Report — Excel', format: 'excel', onExport: () => exportCompanyExcel(company, store) },
+              ]}
+            />
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* ── Tab bar (sticky, never scrolls away) ──────────────────────────── */}

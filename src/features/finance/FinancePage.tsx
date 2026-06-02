@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import { LayoutDashboard, Receipt, CalendarCheck } from 'lucide-react';
+import ExportMenu from '../../components/ui/ExportMenu';
+import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
 import { FundProvider } from './lib/fund-context';
 import { Toaster } from 'sonner';
@@ -16,6 +18,21 @@ const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'expenses',     label: 'Expenses',       Icon: Receipt },
   { key: 'compliances',  label: 'Compliances',    Icon: CalendarCheck },
 ];
+
+function FinanceExportMenu() {
+  const { store } = useApp();
+  return (
+    <ExportMenu
+      size="sm"
+      variant="default"
+      label="Export Finance"
+      options={[
+        { label: 'Finance Summary — PDF',   format: 'pdf',   onExport: () => exportFinancePDF(store)   },
+        { label: 'Finance Summary — Excel', format: 'excel', onExport: () => exportFinanceExcel(store) },
+      ]}
+    />
+  );
+}
 
 export default function FinancePage() {
   const { canAccess } = useApp();
@@ -87,6 +104,11 @@ export default function FinancePage() {
             ))}
           </nav>
         </aside>
+
+        {/* Export button in sidebar footer */}
+        <div className="hidden md:block px-3 pb-4 mt-auto">
+          <FinanceExportMenu />
+        </div>
 
         {/* Mobile bottom nav */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex border-t"

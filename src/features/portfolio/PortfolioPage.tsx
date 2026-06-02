@@ -8,10 +8,12 @@ import OperationalMetrics from '../finance/OperationalMetrics';
 import CompanyCalendar from '../../components/ui/CompanyCalendar';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import {
-  Building2, Search, Download, TrendingUp, TrendingDown, Minus,
+  Building2, Search, TrendingUp, TrendingDown, Minus,
   ChevronUp, ChevronDown, BarChart2, Layers, LayoutList, CalendarDays,
 } from 'lucide-react';
 import { exportToCSV } from '../../lib/utils';
+import ExportMenu from '../../components/ui/ExportMenu';
+import { exportPortfolioPDF, exportPortfolioExcel } from '../../lib/export';
 import type { PortfolioCompany } from '../../data/types';
 
 type SortKey = keyof Pick<PortfolioCompany, 'name' | 'stage' | 'cactusInvestment' | 'currentValuation' | 'moic' | 'irr' | 'status'>;
@@ -218,13 +220,14 @@ export default function PortfolioPage() {
             </div>
 
             {canExport() && (
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </button>
+              <ExportMenu
+                label="Export"
+                options={[
+                  { label: 'Portfolio Summary — PDF', format: 'pdf',   onExport: () => exportPortfolioPDF(store)   },
+                  { label: 'Portfolio Summary — Excel', format: 'excel', onExport: () => exportPortfolioExcel(store) },
+                  { label: 'Filtered List — CSV', format: 'excel', onExport: handleExport },
+                ]}
+              />
             )}
           </div>
         </div>
