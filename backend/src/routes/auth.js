@@ -7,6 +7,19 @@ const { signAccess, signRefresh, verifyRefresh, revokeRefresh, revokeAllRefresh 
 const { sendInvite, sendPasswordReset } = require('../lib/email');
 const { authenticate, audit } = require('../middleware/auth');
 
+// ── GET /auth/test-email — test SMTP config (dev/super_admin only) ────────────
+router.post('/test-email', async (req, res) => {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: 'to email required' });
+  try {
+    const { sendPasswordReset: spw } = require('../lib/email');
+    await spw({ to, token: 'test-token-123' });
+    res.json({ success: true, message: `Test email sent to ${to}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message, code: err.code, command: err.command });
+  }
+});
+
 // ── POST /auth/login ──────────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -82,7 +95,11 @@ router.post('/forgot-password', async (req, res) => {
       'INSERT INTO password_reset_tokens(user_id,token,type,expires_at) VALUES($1,$2,$3,$4)',
       [user.id, token, 'reset', expiresAt]
     );
-    await sendPasswordReset({ to: user.email, token });
+    try {
+      await sendPasswordReset({ to: user.email, token });
+    } catch (emailErr) {
+      console.error('Failed to send password reset email:', emailErr.message, emailErr.code);
+    }
     await audit(user.id, user.email, 'forgot_password', 'auth', req.ip);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }

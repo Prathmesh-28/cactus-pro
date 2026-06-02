@@ -6,8 +6,18 @@ const transporter = nodemailer.createTransport({
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    pass: (process.env.SMTP_PASS || '').replace(/\s/g, ''), // strip spaces from App Password
   },
+  tls: { rejectUnauthorized: false },
+  logger: true,
+  debug: process.env.NODE_ENV !== 'production',
+});
+
+// Verify connection on startup
+transporter.verify().then(() => {
+  console.log('✓ SMTP connection verified');
+}).catch(err => {
+  console.error('✗ SMTP connection failed:', err.message);
 });
 
 const FROM = process.env.SMTP_FROM || `"Cactus Partners" <${process.env.SMTP_USER}>`;
