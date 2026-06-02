@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, Menu, X } from 'lucide-react';
+import { Bell, Menu, X, LogOut, User, ChevronDown, Shield } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import RoleSwitcher from './RoleSwitcher';
 import GlobalSearch from '../ui/GlobalSearch';
 import type { TabName } from '../../data/types';
 import { cn } from '../../lib/utils';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const NAV_ITEMS: { tab: TabName; label: string; path: string }[] = [
   { tab: 'portfolio',  label: 'Portfolio',   path: '/dashboard' },
@@ -18,9 +19,22 @@ const NAV_ITEMS: { tab: TabName; label: string; path: string }[] = [
 
 export default function Header() {
   const { store, currentRole, canAccess } = useApp();
+  const { user: authUser, logout } = useAuth();
   const { firm, announcements, roles } = store;
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node))
+        setProfileOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const roleConfig    = roles.find(r => r.role === currentRole);
   const visibleTabs   = roleConfig?.visibleTabs ?? [];
@@ -114,17 +128,88 @@ export default function Header() {
                 <RoleSwitcher />
               </div>
 
-              {/* Avatar */}
-              <div className="flex items-center gap-2 pl-2 cursor-pointer">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
-                  style={{ backgroundColor: '#1C4B42' }}
+              {/* Profile dropdown */}
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setProfileOpen(o => !o)}
+                  className="flex items-center gap-2 pl-2 rounded-xl hover:bg-gray-50 py-1 pr-2 transition-colors"
                 >
-                  {roleConfig?.displayName?.[0] ?? 'U'}
-                </div>
-                <span className="hidden lg:block text-sm font-medium" style={{ color: '#191c14' }}>
-                  {roleConfig?.displayName}
-                </span>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+                    style={{ backgroundColor: '#1C4B42' }}>
+                    {(authUser?.name || authUser?.email || roleConfig?.displayName || 'U')[0].toUpperCase()}
+                  </div>
+                  <div className="hidden lg:block text-left">
+                    <p className="text-xs font-semibold leading-tight" style={{ color: '#191c14' }}>
+                      {authUser?.name || roleConfig?.displayName || 'User'}
+                    </p>
+                    {authUser?.email && (
+                      <p className="text-[10px] leading-tight" style={{ color: '#555951' }}>
+                        {authUser.email}
+                      </p>
+                    )}
+                  </div>
+                  <ChevronDown className={cn('w-3.5 h-3.5 hidden lg:block transition-transform', profileOpen && 'rotate-180')}
+                    style={{ color: '#555951' }} />
+                </button>
+
+                {/* Dropdown panel */}
+                {profileOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border z-50 overflow-hidden"
+                    style={{ borderColor: '#E3EDE9' }}>
+
+                    {/* User info */}
+                    <div className="px-4 py-4 border-b" style={{ borderColor: '#F2F7F1', backgroundColor: '#F6FAF7' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+                          style={{ backgroundColor: '#1C4B42' }}>
+                          {(authUser?.name || authUser?.email || 'U')[0].toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold truncate" style={{ color: '#191c14' }}>
+                            {authUser?.name || 'User'}
+                          </p>
+                          <p className="text-xs truncate" style={{ color: '#555951' }}>
+                            {authUser?.email || '—'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Role badge */}
+                    <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: '#F2F7F1' }}>
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-3.5 h-3.5" style={{ color: '#1C4B42' }} />
+                        <span className="text-xs text-gray-500">Role</span>
+                      </div>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                        style={{ backgroundColor: '#E3EDE9', color: '#1C4B42' }}>
+                        {authUser?.role === 'super_admin' ? 'Super Admin'
+                          : authUser?.role === 'portfolio_team' ? 'Portfolio Team'
+                          : authUser?.role === 'finance_team' ? 'Finance Team'
+                          : authUser?.role === 'investment_team' ? 'Investment Team'
+                          : roleConfig?.displayName ?? authUser?.role ?? 'User'}
+                      </span>
+                    </div>
+
+                    {/* User ID */}
+                    <div className="px-4 py-2.5 border-b flex items-center justify-between" style={{ borderColor: '#F2F7F1' }}>
+                      <div className="flex items-center gap-2">
+                        <User className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-xs text-gray-400">User ID</span>
+                      </div>
+                      <span className="text-xs font-mono text-gray-400">#{authUser?.id ?? '—'}</span>
+                    </div>
+
+                    {/* Logout */}
+                    <button
+                      onClick={() => { setProfileOpen(false); logout(); }}
+                      className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Mobile hamburger */}
