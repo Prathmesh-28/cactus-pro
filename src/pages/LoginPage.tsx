@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const { login, user, loading } = useAuth();
   const navigate = useNavigate();
+  const [sp] = useSearchParams();
+  const redirect = sp.get('redirect') || '/dashboard';
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow]         = useState(false);
@@ -13,7 +15,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate('/dashboard', { replace: true });
+    if (!loading && user) navigate(redirect, { replace: true });
   }, [user, loading]);
 
   const handle = async (e: React.FormEvent) => {
@@ -22,7 +24,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(email.trim(), password);
-      navigate('/dashboard', { replace: true });
+      navigate(redirect, { replace: true });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

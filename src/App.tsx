@@ -15,42 +15,50 @@ import AdminPage from './features/admin/AdminPage';
 import VCToolkitPage from './features/toolkit/VCToolkitPage';
 import WorkspacePage from './features/workspace/WorkspacePage';
 
-function ProtectedRoutes() {
+// Redirect to login, remembering where the user wanted to go
+function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{background:'linear-gradient(135deg,#0A2321,#1C4B42)'}}>
+    <div className="min-h-screen flex items-center justify-center"
+      style={{ background: 'linear-gradient(135deg,#0A2321,#1C4B42)' }}>
       <div className="text-center space-y-3">
-        <div className="w-10 h-10 rounded-2xl flex items-center justify-center mx-auto" style={{background:'linear-gradient(135deg,#86CA0F,#95c840)'}}>
+        <div className="w-10 h-10 rounded-2xl flex items-center justify-center mx-auto"
+          style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
           <span className="text-white text-xl">🌵</span>
         </div>
-        <p className="text-white/60 text-sm">Loading…</p>
+        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Loading…</p>
       </div>
     </div>
   );
-  if (!user) return <Navigate to="/login" replace />;
-  return <AppShell />;
+
+  if (!user) {
+    // Save intended destination so login can redirect back
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  return <>{children}</>;
 }
 
 function AppShell() {
-  const location = useLocation();
-  const isHome = location.pathname === '/';
-
   return (
     <>
-      <div className={`flex flex-col min-h-screen ${isHome ? 'bg-[#0A0F0D]' : 'bg-gray-50'}`}>
-        {!isHome && <Header />}
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
         <div className="flex-1">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard" element={<PortfolioPage />} />
-            <Route path="/finance" element={<FinancePage />} />
+            <Route path="/dashboard"  element={<PortfolioPage />} />
+            <Route path="/finance"    element={<FinancePage />} />
             <Route path="/investment" element={<InvestmentPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/toolkit" element={<VCToolkitPage />} />
-            <Route path="/workspace" element={<WorkspacePage />} />
+            <Route path="/admin"      element={<AdminPage />} />
+            <Route path="/toolkit"    element={<VCToolkitPage />} />
+            <Route path="/workspace"  element={<WorkspacePage />} />
+            {/* Catch-all → dashboard */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
-        {!isHome && <Footer />}
+        <Footer />
       </div>
       <Chatbot />
     </>
@@ -63,12 +71,18 @@ export default function App() {
       <AppProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public auth routes */}
+            {/* ── Public pages — no login needed ─────────────────────── */}
+            <Route path="/"                element={<HomePage />} />
             <Route path="/login"           element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/set-password"    element={<SetPasswordPage />} />
-            {/* All other routes are protected */}
-            <Route path="/*" element={<ProtectedRoutes />} />
+
+            {/* ── Protected pages — login required ───────────────────── */}
+            <Route path="/*" element={
+              <RequireAuth>
+                <AppShell />
+              </RequireAuth>
+            } />
           </Routes>
         </BrowserRouter>
       </AppProvider>
