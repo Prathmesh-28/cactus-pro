@@ -14,7 +14,7 @@ export interface MailComposerProps {
   context?: 'founder' | 'lp' | 'co_investor' | 'team' | 'general';
 }
 
-const FROM_EMAIL = 'portfolio@cactuspartners.in';
+const FROM_EMAIL = 'prathmeshwalimbe.cactuspartners@gmail.com';
 
 const now = new Date();
 const MONTH_YEAR = now.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
