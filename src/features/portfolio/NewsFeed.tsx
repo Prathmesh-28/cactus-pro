@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   Search, Plus, X, ExternalLink, Tag, Building2,
   ChevronDown, Newspaper, TrendingUp, TrendingDown,
-  Minus, Filter, Calendar, User,
+  Minus, Filter, RefreshCw, AlertCircle, User, Calendar,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
@@ -30,6 +30,70 @@ function fmtDate(iso: string): string {
   } catch {
     return iso;
   }
+}
+
+// ─── GNews API fetch ─────────────────────────────────────────────────────────
+
+const GNEWS_KEY = import.meta.env.VITE_GNEWS_API_KEY as string | undefined;
+
+const POSITIVE_WORDS = [
+  'raises','raised','funding','funded','launches','launched','wins','won','expands',
+  'expansion','partnership','award','profit','profitable','revenue','growth','milestone',
+  'secures','secured','closes','closed round','series','seed','ipo','acquisition',
+  'acquires','signs','contract','approved','certified','record',
+];
+const NEGATIVE_WORDS = [
+  'layoff','laid off','fraud','scam','bankrupt','shutdown','shuts down','controversy',
+  'decline','loss','losses','penalty','lawsuit','sued','investigation','fired','exits',
+  'writedown','write-off','failed','default','debt',
+];
+
+function detectSentiment(text: string): NewsItem['sentiment'] {
+  const t = text.toLowerCase();
+  const pos = POSITIVE_WORDS.some(w => t.includes(w));
+  const neg = NEGATIVE_WORDS.some(w => t.includes(w));
+  if (pos && !neg) return 'positive';
+  if (neg && !pos) return 'negative';
+  if (neg && pos)  return 'neutral';
+  return 'neutral';
+}
+
+interface GNewsArticle {
+  title: string;
+  description: string;
+  url: string;
+  source: { name: string };
+  publishedAt: string;
+}
+
+async function fetchNewsForCompany(
+  companyName: string,
+  companyId: string,
+  existingUrls: Set<string>,
+  apiKey: string,
+): Promise<Omit<NewsItem, 'id'>[]> {
+  const q = encodeURIComponent(`"${companyName}"`);
+  const url = `https://gnews.io/api/v4/search?q=${q}&lang=en&max=5&apikey=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`GNews error ${res.status}`);
+  const data = await res.json() as { articles: GNewsArticle[] };
+  const now = new Date().toISOString();
+
+  return (data.articles ?? [])
+    .filter((a: GNewsArticle) => a.url && !existingUrls.has(a.url))
+    .map((a: GNewsArticle) => ({
+      companyId,
+      title:         a.title,
+      summary:       a.description ?? '',
+      url:           a.url,
+      source:        a.source?.name ?? 'GNews',
+      publishedAt:   a.publishedAt?.slice(0, 10) ?? now.slice(0, 10),
+      sentiment:     detectSentiment(`${a.title} ${a.description ?? ''}`),
+      tags:          [companyName],
+      isManuallyAdded: false,
+      addedBy:       'Auto-fetch',
+      savedAt:       now,
+    }));
 }
 
 // ─── Sentiment badge ──────────────────────────────────────────────────────────
@@ -523,6 +587,53 @@ export default function NewsFeed() {
     return list.sort((a, b) => (a.savedAt > b.savedAt ? -1 : 1));
   }, [newsItems, filterCompany, filterSentiment, search]);
 
+  // ── Auto-fetch state ───────────────────────────────────────────────────────
+  const [fetching,    setFetching]    = useState(false);
+  const [fetchStatus, setFetchStatus] = useState<string>('');
+  const [fetchError,  setFetchError]  = useState<string>('');
+  const [lastRefresh, setLastRefresh] = useState<string>('');
+
+  const handleRefresh = async () => {
+    if (!GNEWS_KEY) {
+      setFetchError('GNews API key not set. Add VITE_GNEWS_API_KEY to your Vercel environment variables.');
+      return;
+    }
+    setFetching(true);
+    setFetchError('');
+    setFetchStatus('');
+
+    const existingUrls = new Set(newsItems.map(n => n.url).filter(Boolean));
+    let added = 0;
+    const errors: string[] = [];
+
+    for (const company of companies) {
+      try {
+        setFetchStatus(`Fetching news for ${company.name}…`);
+        const articles = await fetchNewsForCompany(company.name, company.id, existingUrls, GNEWS_KEY);
+        for (const article of articles) {
+          addNewsItem({ ...article, id: generateId() } as NewsItem);
+          existingUrls.add(article.url);
+          added++;
+        }
+        // GNews free tier rate limit — small delay between companies
+        await new Promise(r => setTimeout(r, 300));
+      } catch (e) {
+        errors.push(company.name);
+      }
+    }
+
+    setFetching(false);
+    setFetchStatus('');
+    setLastRefresh(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+    if (errors.length) {
+      setFetchError(`Could not fetch for: ${errors.join(', ')}. Check API key or rate limit.`);
+    } else if (added === 0) {
+      setFetchStatus('Already up to date — no new articles found.');
+    } else {
+      setFetchStatus(`✓ Added ${added} new article${added !== 1 ? 's' : ''}.`);
+    }
+  };
+
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleAdd = (item: NewsItem) => {
     addNewsItem(item);
@@ -548,15 +659,47 @@ export default function NewsFeed() {
               Track portfolio news, press coverage and market signals
             </p>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#1C4B42' }}
-          >
-            <Plus size={15} />
-            Add News
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Refresh button */}
+            <button
+              onClick={handleRefresh}
+              disabled={fetching}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-[#1C4B42] text-[#1C4B42] bg-white hover:bg-[#F0F7E6] transition-colors disabled:opacity-60"
+            >
+              <RefreshCw size={15} className={fetching ? 'animate-spin' : ''} />
+              {fetching ? 'Fetching…' : 'Refresh News'}
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#1C4B42' }}
+            >
+              <Plus size={15} />
+              Add News
+            </button>
+          </div>
         </div>
+
+        {/* Fetch status / error banners */}
+        {fetching && fetchStatus && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-[#1C4B42] bg-[#F0F7E6] border border-[#86CA0F]/40 rounded-lg px-3 py-2">
+            <RefreshCw size={12} className="animate-spin shrink-0" />
+            {fetchStatus}
+          </div>
+        )}
+        {!fetching && fetchStatus && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+            <span>✓</span>
+            {fetchStatus}
+            {lastRefresh && <span className="text-emerald-500 ml-auto">Last refreshed {lastRefresh}</span>}
+          </div>
+        )}
+        {fetchError && (
+          <div className="mt-3 flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <AlertCircle size={13} className="shrink-0 mt-0.5" />
+            <span>{fetchError}</span>
+          </div>
+        )}
       </div>
 
       <div className="px-6 md:px-10 py-8 space-y-6">
