@@ -55,6 +55,20 @@ app.get('/api/files/download/:fileId', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ── Generic email send endpoint ───────────────────────────────────────────────
+const { sendGeneric } = require('./lib/email');
+app.post('/api/email/send', authenticate, async (req, res) => {
+  try {
+    const { to, subject, body, cc, from_name } = req.body;
+    if (!to || !subject || !body) return res.status(400).json({ error: 'to, subject, body required' });
+    await sendGeneric({ to, subject, body, cc, from_name: from_name || 'Cactus Partners' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Email send error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Protected routes (JWT required) ──────────────────────────────────────────
 app.use('/api/notes', authenticate, notesRouter);
 app.use('/api/files', authenticate, filesRouter); // upload/delete/list still auth-gated

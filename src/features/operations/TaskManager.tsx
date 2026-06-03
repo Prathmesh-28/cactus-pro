@@ -3,11 +3,14 @@ import {
   Plus, X, ChevronDown, ChevronUp, Check, Calendar,
   AlertTriangle, Clock, Tag, User, Building2, Flag,
   Edit2, Trash2, CheckSquare, Square, Filter, Search,
+  CheckCheck, UserCheck,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
 import type { Task, TaskStatus, TaskPriority } from '../../data/types';
 import { cn } from '../../lib/utils';
+import { useBulkSelect } from '../../hooks/useBulkSelect';
+import BulkActionBar from '../../components/ui/BulkActionBar';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -144,9 +147,16 @@ interface TaskCardProps {
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onClick: (task: Task) => void;
+  // Bulk selection
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+  anySelected: boolean;
 }
 
-function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: TaskCardProps) {
+function TaskCard({
+  task, companyName, onComplete, onEdit, onDelete, onClick,
+  isSelected, onToggleSelect, anySelected,
+}: TaskCardProps) {
   const overdue = isOverdue(task.dueDate, task.status);
   const dueToday = isDueToday(task.dueDate, task.status);
   const isDone = task.status === 'done';
@@ -158,6 +168,7 @@ function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: 
         'hover:shadow-md transition-all duration-150',
         overdue ? 'border-red-300 ring-1 ring-red-200' : 'border-gray-200',
         isDone ? 'opacity-70' : '',
+        isSelected ? 'ring-2 ring-[#1C4B42] border-[#1C4B42]' : '',
       )}
       onClick={() => onClick(task)}
     >
@@ -167,8 +178,26 @@ function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: 
       )}
 
       <div className="p-3 pt-3.5">
-        {/* Top row: checkbox + title */}
+        {/* Top row: bulk checkbox + complete toggle + title */}
         <div className="flex items-start gap-2">
+          {/* Bulk select checkbox — always visible when any selected, hover-visible otherwise */}
+          <button
+            className={cn(
+              'mt-0.5 flex-shrink-0 transition-all duration-150',
+              anySelected
+                ? 'opacity-100'
+                : 'opacity-0 group-hover:opacity-100',
+              isSelected ? 'text-[#1C4B42]' : 'text-gray-300 hover:text-[#1C4B42]',
+            )}
+            onClick={e => { e.stopPropagation(); onToggleSelect(task.id); }}
+            title={isSelected ? 'Deselect' : 'Select'}
+          >
+            {isSelected
+              ? <CheckSquare size={15} />
+              : <Square size={15} />}
+          </button>
+
+          {/* Complete toggle */}
           <button
             className="mt-0.5 flex-shrink-0 text-gray-400 hover:text-green-600 transition-colors"
             onClick={e => { e.stopPropagation(); onComplete(task); }}
@@ -178,6 +207,7 @@ function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: 
               ? <CheckSquare size={16} className="text-green-600" />
               : <Square size={16} />}
           </button>
+
           <p className={cn(
             'text-sm font-semibold leading-snug flex-1',
             isDone ? 'line-through text-gray-400' : 'text-gray-800',
@@ -204,7 +234,7 @@ function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: 
         </div>
 
         {/* Priority badge + company tag */}
-        <div className="flex flex-wrap items-center gap-1.5 mt-2 ml-6">
+        <div className="flex flex-wrap items-center gap-1.5 mt-2 ml-12">
           <PriorityBadge priority={task.priority} />
           {companyName && (
             <span
@@ -219,7 +249,7 @@ function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: 
 
         {/* Tags */}
         {task.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5 ml-6">
+          <div className="flex flex-wrap gap-1 mt-1.5 ml-12">
             {task.tags.slice(0, 3).map(tag => (
               <span key={tag} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-500">
                 <Tag size={8} />
@@ -233,7 +263,7 @@ function TaskCard({ task, companyName, onComplete, onEdit, onDelete, onClick }: 
         )}
 
         {/* Bottom row: assignee + due date */}
-        <div className="flex items-center justify-between mt-2.5 ml-6">
+        <div className="flex items-center justify-between mt-2.5 ml-12">
           <div className="flex items-center gap-1.5">
             <AssigneeAvatar name={task.assignee} size={20} />
             <span className="text-xs text-gray-500 truncate max-w-[100px]">{task.assignee || '—'}</span>
@@ -721,6 +751,46 @@ function AddTaskModal({ companies, onClose, onAdd, currentUser, defaultStatus = 
   );
 }
 
+// ─── Assign Dropdown (inline) ─────────────────────────────────────────────────
+
+interface AssignDropdownProps {
+  people: Array<{ name: string }>;
+  onAssign: (name: string) => void;
+  onClose: () => void;
+}
+
+function AssignDropdown({ people, onAssign, onClose }: AssignDropdownProps) {
+  return (
+    <div
+      className="fixed inset-0 z-[60]"
+      onClick={onClose}
+    >
+      <div
+        className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden min-w-[200px] max-h-60 overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="px-3 py-2 border-b border-gray-100">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Assign to</p>
+        </div>
+        {people.length === 0 ? (
+          <div className="px-4 py-3 text-sm text-gray-400">No team members found</div>
+        ) : (
+          people.map(p => (
+            <button
+              key={p.name}
+              onClick={() => { onAssign(p.name); onClose(); }}
+              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left transition-colors"
+            >
+              <AssigneeAvatar name={p.name} size={22} />
+              {p.name}
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Kanban Column ────────────────────────────────────────────────────────────
 
 interface KanbanColumnProps {
@@ -732,11 +802,16 @@ interface KanbanColumnProps {
   onDelete: (id: string) => void;
   onCardClick: (task: Task) => void;
   onAddTask: (status: TaskStatus) => void;
+  // Bulk select
+  isSelected: (id: string) => boolean;
+  onToggleSelect: (id: string) => void;
+  anySelected: boolean;
 }
 
 function KanbanColumn({
   status, tasks, companyMap,
   onComplete, onEdit, onDelete, onCardClick, onAddTask,
+  isSelected, onToggleSelect, anySelected,
 }: KanbanColumnProps) {
   const [collapsed, setCollapsed] = useState(status === 'done');
   const colors = COLUMN_COLORS[status];
@@ -805,6 +880,9 @@ function KanbanColumn({
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onClick={onCardClick}
+                isSelected={isSelected(task.id)}
+                onToggleSelect={onToggleSelect}
+                anySelected={anySelected}
               />
             ))
           )}
@@ -827,7 +905,8 @@ export default function TaskManager() {
 
   const tasks: Task[]  = store.tasks ?? [];
   const companies      = store.companies ?? [];
-  const currentUser    = store.people?.[0]?.name ?? 'Team';
+  const people         = store.people ?? [];
+  const currentUser    = people[0]?.name ?? 'Team';
 
   // Build a company id → name map
   const companyMap = useMemo<Record<string, string>>(() => {
@@ -847,6 +926,7 @@ export default function TaskManager() {
   const [addDefaultStatus, setAddDefaultStatus] = useState<TaskStatus>('todo');
   const [selectedTask,    setSelectedTask]    = useState<Task | null>(null);
   const [_editingTask,    setEditingTask]     = useState<Task | null>(null);
+  const [showAssignDropdown, setShowAssignDropdown] = useState(false);
 
   // ── Filtered tasks ────────────────────────────────────────────────────────
   const filteredTasks = useMemo(() => {
@@ -866,6 +946,9 @@ export default function TaskManager() {
       return true;
     });
   }, [tasks, filterAssignee, filterCompanyId, filterPriority, searchQuery]);
+
+  // ── Bulk selection (scoped to filteredTasks) ──────────────────────────────
+  const bulk = useBulkSelect(filteredTasks);
 
   // ── Grouped by status ─────────────────────────────────────────────────────
   const grouped = useMemo<Record<TaskStatus, Task[]>>(() => {
@@ -926,6 +1009,30 @@ export default function TaskManager() {
     setShowAddModal(true);
   }
 
+  // ── Bulk action handlers ──────────────────────────────────────────────────
+  function handleBulkMarkComplete() {
+    bulk.selectedItems.forEach(task => {
+      if (task.status !== 'done') {
+        updateTask({ ...task, status: 'done', completedAt: new Date().toISOString() });
+      }
+    });
+    bulk.clear();
+  }
+
+  function handleBulkDelete() {
+    const n = bulk.count;
+    if (!window.confirm(`Delete ${n} task${n !== 1 ? 's' : ''}?`)) return;
+    bulk.selectedItems.forEach(task => deleteTask(task.id));
+    bulk.clear();
+  }
+
+  function handleBulkAssign(name: string) {
+    bulk.selectedItems.forEach(task => {
+      updateTask({ ...task, assignee: name });
+    });
+    bulk.clear();
+  }
+
   const hasFilters = filterAssignee || filterCompanyId || filterPriority || searchQuery;
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -946,13 +1053,30 @@ export default function TaskManager() {
               Kanban board for tracking team action items
             </p>
           </div>
-          <button
-            onClick={() => openAddModal('todo')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white shadow-sm hover:opacity-90 transition-opacity"
-            style={{ background: CACTUS.primary }}
-          >
-            <Plus size={16} /> Add Task
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Select All checkbox in header */}
+            {filteredTasks.length > 0 && (
+              <button
+                onClick={bulk.toggleAll}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 text-gray-600 transition-colors"
+                title={bulk.isAllSelected ? 'Deselect all' : 'Select all'}
+              >
+                {bulk.isAllSelected
+                  ? <CheckSquare size={15} className="text-[#1C4B42]" />
+                  : bulk.isIndeterminate
+                    ? <CheckSquare size={15} className="text-gray-400" />
+                    : <Square size={15} />}
+                {bulk.isAllSelected ? 'Deselect All' : 'Select All'}
+              </button>
+            )}
+            <button
+              onClick={() => openAddModal('todo')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white shadow-sm hover:opacity-90 transition-opacity"
+              style={{ background: CACTUS.primary }}
+            >
+              <Plus size={16} /> Add Task
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1057,8 +1181,19 @@ export default function TaskManager() {
                 setSelectedTask(task);
               }}
               onDelete={handleDelete}
-              onCardClick={task => { setSelectedTask(task); setEditingTask(null); }}
+              onCardClick={task => {
+                // Don't open detail modal if in bulk selection mode
+                if (bulk.count > 0) {
+                  bulk.toggle(task.id);
+                } else {
+                  setSelectedTask(task);
+                  setEditingTask(null);
+                }
+              }}
               onAddTask={openAddModal}
+              isSelected={bulk.isSelected}
+              onToggleSelect={bulk.toggle}
+              anySelected={bulk.count > 0}
             />
           ))}
         </div>
@@ -1076,7 +1211,7 @@ export default function TaskManager() {
       )}
 
       {/* ── Task Detail / Edit Modal ── */}
-      {selectedTask && (
+      {selectedTask && bulk.count === 0 && (
         <TaskDetailModal
           task={selectedTask}
           companyName={selectedTask.companyId ? companyMap[selectedTask.companyId] ?? '' : ''}
@@ -1086,6 +1221,43 @@ export default function TaskManager() {
           onDelete={handleDelete}
         />
       )}
+
+      {/* ── Assign dropdown ── */}
+      {showAssignDropdown && (
+        <AssignDropdown
+          people={people}
+          onAssign={handleBulkAssign}
+          onClose={() => setShowAssignDropdown(false)}
+        />
+      )}
+
+      {/* ── Bulk Action Bar ── */}
+      <BulkActionBar
+        count={bulk.count}
+        total={filteredTasks.length}
+        onClear={bulk.clear}
+        onSelectAll={bulk.toggleAll}
+        actions={[
+          {
+            label: 'Mark Complete',
+            icon: <CheckCheck size={14} />,
+            onClick: handleBulkMarkComplete,
+            variant: 'primary',
+          },
+          {
+            label: 'Assign to…',
+            icon: <UserCheck size={14} />,
+            onClick: () => setShowAssignDropdown(true),
+            variant: 'default',
+          },
+          {
+            label: 'Delete Selected',
+            icon: <Trash2 size={14} />,
+            onClick: handleBulkDelete,
+            variant: 'danger',
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, Menu, X, LogOut, User, ChevronDown, Shield } from 'lucide-react';
+import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import RoleSwitcher from './RoleSwitcher';
 import GlobalSearch from '../ui/GlobalSearch';
+import MailComposer from '../ui/MailComposer';
+import LinkedInComposer from '../ui/LinkedInComposer';
 import type { TabName } from '../../data/types';
 import { cn } from '../../lib/utils';
 import { useState, useRef, useEffect } from 'react';
@@ -25,6 +27,8 @@ export default function Header() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showMailComposer, setShowMailComposer] = useState(false);
+  const [showLinkedIn, setShowLinkedIn] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -121,6 +125,25 @@ export default function Header() {
                 <span className="text-[11px] mr-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Role</span>
                 <RoleSwitcher />
               </div>
+
+              {/* Mail compose button */}
+              <button
+                onClick={() => setShowMailComposer(true)}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                title="Compose Email"
+              >
+                <Mail className="w-4 h-4" />
+              </button>
+
+              {/* LinkedIn post button */}
+              <button
+                onClick={() => setShowLinkedIn(true)}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                title="LinkedIn Post Generator"
+                style={{ color: '#70B5F9' }}
+              >
+                <ExternalLink className="w-4 h-4" />
+              </button>
 
               {/* Profile dropdown */}
               <div className="relative" ref={profileRef}>
@@ -252,6 +275,16 @@ export default function Header() {
           {activeAnnouncements[0].title} — {activeAnnouncements[0].body}
         </div>
       )}
+
+      {/* Modals */}
+      <MailComposer
+        isOpen={showMailComposer}
+        onClose={() => setShowMailComposer(false)}
+      />
+      <LinkedInComposer
+        isOpen={showLinkedIn}
+        onClose={() => setShowLinkedIn(false)}
+      />
     </>
   );
 }

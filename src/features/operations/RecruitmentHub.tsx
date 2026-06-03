@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import {
+import { 
   Briefcase, Users, Kanban, FileText, CheckSquare,
   Plus, X, ChevronDown, ChevronRight, Search,
   Mail, Phone, ExternalLink as Linkedin, MapPin, Calendar,
@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
+import { useBulkSelect } from '../../hooks/useBulkSelect';
+import BulkActionBar from '../../components/ui/BulkActionBar';
 import type {
   JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
   JobType, JobStatus, CandidateStage, InterviewMode, InterviewRec,
@@ -1051,6 +1053,10 @@ export default function RecruitmentHub() {
   const [showCustomTaskModal, setShowCustomTaskModal] = useState<string | null>(null);
   const [customTask, setCustomTask] = useState({ task: '', category: 'other' as OnboardingCategory, assignedTo: '', dueDate: '', notes: '' });
 
+  // ─── Pipeline / Candidates bulk stage dropdowns ────────────────────────────
+  const [pipelineBulkStage, setPipelineBulkStage] = useState<CandidateStage>('shortlisted');
+  const [_candidateBulkStage, _setCandidateBulkStage] = useState<CandidateStage>('shortlisted');
+
   // ─── Derived ───────────────────────────────────────────────────────────────
   const profileCandidate = profileCandidateId ? candidates.find(c => c.id === profileCandidateId) ?? null : null;
 
@@ -1076,6 +1082,10 @@ export default function RecruitmentHub() {
   }, [candidates, candidateJobFilter, candidateStageFilter, candidateSearch]);
 
   const hiredCandidates = useMemo(() => candidates.filter(c => c.stage === 'hired'), [candidates]);
+
+  // ─── Bulk select hooks (after derived lists) ───────────────────────────────
+  void useBulkSelect(filteredCandidates); // const _bulkCandidates = useBulkSelect(filteredCandidates);
+  const bulkPipeline   = useBulkSelect(filteredPipelineCandidates);
 
   // ─── Job actions ───────────────────────────────────────────────────────────
   function handleSaveJob(data: JobFormState) {
@@ -1150,6 +1160,8 @@ export default function RecruitmentHub() {
     });
   }
 
+  // ─── AI Screen a single candidate (used by bulk action) ──────────────────
+  // ─── CSV helpers ──────────────────────────────────────────────────────────
   // ─── Interview actions ────────────────────────────────────────────────────
   function handleSaveInterview(data: InterviewFormState) {
     if (!profileCandidate) return;
@@ -1444,18 +1456,35 @@ export default function RecruitmentHub() {
                     <div style={{ background: '#f9fafb', borderRadius: '0 0 8px 8px', padding: 6, minHeight: 100 }}>
                       {stageCandidates.map(candidate => {
                         const job = jobs.find(j => j.id === candidate.jobId);
+                        const isChecked = bulkPipeline.isSelected(candidate.id);
                         return (
                           <div
                             key={candidate.id}
                             onClick={() => setProfileCandidateId(candidate.id)}
                             style={{
-                              background: '#fff', borderRadius: 6, padding: '10px 12px', marginBottom: 6,
+                              background: isChecked ? `${PRIMARY}0f` : '#fff',
+                              borderRadius: 6, padding: '10px 12px', marginBottom: 6,
                               boxShadow: '0 1px 4px rgba(0,0,0,0.08)', cursor: 'pointer',
                               borderLeft: `3px solid ${aiScoreColor(candidate.aiScore)}`,
-                              transition: 'box-shadow 0.15s',
+                              transition: 'box-shadow 0.15s', position: 'relative',
                             }}
                           >
-                            <p style={{ margin: '0 0 3px', fontSize: 13, fontWeight: 700, color: '#111827' }}>{candidate.name}</p>
+                            {/* Checkbox top-left */}
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => bulkPipeline.toggle(candidate.id)}
+                              onClick={e => e.stopPropagation()}
+                              style={{
+                                position: 'absolute', top: 6, right: 6,
+                                width: 14, height: 14, cursor: 'pointer',
+                                opacity: bulkPipeline.count > 0 ? 1 : 0,
+                                transition: 'opacity 0.15s',
+                              }}
+                              onMouseEnter={e => { (e.currentTarget as HTMLInputElement).style.opacity = '1'; }}
+                              onMouseLeave={e => { if (!isChecked && bulkPipeline.count === 0) (e.currentTarget as HTMLInputElement).style.opacity = '0'; }}
+                            />
+                            <p style={{ margin: '0 0 3px', fontSize: 13, fontWeight: 700, color: '#111827', paddingRight: 18 }}>{candidate.name}</p>
                             <p style={{ margin: '0 0 6px', fontSize: 11, color: '#6b7280' }}>{job?.title ?? 'Unknown Role'}</p>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                               {candidate.aiScore > 0 ? (
@@ -1481,6 +1510,47 @@ export default function RecruitmentHub() {
                 );
               })}
             </div>
+
+            {/* Pipeline BulkActionBar */}
+            <BulkActionBar
+              count={bulkPipeline.count}
+              total={filteredPipelineCandidates.length}
+              onClear={bulkPipeline.clear}
+              onSelectAll={bulkPipeline.toggleAll}
+              actions={[
+                {
+                  label: 'Move to Stage…',
+                  variant: 'default',
+                  icon: (
+                    <select
+                      value={pipelineBulkStage}
+                      onChange={e => setPipelineBulkStage(e.target.value as CandidateStage)}
+                      onClick={e => e.stopPropagation()}
+                      style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 13, cursor: 'pointer', outline: 'none' }}
+                    >
+                      {(Object.keys(STAGE_LABELS) as CandidateStage[]).map(s => (
+                        <option key={s} value={s} style={{ color: '#111' }}>{STAGE_LABELS[s]}</option>
+                      ))}
+                    </select>
+                  ),
+                  onClick: () => {
+                    bulkPipeline.selectedItems.forEach(c => handleMoveStage(c.id, pipelineBulkStage));
+                    bulkPipeline.clear();
+                  },
+                },
+                {
+                  label: 'Reject All',
+                  variant: 'danger',
+                  icon: <XCircle size={13} />,
+                  onClick: () => {
+                    if (window.confirm(`Reject ${bulkPipeline.count} candidate(s)?`)) {
+                      bulkPipeline.selectedItems.forEach(c => handleMoveStage(c.id, 'rejected'));
+                      bulkPipeline.clear();
+                    }
+                  },
+                },
+              ]}
+            />
 
             {/* Rejected / Withdrawn collapsed section */}
             {(() => {

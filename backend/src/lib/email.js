@@ -73,4 +73,21 @@ async function sendPasswordReset({ to, token }) {
   });
 }
 
-module.exports = { sendInvite, sendPasswordReset };
+async function sendGeneric({ to, subject, body, cc, from_name }) {
+  const templateId = process.env.EMAILJS_GENERIC_TPL;
+  if (!templateId) {
+    // Fallback: log and return ok (user configured mailto on frontend)
+    console.log(`[Email] Generic template not set. Would send to ${to}: ${subject}`);
+    return;
+  }
+  await sendViaEmailJS(templateId, {
+    to_email:   to,
+    to_cc:      cc || '',
+    subject:    subject,
+    message:    body,
+    from_name:  from_name || 'Cactus Partners',
+    firm_name:  'Cactus Partners',
+  });
+}
+
+module.exports = { sendInvite, sendPasswordReset, sendGeneric };

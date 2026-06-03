@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import SectorPill from '../../components/ui/SectorPill';
-import { Plus, Pencil, Trash2, X, Check, Calendar, DollarSign, Kanban, FileText, ClipboardCheck, Users, CheckSquare } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, X, Check, Calendar, DollarSign,
+  Kanban, FileText, ClipboardCheck, Users, CheckSquare,
+  Upload, Download, AlertCircle,
+} from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportPipelinePDF, exportPipelineExcel } from '../../lib/export';
 import { generateId } from '../../lib/utils';
@@ -11,6 +15,8 @@ import IcMemoBuilder from './IcMemoBuilder';
 import DdChecklist from './DdChecklist';
 import CoInvestorCrm from './CoInvestorCrm';
 import ReferenceChecks from './ReferenceChecks';
+import { useBulkSelect } from '../../hooks/useBulkSelect';
+import BulkActionBar from '../../components/ui/BulkActionBar';
 
 type InvTab = 'pipeline' | 'ic_memos' | 'dd' | 'co_investors' | 'ref_checks';
 
@@ -42,10 +48,214 @@ const DEFAULT_STAGE_COLORS: Record<string, { backgroundColor: string; color: str
   'Portfolio':     { backgroundColor: '#F0FDF4', color: '#15803D', borderColor: '#BBF7D0' },
 };
 
+// ─── CSV Row for deals ────────────────────────────────────────────────────────
+interface DealCsvRow {
+  _rowIndex: number;
+  companyName: string;
+  sector: string;
+  ticketSize: string;
+  stage: string;
+  notes: string;
+  included: boolean;
+}
+
+// ─── Deal CSV Import Section ──────────────────────────────────────────────────
+interface DealCsvImportProps {
+  primaryColor: string;
+  stages: DealStage[];
+  onImport: (rows: DealCsvRow[]) => void;
+}
+
+function DealCsvImport({ primaryColor, stages, onImport }: DealCsvImportProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [csvRows, setCsvRows] = useState<DealCsvRow[]>([]);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [importedCount, setImportedCount] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const downloadTemplate = () => {
+    const stageExample = stages[0] ?? 'Sourcing';
+    const content = [
+      'Company Name,Sector,Ticket Size,Stage,Notes',
+      `Example Co,Fintech,$2M,${stageExample},Strong team and traction`,
+    ].join('\n');
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'deals_template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setParseError(null);
+    setImportedCount(null);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length < 2) {
+        setParseError('CSV must have a header row and at least one data row.');
+        return;
+      }
+      const dataLines = lines.slice(1);
+      const parsed: DealCsvRow[] = dataLines.map((line, idx) => {
+        const cols = line.split(',');
+        const clean = (s?: string) => (s ?? '').replace(/^"|"$/g, '').trim();
+        return {
+          _rowIndex: idx,
+          companyName: clean(cols[0]),
+          sector: clean(cols[1]),
+          ticketSize: clean(cols[2]),
+          stage: clean(cols[3]),
+          notes: clean(cols[4]),
+          included: true,
+        };
+      }).filter(r => r.companyName);
+      if (parsed.length === 0) {
+        setParseError('No valid rows found. Ensure each row has a Company Name.');
+        return;
+      }
+      setCsvRows(parsed);
+      setIsOpen(true);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const toggleRow = (idx: number) =>
+    setCsvRows(rows => rows.map(r => r._rowIndex === idx ? { ...r, included: !r.included } : r));
+
+  const toggleAll = () => {
+    const allIncluded = csvRows.every(r => r.included);
+    setCsvRows(rows => rows.map(r => ({ ...r, included: !allIncluded })));
+  };
+
+  const handleImport = () => {
+    const selected = csvRows.filter(r => r.included);
+    if (selected.length === 0) return;
+    onImport(selected);
+    setImportedCount(selected.length);
+    setCsvRows([]);
+    setIsOpen(false);
+  };
+
+  const includedCount = csvRows.filter(r => r.included).length;
+  const allIncluded = csvRows.length > 0 && csvRows.every(r => r.included);
+  const someIncluded = csvRows.some(r => r.included) && !allIncluded;
+
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden mb-4">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">Import Deals from CSV</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={downloadTemplate}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Template
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            Choose CSV
+          </button>
+          <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
+        </div>
+      </div>
+
+      {importedCount !== null && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border-b border-emerald-100">
+          <Check className="w-4 h-4 text-emerald-600" />
+          <span className="text-sm text-emerald-700 font-medium">{importedCount} deal{importedCount !== 1 ? 's' : ''} imported</span>
+          <button onClick={() => setImportedCount(null)} className="ml-auto text-emerald-400 hover:text-emerald-600">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {parseError && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border-b border-red-100">
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <span className="text-sm text-red-600">{parseError}</span>
+        </div>
+      )}
+
+      {isOpen && csvRows.length > 0 && (
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-500">{csvRows.length} rows parsed</p>
+            <button
+              onClick={handleImport}
+              disabled={includedCount === 0}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white disabled:opacity-50"
+              style={{ backgroundColor: primaryColor }}
+            >
+              <Check className="w-3.5 h-3.5" />
+              Import {includedCount} deal{includedCount !== 1 ? 's' : ''}
+            </button>
+          </div>
+
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-3 py-2 w-8">
+                    <input
+                      type="checkbox"
+                      checked={allIncluded}
+                      ref={el => { if (el) el.indeterminate = someIncluded; }}
+                      onChange={toggleAll}
+                      className="rounded border-gray-300"
+                    />
+                  </th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Company</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Sector</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Ticket</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Stage</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Notes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {csvRows.map(row => (
+                  <tr key={row._rowIndex} className={row.included ? 'bg-white' : 'bg-gray-50 opacity-50'}>
+                    <td className="px-3 py-2">
+                      <input type="checkbox" checked={row.included} onChange={() => toggleRow(row._rowIndex)} className="rounded border-gray-300" />
+                    </td>
+                    <td className="px-3 py-2 font-medium text-gray-800">{row.companyName}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.sector || '—'}</td>
+                    <td className="px-3 py-2 text-gray-600 font-mono">{row.ticketSize || '—'}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.stage || '—'}</td>
+                    <td className="px-3 py-2 text-gray-500 truncate max-w-[200px]">{row.notes || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <button onClick={() => { setCsvRows([]); setIsOpen(false); }} className="text-xs text-gray-400 hover:text-gray-600">
+            Cancel import
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Pipeline View ─────────────────────────────────────────────────────────────
 function PipelineView() {
   const { store, addDeal, updateDeal, deleteDeal } = useApp();
   const configuredStages = (store.dealStages ?? []).map(s => s.name) as DealStage[];
-  // If no stages configured, derive unique stages from existing deals
   const dealStageNames = [...new Set((store.deals ?? []).map(d => d.stage))];
   const STAGES: DealStage[] = configuredStages.length > 0 ? configuredStages : dealStageNames as DealStage[];
 
@@ -54,11 +264,16 @@ function PipelineView() {
     if (s) return { backgroundColor: s.bgColor, color: s.textColor, borderColor: s.borderColor };
     return DEFAULT_STAGE_COLORS[name] ?? { backgroundColor: '#F9FAFB', color: '#6B7280', borderColor: '#E5E7EB' };
   };
+
   const [editing, setEditing] = useState<Deal | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<Deal, 'id'>>(EMPTY);
+  const [bulkMoveStage, setBulkMoveStage] = useState('');
   const { firm, deals, sectors, people } = store;
   const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cactus-accent/30 bg-white';
+
+  // ── Bulk selection ──────────────────────────────────────────────────────
+  const bulk = useBulkSelect<Deal>(deals ?? []);
 
   const startCreate = () => {
     setForm({ ...EMPTY, sectorId: sectors[0]?.id ?? '', leadPartnerId: people[0]?.id ?? '', stage: (store.dealStages?.[0]?.name ?? 'Sourcing') as DealStage });
@@ -76,6 +291,39 @@ function PipelineView() {
     if (creating) addDeal({ id: generateId(), ...form });
     else if (editing) updateDeal({ ...editing, ...form });
     cancel();
+  };
+
+  const handleBulkMoveStage = (stage: string) => {
+    if (!stage) return;
+    bulk.selectedItems.forEach(deal => updateDeal({ ...deal, stage: stage as DealStage }));
+    bulk.clear();
+    setBulkMoveStage('');
+  };
+
+  const handleBulkDelete = () => {
+    const count = bulk.count;
+    if (!window.confirm(`Delete ${count} deal${count !== 1 ? 's' : ''}? This action cannot be undone.`)) return;
+    bulk.selectedItems.forEach(deal => deleteDeal(deal.id));
+    bulk.clear();
+  };
+
+  const handleCsvImport = (rows: DealCsvRow[]) => {
+    rows.forEach(row => {
+      // Match sector by name (case-insensitive)
+      const matchedSector = sectors.find(s => s.name.toLowerCase() === row.sector.toLowerCase());
+      // Match stage — use first configured stage as fallback
+      const matchedStage = STAGES.find(s => s.toLowerCase() === row.stage.toLowerCase()) ?? STAGES[0] ?? 'Sourcing';
+      addDeal({
+        id: generateId(),
+        companyName: row.companyName,
+        sectorId: matchedSector?.id ?? sectors[0]?.id ?? '',
+        ticketSize: row.ticketSize,
+        leadPartnerId: people[0]?.id ?? '',
+        dateAdded: new Date().toISOString().slice(0, 10),
+        stage: matchedStage as DealStage,
+        notes: row.notes,
+      });
+    });
   };
 
   const DealForm = () => (
@@ -129,8 +377,39 @@ function PipelineView() {
 
   return (
     <div className="space-y-6">
+      {/* ── CSV Import ─────────────────────────────────────────────────────── */}
+      <DealCsvImport primaryColor={firm.primaryColor} stages={STAGES} onImport={handleCsvImport} />
+
+      {/* ── Bulk Action Bar ─────────────────────────────────────────────────── */}
+      {bulk.count > 0 && (
+        <BulkActionBar
+          count={bulk.count}
+          total={(deals ?? []).length}
+          onClear={bulk.clear}
+          onSelectAll={bulk.toggleAll}
+          actions={[
+            {
+              label: bulkMoveStage ? `Move → ${bulkMoveStage}` : 'Move to Stage…',
+              onClick: () => { if (bulkMoveStage) handleBulkMoveStage(bulkMoveStage); },
+            },
+            {
+              label: 'Delete Selected',
+              variant: 'danger' as const,
+              onClick: handleBulkDelete,
+            },
+          ]}
+        />
+      )}
+
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{deals.length} deals tracked</p>
+        <p className="text-sm text-gray-500">
+          {deals.length} deals tracked
+          {bulk.count > 0 && (
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-[#1C4B42] text-white">
+              {bulk.count} selected
+            </span>
+          )}
+        </p>
         <div className="flex items-center gap-2">
           <ExportMenu
             label="Export"
@@ -162,13 +441,33 @@ function PipelineView() {
               <div className="space-y-2 flex-1">
                 {stageDeals.map((deal) => {
                   const partner = people.find((p) => p.id === deal.leadPartnerId);
+                  const isSelected = bulk.isSelected(deal.id);
                   return (
                     <div key={deal.id}>
                       {editing?.id === deal.id ? (
                         <DealForm />
                       ) : (
-                        <div className="bg-white border border-gray-200 rounded-xl p-3 hover:shadow-md transition-shadow group">
-                          <div className="flex items-start justify-between gap-1">
+                        <div
+                          className={`bg-white border rounded-xl p-3 hover:shadow-md transition-shadow group relative ${
+                            isSelected ? 'border-[#1C4B42] ring-1 ring-[#1C4B42]/30' : 'border-gray-200'
+                          }`}
+                        >
+                          {/* Bulk checkbox — top-right, visible on hover or when selected */}
+                          <div
+                            className={`absolute top-2 right-2 transition-opacity ${
+                              isSelected || bulk.count > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                            }`}
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => bulk.toggle(deal.id)}
+                              className="rounded border-gray-300 cursor-pointer w-3.5 h-3.5"
+                            />
+                          </div>
+
+                          <div className="flex items-start justify-between gap-1 pr-5">
                             <p className="text-sm font-semibold text-gray-800 leading-tight">{deal.companyName}</p>
                             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                               <button onClick={() => startEdit(deal)} className="p-1 rounded hover:bg-gray-100 text-gray-400"><Pencil className="w-3 h-3" /></button>

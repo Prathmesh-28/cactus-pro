@@ -1,12 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Search, Plus, X, Edit2, Copy, Check, Phone, Mail,
   ExternalLink, MapPin, Cake, Tag, User, Building2,
   ChevronDown, Clock, Users, Video, CalendarPlus, CheckCircle2,
+  Upload, Download, FileText, AlertCircle,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
 import type { FounderContact } from '../../data/types';
+import { useBulkSelect } from '../../hooks/useBulkSelect';
+import BulkActionBar from '../../components/ui/BulkActionBar';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -348,7 +351,7 @@ function buildGCalUrl(opts: {
 interface ScheduleMeetProps {
   contact: FounderContact;
   companyName: string;
-  onScheduled: () => void; // marks lastContacted = today
+  onScheduled: () => void;
   onClose: () => void;
 }
 
@@ -380,7 +383,7 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
     });
 
     window.open(url, '_blank', 'noopener,noreferrer');
-    onScheduled(); // sync last contacted
+    onScheduled();
     setDone(true);
   };
 
@@ -403,7 +406,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
         </div>
 
         {done ? (
-          /* Success state */
           <div className="px-6 py-10 text-center space-y-4">
             <CheckCircle2 size={48} className="mx-auto text-emerald-500" />
             <div>
@@ -425,7 +427,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
             </button>
           </div>
         ) : (
-          /* Form */
           <div className="px-6 py-5 space-y-4">
             {!hasEmail && (
               <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 text-xs text-amber-800">
@@ -434,7 +435,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
               </div>
             )}
 
-            {/* With who */}
             <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
               <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-semibold shrink-0">
                 {contact.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
@@ -445,13 +445,11 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
               </div>
             </div>
 
-            {/* Meeting title */}
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Meeting Title</label>
               <input className={iCls} value={title} onChange={e => setTitle(e.target.value)} />
             </div>
 
-            {/* Date + Time */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
@@ -465,7 +463,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
               </div>
             </div>
 
-            {/* Duration */}
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Duration</label>
               <div className="flex gap-2">
@@ -483,7 +480,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
               </div>
             </div>
 
-            {/* Agenda */}
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Agenda (optional)</label>
               <textarea className={`${iCls} resize-none`} rows={3} value={agenda}
@@ -491,7 +487,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
                 placeholder="Topics to cover, documents to review…" />
             </div>
 
-            {/* How it works */}
             <div className="bg-blue-50 rounded-xl p-3 text-xs text-blue-700 space-y-1">
               <p className="font-medium">How it works</p>
               <p>1. Google Calendar opens with the event pre-filled</p>
@@ -499,7 +494,6 @@ function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: Sched
               <p>3. Save — Google sends the invite + Meet link to {contact.email || 'the founder'}</p>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-2 pt-1">
               <button onClick={onClose}
                 className="flex-1 py-2 rounded-lg text-sm border border-gray-200 text-gray-600 hover:bg-gray-50">
@@ -733,6 +727,250 @@ function ContactCard({
   );
 }
 
+// ─── Contact CSV Import ───────────────────────────────────────────────────────
+
+interface ContactCsvRow {
+  _rowIndex: number;
+  companyName: string;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  linkedInUrl: string;
+  location: string;
+  included: boolean;
+  _warning?: string;
+}
+
+interface ContactCsvImportProps {
+  companyOptions: { id: string; name: string }[];
+  onImport: (rows: ContactCsvRow[]) => void;
+}
+
+function ContactCsvImport({ companyOptions, onImport }: ContactCsvImportProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [csvRows, setCsvRows] = useState<ContactCsvRow[]>([]);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [importedCount, setImportedCount] = useState<number | null>(null);
+  const [skippedWarnings, setSkippedWarnings] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const downloadTemplate = () => {
+    const coName = companyOptions[0]?.name ?? 'Lohum';
+    const content = [
+      'Company Name,Name,Role,Email,Phone,LinkedIn URL,Location',
+      `${coName},Jane Smith,Co-Founder & CEO,jane@example.com,+91 98765 43210,https://linkedin.com/in/jane,Mumbai`,
+    ].join('\n');
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'contacts_template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setParseError(null);
+    setImportedCount(null);
+    setSkippedWarnings([]);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length < 2) {
+        setParseError('CSV must have a header row and at least one data row.');
+        return;
+      }
+      const dataLines = lines.slice(1);
+      const warnings: string[] = [];
+      const parsed: ContactCsvRow[] = dataLines.map((line, idx) => {
+        const cols = line.split(',');
+        const clean = (s?: string) => (s ?? '').replace(/^"|"$/g, '').trim();
+        const companyName = clean(cols[0]);
+        // Case-insensitive company match
+        const matchedCo = companyOptions.find(c => c.name.toLowerCase() === companyName.toLowerCase());
+        let warning: string | undefined;
+        if (companyName && !matchedCo) {
+          warning = `Company "${companyName}" not found in portfolio`;
+          warnings.push(warning);
+        }
+        return {
+          _rowIndex: idx,
+          companyName,
+          name: clean(cols[1]),
+          role: clean(cols[2]),
+          email: clean(cols[3]),
+          phone: clean(cols[4]),
+          linkedInUrl: clean(cols[5]),
+          location: clean(cols[6]),
+          included: !!matchedCo, // auto-exclude unmatched rows
+          _warning: warning,
+        };
+      }).filter(r => r.name);
+      if (parsed.length === 0) {
+        setParseError('No valid rows found. Ensure each row has a Name.');
+        return;
+      }
+      setCsvRows(parsed);
+      setSkippedWarnings(warnings);
+      setIsOpen(true);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const toggleRow = (idx: number) =>
+    setCsvRows(rows => rows.map(r => r._rowIndex === idx ? { ...r, included: !r.included } : r));
+
+  const toggleAll = () => {
+    const allIncluded = csvRows.every(r => r.included);
+    setCsvRows(rows => rows.map(r => ({ ...r, included: !allIncluded })));
+  };
+
+  const handleImport = () => {
+    const selected = csvRows.filter(r => r.included);
+    if (selected.length === 0) return;
+    onImport(selected);
+    setImportedCount(selected.length);
+    setCsvRows([]);
+    setIsOpen(false);
+    setSkippedWarnings([]);
+  };
+
+  const includedCount = csvRows.filter(r => r.included).length;
+  const allIncluded = csvRows.length > 0 && csvRows.every(r => r.included);
+  const someIncluded = csvRows.some(r => r.included) && !allIncluded;
+
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">Import Contacts from CSV</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={downloadTemplate}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Template
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white bg-[#1C4B42] hover:bg-[#163d35] transition-colors"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            Choose CSV
+          </button>
+          <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
+        </div>
+      </div>
+
+      {importedCount !== null && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border-b border-emerald-100">
+          <Check className="w-4 h-4 text-emerald-600" />
+          <span className="text-sm text-emerald-700 font-medium">{importedCount} contact{importedCount !== 1 ? 's' : ''} imported</span>
+          <button onClick={() => setImportedCount(null)} className="ml-auto text-emerald-400 hover:text-emerald-600">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {parseError && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border-b border-red-100">
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <span className="text-sm text-red-600">{parseError}</span>
+        </div>
+      )}
+
+      {skippedWarnings.length > 0 && isOpen && (
+        <div className="flex items-start gap-2 px-4 py-2.5 bg-amber-50 border-b border-amber-100">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-xs text-amber-700">
+            <p className="font-medium">{skippedWarnings.length} row{skippedWarnings.length !== 1 ? 's' : ''} have unmatched companies (unchecked by default):</p>
+            <ul className="mt-1 space-y-0.5">
+              {skippedWarnings.slice(0, 3).map((w, i) => <li key={i}>• {w}</li>)}
+              {skippedWarnings.length > 3 && <li>• …and {skippedWarnings.length - 3} more</li>}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {isOpen && csvRows.length > 0 && (
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-500">{csvRows.length} rows parsed</p>
+            <button
+              onClick={handleImport}
+              disabled={includedCount === 0}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white disabled:opacity-50 bg-[#1C4B42]"
+            >
+              <Check className="w-3.5 h-3.5" />
+              Import {includedCount} contact{includedCount !== 1 ? 's' : ''}
+            </button>
+          </div>
+
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-3 py-2 w-8">
+                    <input
+                      type="checkbox"
+                      checked={allIncluded}
+                      ref={el => { if (el) el.indeterminate = someIncluded; }}
+                      onChange={toggleAll}
+                      className="rounded border-gray-300"
+                    />
+                  </th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Company</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {csvRows.map(row => (
+                  <tr key={row._rowIndex} className={row.included ? 'bg-white' : 'bg-gray-50 opacity-60'}>
+                    <td className="px-3 py-2">
+                      <input
+                        type="checkbox"
+                        checked={row.included}
+                        onChange={() => toggleRow(row._rowIndex)}
+                        className="rounded border-gray-300"
+                        title={row._warning}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={row._warning ? 'text-amber-600 font-medium' : 'text-gray-800 font-medium'}>
+                        {row.companyName || '—'}
+                      </span>
+                      {row._warning && <p className="text-[10px] text-amber-500 mt-0.5">Not matched</p>}
+                    </td>
+                    <td className="px-3 py-2 font-medium text-gray-800">{row.name}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.role || '—'}</td>
+                    <td className="px-3 py-2 text-gray-600 truncate max-w-[140px]">{row.email || '—'}</td>
+                    <td className="px-3 py-2 text-gray-600">{row.location || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <button onClick={() => { setCsvRows([]); setIsOpen(false); setSkippedWarnings([]); }} className="text-xs text-gray-400 hover:text-gray-600">
+            Cancel import
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function FounderDirectory() {
@@ -748,7 +986,7 @@ export default function FounderDirectory() {
       (company.keyPeople ?? []).forEach(person => {
         const key = `${company.id}__${person.name.toLowerCase().trim()}`;
         if (!existingKeys.has(key) && person.name.trim()) {
-          existingKeys.add(key); // prevent duplicates within same run
+          existingKeys.add(key);
           addFounderContact({
             id: generateId(),
             companyId: company.id,
@@ -813,6 +1051,9 @@ export default function FounderDirectory() {
     return m;
   }, [meetingNotes]);
 
+  // ── Bulk selection ─────────────────────────────────────────────────────────
+  const bulk = useBulkSelect<FounderContact>(founderContacts);
+
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleAdd = (data: Omit<FounderContact, 'id'> & { id?: string }) => {
     addFounderContact({ ...data, id: generateId() } as FounderContact);
@@ -838,6 +1079,45 @@ export default function FounderDirectory() {
     setViewContact(updated);
   };
 
+  const handleBulkDelete = () => {
+    const count = bulk.count;
+    if (!window.confirm(`Delete ${count} contact${count !== 1 ? 's' : ''}? This action cannot be undone.`)) return;
+    bulk.selectedItems.forEach(c => deleteFounderContact(c.id));
+    if (viewContact && bulk.selectedItems.some(c => c.id === viewContact.id)) setViewContact(null);
+    bulk.clear();
+  };
+
+  const handleBulkMarkContacted = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    bulk.selectedItems.forEach(c => updateFounderContact({ ...c, lastContactedAt: today }));
+    if (viewContact && bulk.selectedItems.some(c => c.id === viewContact.id)) {
+      setViewContact({ ...viewContact, lastContactedAt: today });
+    }
+    bulk.clear();
+  };
+
+  const handleCsvImport = (rows: ContactCsvRow[]) => {
+    rows.forEach(row => {
+      const matchedCo = companyOptions.find(c => c.name.toLowerCase() === row.companyName.toLowerCase());
+      if (!matchedCo) return; // skip unmatched
+      addFounderContact({
+        id: generateId(),
+        companyId: matchedCo.id,
+        name: row.name,
+        role: row.role,
+        email: row.email,
+        phone: row.phone,
+        linkedInUrl: row.linkedInUrl,
+        twitterUrl: '',
+        birthday: '',
+        location: row.location,
+        notes: '',
+        lastContactedAt: undefined,
+        tags: [],
+      });
+    });
+  };
+
   // ── Stats ──────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
     const total = founderContacts.length;
@@ -854,21 +1134,52 @@ export default function FounderDirectory() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Founder Directory</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{stats.total} contacts across {companies.length} portfolio companies</p>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {bulk.count > 0
+              ? <span className="text-[#1C4B42] font-medium">{bulk.count} selected · </span>
+              : null}
+            {stats.total} contacts across {companies.length} portfolio companies
+          </p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-        >
-          <Plus size={15} />
-          Add Contact
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+          >
+            <Plus size={15} />
+            Add Contact
+          </button>
+        </div>
       </div>
+
+      {/* CSV Import */}
+      <ContactCsvImport companyOptions={companyOptions} onImport={handleCsvImport} />
+
+      {/* Bulk Action Bar */}
+      {bulk.count > 0 && (
+        <BulkActionBar
+          count={bulk.count}
+          total={founderContacts.length}
+          onClear={bulk.clear}
+          onSelectAll={bulk.toggleAll}
+          actions={[
+            {
+              label: 'Delete Selected',
+              variant: 'danger' as const,
+              onClick: handleBulkDelete,
+            },
+            {
+              label: 'Mark All Contacted Today',
+              onClick: handleBulkMarkContacted,
+            },
+          ]}
+        />
+      )}
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total Contacts', value: stats.total, color: 'text-gray-900' },
+          { label: bulk.count > 0 ? `${bulk.count} Selected` : 'Total Contacts', value: bulk.count > 0 ? bulk.count : stats.total, color: bulk.count > 0 ? 'text-[#1C4B42]' : 'text-gray-900' },
           { label: 'Contacted <7d', value: stats.recentCount, color: 'text-emerald-600' },
           { label: 'Overdue (>30d)', value: stats.staleCount, color: 'text-red-600' },
           { label: 'Never Contacted', value: stats.neverCount, color: 'text-gray-500' },
@@ -950,16 +1261,32 @@ export default function FounderDirectory() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(contact => {
             const co = companyMap.get(contact.companyId);
-            const age = contactAge(contact.lastContactedAt);
-            void age; // age used via LastContactedBadge
+            const isSelected = bulk.isSelected(contact.id);
             return (
               <div
                 key={contact.id}
-                className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 cursor-pointer hover:shadow-md hover:border-indigo-200 transition-all group"
+                className={`bg-white rounded-xl border shadow-sm p-4 cursor-pointer hover:shadow-md transition-all group relative ${
+                  isSelected ? 'border-[#1C4B42] ring-1 ring-[#1C4B42]/20' : 'border-gray-100 hover:border-indigo-200'
+                }`}
                 onClick={() => setViewContact(contact)}
               >
+                {/* Bulk checkbox — top-left, visible on hover or when any selected */}
+                <div
+                  className={`absolute top-2 left-2 z-10 transition-opacity ${
+                    isSelected || bulk.count > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => bulk.toggle(contact.id)}
+                    className="rounded border-gray-300 cursor-pointer w-3.5 h-3.5"
+                  />
+                </div>
+
                 {/* Company logo + edit btn */}
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-3 pl-5">
                   {co?.logoUrl ? (
                     <img
                       src={co.logoUrl}
@@ -1051,6 +1378,16 @@ export default function FounderDirectory() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
+                {/* Checkbox column */}
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={bulk.isAllSelected}
+                    ref={el => { if (el) el.indeterminate = bulk.isIndeterminate; }}
+                    onChange={bulk.toggleAll}
+                    className="rounded border-gray-300 cursor-pointer"
+                  />
+                </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Contact</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Company</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Email</th>
@@ -1062,12 +1399,22 @@ export default function FounderDirectory() {
             <tbody className="divide-y divide-gray-50">
               {filtered.map(contact => {
                 const co = companyMap.get(contact.companyId);
+                const isSelected = bulk.isSelected(contact.id);
                 return (
                   <tr
                     key={contact.id}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    className={`hover:bg-gray-50 cursor-pointer transition-colors ${isSelected ? 'bg-[#1C4B42]/5' : ''}`}
                     onClick={() => setViewContact(contact)}
                   >
+                    {/* Checkbox cell */}
+                    <td className="px-4 py-3 w-10" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => bulk.toggle(contact.id)}
+                        className="rounded border-gray-300 cursor-pointer"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar name={contact.name} />

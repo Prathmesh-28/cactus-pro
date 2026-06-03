@@ -3,10 +3,13 @@ import {
   Search, Plus, X, ExternalLink, Tag, Building2,
   ChevronDown, Newspaper, TrendingUp, TrendingDown,
   Minus, Filter, RefreshCw, AlertCircle, User, Calendar,
+  CheckSquare, Square, Trash2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
 import type { NewsItem } from '../../data/types';
+import { useBulkSelect } from '../../hooks/useBulkSelect';
+import BulkActionBar from '../../components/ui/BulkActionBar';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -209,18 +212,42 @@ interface NewsCardProps {
   companyName?: string;
   companyLogo?: string;
   onDelete: (id: string) => void;
+  // Bulk selection
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+  anySelected: boolean;
 }
 
-function NewsCard({ item, companyName, companyLogo, onDelete }: NewsCardProps) {
+function NewsCard({ item, companyName, companyLogo, onDelete, isSelected, onToggleSelect, anySelected }: NewsCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#86CA0F]/40 transition-all">
+    <div
+      className={`bg-white rounded-xl border shadow-sm hover:shadow-md transition-all ${
+        isSelected
+          ? 'border-[#1C4B42] ring-2 ring-[#1C4B42]/30'
+          : 'border-gray-100 hover:border-[#86CA0F]/40'
+      }`}
+    >
       {/* Compact header row — always visible */}
       <div
         className="flex items-start gap-3 px-4 py-3 cursor-pointer"
         onClick={() => setExpanded(v => !v)}
       >
+        {/* Bulk select checkbox */}
+        <button
+          className={`shrink-0 mt-0.5 transition-all duration-150 ${
+            anySelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          } ${isSelected ? 'text-[#1C4B42]' : 'text-gray-300 hover:text-[#1C4B42]'}`}
+          style={{ opacity: anySelected ? 1 : undefined }}
+          onClick={e => { e.stopPropagation(); onToggleSelect(item.id); }}
+          title={isSelected ? 'Deselect' : 'Select'}
+        >
+          {isSelected
+            ? <CheckSquare size={15} />
+            : <Square size={15} />}
+        </button>
+
         {/* Source badge */}
         <span className="shrink-0 mt-0.5 px-2 py-0.5 rounded bg-gray-100 text-gray-600 text-[10px] font-semibold uppercase tracking-wide">
           {item.source || 'Source'}
@@ -538,7 +565,7 @@ function AddNewsModal({ companyOptions, onSave, onClose }: AddNewsModalProps) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function NewsFeed() {
-  const { store, addNewsItem, deleteNewsItem } = useApp();
+  const { store, addNewsItem, updateNewsItem, deleteNewsItem } = useApp();
   const newsItems: NewsItem[] = store.newsItems ?? [];
   const companies = store.companies ?? [];
 
@@ -586,6 +613,9 @@ export default function NewsFeed() {
     // Sort by savedAt desc
     return list.sort((a, b) => (a.savedAt > b.savedAt ? -1 : 1));
   }, [newsItems, filterCompany, filterSentiment, search]);
+
+  // ── Bulk selection ─────────────────────────────────────────────────────────
+  const bulk = useBulkSelect(filtered);
 
   // ── Auto-fetch state ───────────────────────────────────────────────────────
   const [fetching,    setFetching]    = useState(false);
@@ -643,6 +673,28 @@ export default function NewsFeed() {
   const handleDelete = (id: string) => {
     if (!window.confirm('Remove this article?')) return;
     deleteNewsItem(id);
+  };
+
+  // ── Bulk action handlers ───────────────────────────────────────────────────
+  const handleBulkDelete = () => {
+    const n = bulk.count;
+    if (!window.confirm(`Delete ${n} article${n !== 1 ? 's' : ''}?`)) return;
+    bulk.selectedItems.forEach(item => deleteNewsItem(item.id));
+    bulk.clear();
+  };
+
+  const handleBulkMarkPositive = () => {
+    bulk.selectedItems.forEach(item => {
+      updateNewsItem({ ...item, sentiment: 'positive' });
+    });
+    bulk.clear();
+  };
+
+  const handleBulkMarkNegative = () => {
+    bulk.selectedItems.forEach(item => {
+      updateNewsItem({ ...item, sentiment: 'negative' });
+    });
+    bulk.clear();
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -760,6 +812,21 @@ export default function NewsFeed() {
               </select>
               <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
+
+            {/* Select All toggle */}
+            {filtered.length > 0 && (
+              <button
+                onClick={bulk.toggleAll}
+                className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
+              >
+                {bulk.isAllSelected
+                  ? <CheckSquare size={14} className="text-[#1C4B42]" />
+                  : bulk.isIndeterminate
+                    ? <CheckSquare size={14} className="text-gray-400" />
+                    : <Square size={14} />}
+                {bulk.isAllSelected ? 'Deselect All' : 'Select All'}
+              </button>
+            )}
           </div>
 
           {/* Active filter count */}
@@ -812,6 +879,9 @@ export default function NewsFeed() {
                   companyName={co?.name}
                   companyLogo={co?.logoUrl}
                   onDelete={handleDelete}
+                  isSelected={bulk.isSelected(item.id)}
+                  onToggleSelect={bulk.toggle}
+                  anySelected={bulk.count > 0}
                 />
               );
             })}
@@ -827,6 +897,34 @@ export default function NewsFeed() {
           onClose={() => setShowAddModal(false)}
         />
       )}
+
+      {/* Bulk Action Bar */}
+      <BulkActionBar
+        count={bulk.count}
+        total={filtered.length}
+        onClear={bulk.clear}
+        onSelectAll={bulk.toggleAll}
+        actions={[
+          {
+            label: 'Mark Positive',
+            icon: <TrendingUp size={14} />,
+            onClick: handleBulkMarkPositive,
+            variant: 'primary',
+          },
+          {
+            label: 'Mark Negative',
+            icon: <TrendingDown size={14} />,
+            onClick: handleBulkMarkNegative,
+            variant: 'default',
+          },
+          {
+            label: 'Delete Selected',
+            icon: <Trash2 size={14} />,
+            onClick: handleBulkDelete,
+            variant: 'danger',
+          },
+        ]}
+      />
     </div>
   );
 }
