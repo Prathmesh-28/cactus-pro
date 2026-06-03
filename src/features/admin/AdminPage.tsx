@@ -16,6 +16,10 @@ import KpiThresholds from './KpiThresholds';
 import FinanceConfigManager from './FinanceConfigManager';
 import TaxonomyManager from './TaxonomyManager';
 import PortfolioSnapshotManager from './PortfolioSnapshotManager';
+import LpManager from './LpManager';
+import NavigationManager from './NavigationManager';
+import RecruitmentConfigManager from './RecruitmentConfigManager';
+import OperationsConfigManager from './OperationsConfigManager';
 import {
   Settings,
   Building2,
@@ -33,42 +37,45 @@ import {
   Tags,
   TableProperties,
   UserCog,
+  Wallet,
+  Navigation,
+  UserCheck,
+  Sliders,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 type AdminTab =
-  | 'firm'
-  | 'companies'
-  | 'people'
-  | 'sectors'
-  | 'metrics'
-  | 'permissions'
-  | 'announcements'
-  | 'sync'
-  | 'investment_settings'
-  | 'homepage'
-  | 'kpi_thresholds'
-  | 'finance_config'
-  | 'taxonomy'
-  | 'portfolio_snapshot'
-  | 'users';
+  | 'firm' | 'companies' | 'people' | 'sectors' | 'metrics'
+  | 'permissions' | 'announcements' | 'sync' | 'investment_settings'
+  | 'homepage' | 'kpi_thresholds' | 'finance_config' | 'taxonomy'
+  | 'portfolio_snapshot' | 'users'
+  | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config';
 
-const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'firm', label: 'Firm Settings', Icon: Settings },
-  { key: 'companies', label: 'Portfolio Companies', Icon: Building2 },
-  { key: 'people', label: 'People & Team', Icon: Users },
-  { key: 'sectors', label: 'Sectors', Icon: Tag },
-  { key: 'metrics', label: 'Fund Metrics', Icon: BarChart2 },
-  { key: 'permissions', label: 'Roles & Permissions', Icon: ShieldCheck },
-  { key: 'announcements', label: 'Announcements', Icon: Bell },
-  { key: 'sync', label: 'Data Sync', Icon: RefreshCw },
-  { key: 'investment_settings', label: 'Deal Stages', Icon: TrendingUp },
-  { key: 'homepage', label: 'Homepage', Icon: Globe },
-  { key: 'kpi_thresholds', label: 'KPI Thresholds', Icon: Gauge },
-  { key: 'finance_config', label: 'Finance Config', Icon: Landmark },
-  { key: 'taxonomy', label: 'Taxonomy', Icon: Tags },
-  { key: 'portfolio_snapshot', label: 'Portfolio Snapshot', Icon: TableProperties },
-  { key: 'users', label: 'Users & Access', Icon: UserCog },
+const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
+  // ── Platform ──────────────────────────────────────────────────────────────
+  { key: 'firm',               label: 'Firm Settings',       Icon: Settings,         group: 'Platform' },
+  { key: 'users',              label: 'Users & Access',       Icon: UserCog,          group: 'Platform' },
+  { key: 'permissions',        label: 'Roles & Permissions',  Icon: ShieldCheck,      group: 'Platform' },
+  { key: 'navigation',         label: 'Navigation',           Icon: Navigation,       group: 'Platform' },
+  { key: 'announcements',      label: 'Announcements',        Icon: Bell,             group: 'Platform' },
+  { key: 'homepage',           label: 'Homepage',             Icon: Globe,            group: 'Platform' },
+  { key: 'sync',               label: 'Data Sync',            Icon: RefreshCw,        group: 'Platform' },
+  // ── Portfolio ─────────────────────────────────────────────────────────────
+  { key: 'companies',          label: 'Portfolio Companies',  Icon: Building2,        group: 'Portfolio' },
+  { key: 'people',             label: 'People & Team',        Icon: Users,            group: 'Portfolio' },
+  { key: 'sectors',            label: 'Sectors',              Icon: Tag,              group: 'Portfolio' },
+  { key: 'metrics',            label: 'Fund Metrics',         Icon: BarChart2,        group: 'Portfolio' },
+  { key: 'kpi_thresholds',     label: 'KPI Thresholds',       Icon: Gauge,            group: 'Portfolio' },
+  { key: 'taxonomy',           label: 'Taxonomy',             Icon: Tags,             group: 'Portfolio' },
+  { key: 'portfolio_snapshot', label: 'Portfolio Snapshot',   Icon: TableProperties,  group: 'Portfolio' },
+  // ── Finance ───────────────────────────────────────────────────────────────
+  { key: 'finance_config',     label: 'Finance Config',       Icon: Landmark,         group: 'Finance' },
+  { key: 'lps',                label: 'LP Investors',         Icon: Wallet,           group: 'Finance' },
+  // ── Investment ────────────────────────────────────────────────────────────
+  { key: 'investment_settings', label: 'Deal Stages',         Icon: TrendingUp,       group: 'Investment' },
+  // ── Operations ────────────────────────────────────────────────────────────
+  { key: 'operations_config',  label: 'Operations Config',    Icon: Sliders,          group: 'Operations' },
+  { key: 'recruitment_config', label: 'Recruitment Config',   Icon: UserCheck,        group: 'Operations' },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -132,6 +139,22 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
     affects: ['Finance → Fund Overview → Portfolio Snapshot table', 'Finance → Fund Overview → Totals/Averages footer row'],
     note: 'Click any row to edit that company\'s investment data. Logos come from Portfolio Companies → Logo.',
   },
+  lps: {
+    affects: ['Finance → Fund Overview → LP table', 'Finance → LP Comms → target LP selector', 'Finance → Capital Calls → LP receipt list', 'Finance → Fund Closing → LP pipeline'],
+    note: 'Add, edit or remove LP investors. Changes reflect across all Finance features immediately.',
+  },
+  navigation: {
+    affects: ['Main header nav — which tabs are shown', 'Tab display labels', 'Tab order in the header'],
+    note: 'Changes take effect on next page load. Admin tab cannot be hidden.',
+  },
+  recruitment_config: {
+    affects: ['Operations → Recruitment → Job form (departments)', 'Operations → Recruitment → Candidate form (sources)', 'Operations → Recruitment → Onboarding (default task list)', 'Operations → Recruitment → Offer Letter (template text)'],
+    note: 'Onboarding template changes apply to new hires only — existing checklists are unaffected.',
+  },
+  operations_config: {
+    affects: ['Operations → Meeting Notes → type filter and badges', 'Operations → Tasks → priority labels and colors', 'Operations → Intros → status labels and colors'],
+    note: 'Existing records keep their type/status keys — only the display labels change.',
+  },
 };
 
 export default function AdminPage() {
@@ -142,21 +165,25 @@ export default function AdminPage() {
   if (!canAccess('admin')) return <AccessRestricted tab="admin" />;
 
   const PANELS: Record<AdminTab, React.ReactNode> = {
-    firm: <FirmSettings />,
-    companies: <CompanyManager />,
-    people: <PeopleManager />,
-    sectors: <SectorManager />,
-    metrics: <MetricsManager />,
-    permissions: <PermissionsManager />,
-    announcements: <AnnouncementManager />,
-    sync: <SyncManager />,
-    investment_settings: <InvestmentSettings />,
-    homepage: <HomepageEditor />,
-    kpi_thresholds: <KpiThresholds />,
-    finance_config: <FinanceConfigManager />,
-    taxonomy: <TaxonomyManager />,
-    portfolio_snapshot: <PortfolioSnapshotManager />,
-    users: <UsersManager />,
+    firm:                 <FirmSettings />,
+    companies:            <CompanyManager />,
+    people:               <PeopleManager />,
+    sectors:              <SectorManager />,
+    metrics:              <MetricsManager />,
+    permissions:          <PermissionsManager />,
+    announcements:        <AnnouncementManager />,
+    sync:                 <SyncManager />,
+    investment_settings:  <InvestmentSettings />,
+    homepage:             <HomepageEditor />,
+    kpi_thresholds:       <KpiThresholds />,
+    finance_config:       <FinanceConfigManager />,
+    taxonomy:             <TaxonomyManager />,
+    portfolio_snapshot:   <PortfolioSnapshotManager />,
+    users:                <UsersManager />,
+    lps:                  <LpManager />,
+    navigation:           <NavigationManager />,
+    recruitment_config:   <RecruitmentConfigManager />,
+    operations_config:    <OperationsConfigManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);
@@ -202,27 +229,34 @@ export default function AdminPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
         <aside className="lg:w-56 flex-shrink-0">
-          <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
-            {TABS.map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={cn(
-                  'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap text-left flex-shrink-0',
-                  activeTab === key
-                    ? 'text-white shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                )}
-                style={
-                  activeTab === key
-                    ? { backgroundColor: store.firm.primaryColor }
-                    : {}
-                }
-              >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                <span className="hidden sm:inline lg:inline">{label}</span>
-              </button>
-            ))}
+          <nav className="flex lg:flex-col gap-0.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+            {(() => {
+              const groups = ['Platform', 'Portfolio', 'Finance', 'Investment', 'Operations'];
+              return groups.map(group => {
+                const groupTabs = TABS.filter(t => t.group === group);
+                return (
+                  <div key={group} className="mb-1">
+                    <p className="hidden lg:block text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-3 py-1 mt-2">{group}</p>
+                    {groupTabs.map(({ key, label, Icon }) => (
+                      <button
+                        key={key}
+                        onClick={() => setActiveTab(key)}
+                        className={cn(
+                          'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap text-left flex-shrink-0',
+                          activeTab === key
+                            ? 'text-white shadow-sm'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        )}
+                        style={activeTab === key ? { backgroundColor: store.firm.primaryColor } : {}}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline lg:inline">{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              });
+            })()}
           </nav>
         </aside>
 
