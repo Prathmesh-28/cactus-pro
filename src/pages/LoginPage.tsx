@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 
 export default function LoginPage() {
   const { login, user, loading } = useAuth();
+  const { store } = useApp();
+  const firmLogo = store.firm?.logoUrl;
   const navigate = useNavigate();
   const [sp] = useSearchParams();
   const redirect = sp.get('redirect') || '/dashboard';
@@ -43,12 +46,14 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-2">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg"
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden"
               style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
-              <span className="text-white text-2xl font-bold">🌵</span>
+              {firmLogo
+                ? <img src={firmLogo} alt="Cactus Partners" className="w-full h-full object-cover" />
+                : <span className="text-white text-2xl font-bold">🌵</span>}
             </div>
             <span className="text-white font-heading font-bold text-2xl tracking-tight">
-              Cactus Partners
+              {store.firm?.name || 'Cactus Partners'}
             </span>
           </div>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>

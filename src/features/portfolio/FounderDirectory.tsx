@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import {
   Search, Plus, X, Edit2, Copy, Check, Phone, Mail,
   ExternalLink, MapPin, Cake, Tag, User, Building2,
-  ChevronDown, Clock, Users,
+  ChevronDown, Clock, Users, Video, CalendarPlus, CheckCircle2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
@@ -317,6 +317,208 @@ function ContactForm({ initial, companyOptions, onSave, onCancel }: ContactFormP
   );
 }
 
+// ─── Schedule Meet Modal ──────────────────────────────────────────────────────
+
+function buildGCalUrl(opts: {
+  title: string; date: string; time: string; duration: number;
+  guestEmail: string; description: string;
+}): string {
+  const [year, month, day] = opts.date.split('-').map(Number);
+  const [hour, min] = opts.time.split(':').map(Number);
+  const start = new Date(year, month - 1, day, hour, min);
+  const end   = new Date(start.getTime() + opts.duration * 60 * 1000);
+  const fmt   = (d: Date) =>
+    d.getFullYear().toString() +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    String(d.getDate()).padStart(2, '0') + 'T' +
+    String(d.getHours()).padStart(2, '0') +
+    String(d.getMinutes()).padStart(2, '0') + '00';
+  const params = new URLSearchParams({
+    action:  'TEMPLATE',
+    text:    opts.title,
+    dates:   `${fmt(start)}/${fmt(end)}`,
+    details: opts.description,
+    add:     opts.guestEmail,
+    sf:      'true',
+    output:  'xml',
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+interface ScheduleMeetProps {
+  contact: FounderContact;
+  companyName: string;
+  onScheduled: () => void; // marks lastContacted = today
+  onClose: () => void;
+}
+
+function ScheduleMeetModal({ contact, companyName, onScheduled, onClose }: ScheduleMeetProps) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [date,        setDate]        = useState(today);
+  const [time,        setTime]        = useState('10:00');
+  const [duration,    setDuration]    = useState(30);
+  const [title,       setTitle]       = useState(`Call with ${contact.name} — ${companyName}`);
+  const [agenda,      setAgenda]      = useState('');
+  const [done,        setDone]        = useState(false);
+
+  const hasEmail = !!contact.email;
+
+  const handleSchedule = () => {
+    const description = [
+      '📅 Scheduled via Cactus Partners portal.',
+      agenda ? `\nAgenda:\n${agenda}` : '',
+      '\n\n🎥 Add Google Meet: After saving this event, click "Add Google Meet" in Google Calendar.',
+    ].join('');
+
+    const url = buildGCalUrl({
+      title,
+      date,
+      time,
+      duration,
+      guestEmail: contact.email,
+      description,
+    });
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+    onScheduled(); // sync last contacted
+    setDone(true);
+  };
+
+  const iCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1C4B42]/30';
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}
+        style={{ borderTop: '4px solid #1C4B42' }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <Video size={17} className="text-[#1C4B42]" />
+            <h2 className="font-semibold text-gray-900 text-base">Schedule Google Meet</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X size={17} />
+          </button>
+        </div>
+
+        {done ? (
+          /* Success state */
+          <div className="px-6 py-10 text-center space-y-4">
+            <CheckCircle2 size={48} className="mx-auto text-emerald-500" />
+            <div>
+              <p className="font-semibold text-gray-900">Google Calendar opened!</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Add Google Meet from within the event, then save to send the invite to{' '}
+                <strong>{contact.email || contact.name}</strong>.
+              </p>
+            </div>
+            <p className="text-xs text-emerald-600 font-medium">
+              ✓ Last contacted synced to today
+            </p>
+            <button
+              onClick={onClose}
+              className="mt-2 px-5 py-2 rounded-lg text-sm font-medium text-white"
+              style={{ backgroundColor: '#1C4B42' }}
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          /* Form */
+          <div className="px-6 py-5 space-y-4">
+            {!hasEmail && (
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 text-xs text-amber-800">
+                <span className="shrink-0 mt-0.5">⚠️</span>
+                No email saved for this contact — invite won't be pre-filled. Add their email first.
+              </div>
+            )}
+
+            {/* With who */}
+            <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
+              <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-semibold shrink-0">
+                {contact.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">{contact.name}</p>
+                <p className="text-xs text-gray-500">{contact.email || 'No email — add to contact first'}</p>
+              </div>
+            </div>
+
+            {/* Meeting title */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Meeting Title</label>
+              <input className={iCls} value={title} onChange={e => setTitle(e.target.value)} />
+            </div>
+
+            {/* Date + Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                <input type="date" className={iCls} value={date} min={today}
+                  onChange={e => setDate(e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                <input type="time" className={iCls} value={time}
+                  onChange={e => setTime(e.target.value)} />
+              </div>
+            </div>
+
+            {/* Duration */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Duration</label>
+              <div className="flex gap-2">
+                {[15, 30, 45, 60].map(d => (
+                  <button key={d} type="button"
+                    onClick={() => setDuration(d)}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      duration === d
+                        ? 'bg-[#1C4B42] text-white border-[#1C4B42]'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-[#1C4B42]'
+                    }`}>
+                    {d}m
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Agenda */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Agenda (optional)</label>
+              <textarea className={`${iCls} resize-none`} rows={3} value={agenda}
+                onChange={e => setAgenda(e.target.value)}
+                placeholder="Topics to cover, documents to review…" />
+            </div>
+
+            {/* How it works */}
+            <div className="bg-blue-50 rounded-xl p-3 text-xs text-blue-700 space-y-1">
+              <p className="font-medium">How it works</p>
+              <p>1. Google Calendar opens with the event pre-filled</p>
+              <p>2. Click <strong>"Add Google Meet"</strong> inside the event</p>
+              <p>3. Save — Google sends the invite + Meet link to {contact.email || 'the founder'}</p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <button onClick={onClose}
+                className="flex-1 py-2 rounded-lg text-sm border border-gray-200 text-gray-600 hover:bg-gray-50">
+                Cancel
+              </button>
+              <button onClick={handleSchedule}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: '#1C4B42' }}>
+                <CalendarPlus size={15} />
+                Open Google Calendar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Contact Card (Detail Modal) ──────────────────────────────────────────────
 
 interface ContactCardProps {
@@ -336,6 +538,7 @@ function ContactCard({
 }: ContactCardProps) {
   const age = contactAge(contact.lastContactedAt);
   const ageStyle = AGE_STYLES[age];
+  const [showSchedule, setShowSchedule] = useState(false);
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-end" onClick={onClose}>
@@ -397,6 +600,25 @@ function ContactCard({
               Mark Today
             </button>
           </div>
+
+          {/* Schedule Google Meet */}
+          <button
+            onClick={() => setShowSchedule(true)}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            style={{ background: 'linear-gradient(135deg,#1C4B42,#254536)' }}
+          >
+            <Video size={15} />
+            Schedule Google Meet
+          </button>
+
+          {showSchedule && (
+            <ScheduleMeetModal
+              contact={contact}
+              companyName={companyName}
+              onScheduled={() => { onMarkContacted(); setShowSchedule(false); }}
+              onClose={() => setShowSchedule(false)}
+            />
+          )}
 
           {/* Contact Details */}
           <div className="space-y-3">

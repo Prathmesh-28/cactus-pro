@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default function ForgotPasswordPage() {
+  const { store } = useApp();
+  const firmLogo = store.firm?.logoUrl;
   const [email,    setEmail]    = useState('');
   const [loading,  setLoading]  = useState(false);
   const [sent,     setSent]     = useState(false);
@@ -30,11 +33,13 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center overflow-hidden"
               style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
-              <span className="text-white text-xl">🌵</span>
+              {firmLogo
+                ? <img src={firmLogo} alt="logo" className="w-full h-full object-cover" />
+                : <span className="text-white text-xl">🌵</span>}
             </div>
-            <span className="text-white font-heading font-bold text-xl">Cactus Partners</span>
+            <span className="text-white font-heading font-bold text-xl">{store.firm?.name || 'Cactus Partners'}</span>
           </div>
         </div>
 

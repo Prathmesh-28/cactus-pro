@@ -32,12 +32,27 @@ const EMPTY: Omit<Deal, 'id'> = {
   notes: '',
 };
 
+const DEFAULT_STAGE_COLORS: Record<string, { backgroundColor: string; color: string; borderColor: string }> = {
+  'Sourcing':      { backgroundColor: '#F3F4F6', color: '#4B5563', borderColor: '#E5E7EB' },
+  'Due Diligence': { backgroundColor: '#EFF6FF', color: '#1D4ED8', borderColor: '#BFDBFE' },
+  'IC Review':     { backgroundColor: '#F5F3FF', color: '#6D28D9', borderColor: '#DDD6FE' },
+  'Term Sheet':    { backgroundColor: '#FFFBEB', color: '#B45309', borderColor: '#FDE68A' },
+  'Closed':        { backgroundColor: '#ECFDF5', color: '#065F46', borderColor: '#6EE7B7' },
+  'Passed':        { backgroundColor: '#FFF1F2', color: '#BE123C', borderColor: '#FECDD3' },
+  'Portfolio':     { backgroundColor: '#F0FDF4', color: '#15803D', borderColor: '#BBF7D0' },
+};
+
 function PipelineView() {
   const { store, addDeal, updateDeal, deleteDeal } = useApp();
-  const STAGES = (store.dealStages ?? []).map(s => s.name) as DealStage[];
+  const configuredStages = (store.dealStages ?? []).map(s => s.name) as DealStage[];
+  // If no stages configured, derive unique stages from existing deals
+  const dealStageNames = [...new Set((store.deals ?? []).map(d => d.stage))];
+  const STAGES: DealStage[] = configuredStages.length > 0 ? configuredStages : dealStageNames as DealStage[];
+
   const stageStyle = (name: string) => {
     const s = (store.dealStages ?? []).find(x => x.name === name);
-    return s ? { backgroundColor: s.bgColor, color: s.textColor, borderColor: s.borderColor } : {};
+    if (s) return { backgroundColor: s.bgColor, color: s.textColor, borderColor: s.borderColor };
+    return DEFAULT_STAGE_COLORS[name] ?? { backgroundColor: '#F9FAFB', color: '#6B7280', borderColor: '#E5E7EB' };
   };
   const [editing, setEditing] = useState<Deal | null>(null);
   const [creating, setCreating] = useState(false);
