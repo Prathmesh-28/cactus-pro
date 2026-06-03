@@ -10,6 +10,7 @@ import { generateId } from '../../lib/utils';
 import type { FounderContact } from '../../data/types';
 import { useBulkSelect } from '../../hooks/useBulkSelect';
 import BulkActionBar from '../../components/ui/BulkActionBar';
+import MailComposer from '../../components/ui/MailComposer';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -533,6 +534,7 @@ function ContactCard({
   const age = contactAge(contact.lastContactedAt);
   const ageStyle = AGE_STYLES[age];
   const [showSchedule, setShowSchedule] = useState(false);
+  const [showMail,     setShowMail]     = useState(false);
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-end" onClick={onClose}>
@@ -595,15 +597,25 @@ function ContactCard({
             </button>
           </div>
 
-          {/* Schedule Google Meet */}
-          <button
-            onClick={() => setShowSchedule(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg,#1C4B42,#254536)' }}
-          >
-            <Video size={15} />
-            Schedule Google Meet
-          </button>
+          {/* Action buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setShowMail(true)}
+              className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg,#2563EB,#1D4ED8)' }}
+            >
+              <Mail size={15} />
+              Send Email
+            </button>
+            <button
+              onClick={() => setShowSchedule(true)}
+              className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg,#1C4B42,#254536)' }}
+            >
+              <Video size={15} />
+              Schedule Meet
+            </button>
+          </div>
 
           {showSchedule && (
             <ScheduleMeetModal
@@ -611,6 +623,18 @@ function ContactCard({
               companyName={companyName}
               onScheduled={() => { onMarkContacted(); setShowSchedule(false); }}
               onClose={() => setShowSchedule(false)}
+            />
+          )}
+
+          {showMail && (
+            <MailComposer
+              isOpen={showMail}
+              onClose={() => setShowMail(false)}
+              initialTo={contact.email}
+              initialSubject={`Following up — ${companyName}`}
+              initialBody={`Hi ${contact.name.split(' ')[0]},\n\nHope you're doing well! Wanted to check in on things at ${companyName}.\n\nLet me know if there's anything we can help with.\n\nBest,\nCactus Partners`}
+              recipientName={contact.name}
+              context="founder"
             />
           )}
 

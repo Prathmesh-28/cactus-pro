@@ -9,6 +9,7 @@ export interface MailComposerProps {
   initialSubject?: string;
   initialBody?: string;
   initialCc?: string;
+  initialBcc?: string;
   recipientName?: string;
   context?: 'founder' | 'lp' | 'co_investor' | 'team' | 'general';
 }
@@ -60,14 +61,17 @@ export default function MailComposer({
   initialSubject = '',
   initialBody = '',
   initialCc = '',
+  initialBcc = '',
 }: MailComposerProps) {
   const { getAccessToken } = useAuth();
 
   const [to, setTo]           = useState(initialTo);
   const [cc, setCc]           = useState(initialCc);
+  const [bcc, setBcc]         = useState(initialBcc);
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody]       = useState(initialBody);
   const [showCc, setShowCc]   = useState(!!initialCc);
+  const [showBcc, setShowBcc] = useState(!!initialBcc);
   const [activeTemplate, setActiveTemplate] = useState<TemplateKey | null>(null);
   const [sendState, setSendState] = useState<SendState>('idle');
   const [sentTo, setSentTo]   = useState('');
@@ -77,9 +81,11 @@ export default function MailComposer({
     if (isOpen) {
       setTo(initialTo);
       setCc(initialCc);
+      setBcc(initialBcc);
       setSubject(initialSubject);
       setBody(initialBody);
       setShowCc(!!initialCc);
+      setShowBcc(!!initialBcc);
       setActiveTemplate(null);
       setSendState('idle');
       setSentTo('');
@@ -112,7 +118,8 @@ export default function MailComposer({
             to: to.trim(),
             subject: subject.trim(),
             body: body.trim(),
-            ...(cc.trim() ? { cc: cc.trim() } : {}),
+            ...(cc.trim()  ? { cc: cc.trim() }   : {}),
+            ...(bcc.trim() ? { bcc: bcc.trim() } : {}),
             from_name: 'Cactus Partners',
           }),
         });
@@ -127,7 +134,12 @@ export default function MailComposer({
     }
 
     // Mailto fallback
-    const mailtoUrl = `mailto:${to.trim()}${cc.trim() ? `?cc=${encodeURIComponent(cc.trim())}&` : '?'}subject=${encodeURIComponent(subject.trim())}&body=${encodeURIComponent(body.trim())}`;
+    const params = new URLSearchParams();
+    if (cc.trim())  params.set('cc',  cc.trim());
+    if (bcc.trim()) params.set('bcc', bcc.trim());
+    params.set('subject', subject.trim());
+    params.set('body',    body.trim());
+    const mailtoUrl = `mailto:${to.trim()}?${params.toString()}`;
     window.open(mailtoUrl, '_blank');
     setSendState('mailto');
   };
@@ -222,12 +234,21 @@ export default function MailComposer({
                 placeholder="recipient@example.com"
                 className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-300"
               />
-              <button
-                onClick={() => setShowCc(v => !v)}
-                className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-0.5 shrink-0 transition-colors"
-              >
-                CC {showCc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setShowCc(v => !v)}
+                  className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-0.5 transition-colors"
+                >
+                  CC {showCc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+                <span className="text-gray-200">|</span>
+                <button
+                  onClick={() => setShowBcc(v => !v)}
+                  className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-0.5 transition-colors"
+                >
+                  BCC {showBcc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+              </div>
             </div>
 
             {/* CC — collapsible */}
@@ -239,6 +260,20 @@ export default function MailComposer({
                   value={cc}
                   onChange={e => setCc(e.target.value)}
                   placeholder="cc@example.com, another@example.com"
+                  className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-300"
+                />
+              </div>
+            )}
+
+            {/* BCC — collapsible */}
+            {showBcc && (
+              <div className="flex items-center gap-3 px-6 py-3 border-b" style={{ borderColor: '#F2F7F1' }}>
+                <label className="text-xs font-medium text-gray-400 w-14 shrink-0">BCC</label>
+                <input
+                  type="text"
+                  value={bcc}
+                  onChange={e => setBcc(e.target.value)}
+                  placeholder="bcc@example.com, another@example.com"
                   className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-300"
                 />
               </div>
