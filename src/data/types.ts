@@ -383,6 +383,115 @@ export interface AppStore {
   firmEvents:          FirmEvent[];
   researchDocs:        ResearchDocument[];
   founderPortalAccess: FounderPortalAccess[];
+  // ── Recruitment ──────────────────────────────────────────────────────────
+  jobOpenings:         JobOpening[];
+  candidates:          Candidate[];
+  interviews:          Interview[];
+  offerLetters:        OfferLetter[];
+  onboardingTasks:     OnboardingTask[];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RECRUITMENT TYPES
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type JobType       = 'full_time' | 'part_time' | 'contract' | 'internship';
+export type JobStatus     = 'draft' | 'active' | 'paused' | 'closed';
+export type CandidateStage =
+  | 'applied' | 'ai_screened' | 'shortlisted'
+  | 'interview_1' | 'interview_2' | 'final_interview'
+  | 'offer_sent' | 'offer_accepted' | 'hired' | 'rejected' | 'withdrawn';
+export type InterviewMode = 'video' | 'phone' | 'in_person';
+export type InterviewRec  = 'strong_yes' | 'yes' | 'maybe' | 'no' | 'strong_no';
+export type OfferStatus   = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+export type OnboardingCategory = 'documents' | 'it_setup' | 'orientation' | 'training' | 'compliance' | 'other';
+
+export interface JobOpening {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: JobType;
+  status: JobStatus;
+  description: string;
+  requirements: string[];
+  niceToHave: string[];
+  salaryMin: string;
+  salaryMax: string;
+  hiringManager: string;
+  targetDate: string;
+  companyId?: string;
+  createdAt: string;
+}
+
+export interface Candidate {
+  id: string;
+  jobId: string;
+  name: string;
+  email: string;
+  phone: string;
+  linkedInUrl: string;
+  resumeText: string;
+  resumeUrl: string;
+  currentCompany: string;
+  currentRole: string;
+  noticePeriod: string;
+  expectedCTC: string;
+  currentCTC: string;
+  location: string;
+  stage: CandidateStage;
+  aiScore: number;
+  aiSummary: string;
+  tags: string[];
+  source: string;
+  appliedAt: string;
+  notes: string;
+}
+
+export interface Interview {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  round: string;
+  interviewers: string[];
+  scheduledAt: string;
+  duration: number;
+  mode: InterviewMode;
+  meetLink?: string;
+  feedback: string;
+  rating: number;
+  recommendation: InterviewRec;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+}
+
+export interface OfferLetter {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  designation: string;
+  department: string;
+  startDate: string;
+  ctc: string;
+  fixedPay: string;
+  variablePay: string;
+  equity: string;
+  expiryDate: string;
+  status: OfferStatus;
+  sentAt?: string;
+  respondedAt?: string;
+  notes: string;
+  createdAt: string;
+}
+
+export interface OnboardingTask {
+  id: string;
+  candidateId: string;
+  task: string;
+  category: OnboardingCategory;
+  assignedTo: string;
+  dueDate: string;
+  status: 'pending' | 'in_progress' | 'done';
+  notes: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

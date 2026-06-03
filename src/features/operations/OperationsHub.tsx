@@ -1,21 +1,23 @@
 import { useState } from 'react';
-import { Phone, CheckSquare, RefreshCw, ArrowRightLeft, FileSignature, Calendar } from 'lucide-react';
+import { Phone, CheckSquare, RefreshCw, ArrowRightLeft, FileSignature, Calendar, Users } from 'lucide-react';
 import MeetingNotes from './MeetingNotes';
 import TaskManager from './TaskManager';
 import PortfolioUpdates from './PortfolioUpdates';
 import IntroTracker from './IntroTracker';
 import SigningWorkflow from './SigningWorkflow';
 import EventCalendar from './EventCalendar';
+import RecruitmentHub from './RecruitmentHub';
 
-type OpsTab = 'meetings' | 'tasks' | 'updates' | 'intros' | 'signing' | 'calendar';
+type OpsTab = 'meetings' | 'tasks' | 'updates' | 'intros' | 'signing' | 'calendar' | 'recruitment';
 
 const TABS: { key: OpsTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'meetings', label: 'Meeting Notes',      Icon: Phone },
-  { key: 'tasks',    label: 'Tasks',               Icon: CheckSquare },
-  { key: 'updates',  label: 'Portfolio Updates',   Icon: RefreshCw },
-  { key: 'intros',   label: 'Intros',              Icon: ArrowRightLeft },
-  { key: 'signing',  label: 'Doc Signing',         Icon: FileSignature },
-  { key: 'calendar', label: 'Event Calendar',      Icon: Calendar },
+  { key: 'meetings',    label: 'Meeting Notes',    Icon: Phone },
+  { key: 'tasks',       label: 'Tasks',             Icon: CheckSquare },
+  { key: 'updates',     label: 'Portfolio Updates', Icon: RefreshCw },
+  { key: 'intros',      label: 'Intros',            Icon: ArrowRightLeft },
+  { key: 'signing',     label: 'Doc Signing',       Icon: FileSignature },
+  { key: 'calendar',    label: 'Event Calendar',    Icon: Calendar },
+  { key: 'recruitment', label: 'Recruitment',       Icon: Users },
 ];
 
 export default function OperationsHub() {
@@ -28,7 +30,6 @@ export default function OperationsHub() {
         <p className="text-sm text-gray-500">Meeting notes, tasks, portfolio updates and more</p>
       </div>
 
-      {/* Tab bar */}
       <div className="flex gap-1 border-b border-gray-200 overflow-x-auto">
         {TABS.map(({ key, label, Icon }) => (
           <button
@@ -47,12 +48,13 @@ export default function OperationsHub() {
       </div>
 
       <div>
-        {activeTab === 'meetings'  && <MeetingNotes />}
-        {activeTab === 'tasks'     && <TaskManager />}
-        {activeTab === 'updates'   && <PortfolioUpdates />}
-        {activeTab === 'intros'    && <IntroTracker />}
-        {activeTab === 'signing'   && <SigningWorkflow />}
-        {activeTab === 'calendar'  && <EventCalendar />}
+        {activeTab === 'meetings'    && <MeetingNotes />}
+        {activeTab === 'tasks'       && <TaskManager />}
+        {activeTab === 'updates'     && <PortfolioUpdates />}
+        {activeTab === 'intros'      && <IntroTracker />}
+        {activeTab === 'signing'     && <SigningWorkflow />}
+        {activeTab === 'calendar'    && <EventCalendar />}
+        {activeTab === 'recruitment' && <RecruitmentHub />}
       </div>
     </main>
   );

@@ -13,6 +13,7 @@ import type {
   ReferenceCheck, NewsItem, SigningDoc, CompanyHealth,
   IntroRequest, LpCommunication, LpCommitment, FirmEvent,
   ResearchDocument, FounderPortalAccess,
+  JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -90,6 +91,12 @@ interface AppContextValue {
   addFirmEvent: (x: FirmEvent) => void;               updateFirmEvent: (x: FirmEvent) => void;               deleteFirmEvent: (id: string) => void;
   addResearchDoc: (x: ResearchDocument) => void;      updateResearchDoc: (x: ResearchDocument) => void;      deleteResearchDoc: (id: string) => void;
   addFounderPortalAccess: (x: FounderPortalAccess) => void; updateFounderPortalAccess: (x: FounderPortalAccess) => void; deleteFounderPortalAccess: (id: string) => void;
+  // Recruitment
+  addJobOpening: (x: JobOpening) => void; updateJobOpening: (x: JobOpening) => void; deleteJobOpening: (id: string) => void;
+  addCandidate: (x: Candidate) => void; updateCandidate: (x: Candidate) => void; deleteCandidate: (id: string) => void;
+  addInterview: (x: Interview) => void; updateInterview: (x: Interview) => void; deleteInterview: (id: string) => void;
+  addOfferLetter: (x: OfferLetter) => void; updateOfferLetter: (x: OfferLetter) => void; deleteOfferLetter: (id: string) => void;
+  addOnboardingTask: (x: OnboardingTask) => void; updateOnboardingTask: (x: OnboardingTask) => void; deleteOnboardingTask: (id: string) => void;
 
   // Config sections
   updateDealStages: (stages: DealStageConfig[]) => void;
@@ -269,6 +276,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addFounderPortalAccess  = (x: FounderPortalAccess) => setStore(s => ({ ...s, founderPortalAccess: [...(s.founderPortalAccess??[]), x] }));
   const updateFounderPortalAccess  = (x: FounderPortalAccess) => setStore(s => ({ ...s, founderPortalAccess: (s.founderPortalAccess??[]).map((i:any)=>i.id===x.id?x:i) }));
   const deleteFounderPortalAccess = (id: string) => setStore(s => ({ ...s, founderPortalAccess: (s.founderPortalAccess??[]).filter((i:any)=>i.id!==id) }));
+  // Recruitment
+  const addJobOpening = (x: JobOpening) => setStore(s => ({ ...s, jobOpenings: [...(s.jobOpenings??[]), x] }));
+  const updateJobOpening = (x: JobOpening) => setStore(s => ({ ...s, jobOpenings: (s.jobOpenings??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteJobOpening = (id: string) => setStore(s => ({ ...s, jobOpenings: (s.jobOpenings??[]).filter((i:any)=>i.id!==id) }));
+  const addCandidate = (x: Candidate) => setStore(s => ({ ...s, candidates: [...(s.candidates??[]), x] }));
+  const updateCandidate = (x: Candidate) => setStore(s => ({ ...s, candidates: (s.candidates??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteCandidate = (id: string) => setStore(s => ({ ...s, candidates: (s.candidates??[]).filter((i:any)=>i.id!==id) }));
+  const addInterview = (x: Interview) => setStore(s => ({ ...s, interviews: [...(s.interviews??[]), x] }));
+  const updateInterview = (x: Interview) => setStore(s => ({ ...s, interviews: (s.interviews??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteInterview = (id: string) => setStore(s => ({ ...s, interviews: (s.interviews??[]).filter((i:any)=>i.id!==id) }));
+  const addOfferLetter = (x: OfferLetter) => setStore(s => ({ ...s, offerLetters: [...(s.offerLetters??[]), x] }));
+  const updateOfferLetter = (x: OfferLetter) => setStore(s => ({ ...s, offerLetters: (s.offerLetters??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteOfferLetter = (id: string) => setStore(s => ({ ...s, offerLetters: (s.offerLetters??[]).filter((i:any)=>i.id!==id) }));
+  const addOnboardingTask = (x: OnboardingTask) => setStore(s => ({ ...s, onboardingTasks: [...(s.onboardingTasks??[]), x] }));
+  const updateOnboardingTask = (x: OnboardingTask) => setStore(s => ({ ...s, onboardingTasks: (s.onboardingTasks??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteOnboardingTask = (id: string) => setStore(s => ({ ...s, onboardingTasks: (s.onboardingTasks??[]).filter((i:any)=>i.id!==id) }));
 
   // ── New config sections ──────────────────────────────────────────────────
   const updateDealStages       = (stages: DealStageConfig[])      => setStore(s => ({ ...s, dealStages: stages }));
@@ -322,6 +345,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addFirmEvent, updateFirmEvent, deleteFirmEvent,
     addResearchDoc, updateResearchDoc, deleteResearchDoc,
     addFounderPortalAccess, updateFounderPortalAccess, deleteFounderPortalAccess,
+    addJobOpening, updateJobOpening, deleteJobOpening,
+    addCandidate, updateCandidate, deleteCandidate,
+    addInterview, updateInterview, deleteInterview,
+    addOfferLetter, updateOfferLetter, deleteOfferLetter,
+    addOnboardingTask, updateOnboardingTask, deleteOnboardingTask,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,
