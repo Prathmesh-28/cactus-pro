@@ -52,7 +52,7 @@ const TEMPLATES: Record<TemplateKey, { subject: string; body: string }> = {
 
 const TEMPLATE_KEYS = Object.keys(TEMPLATES) as TemplateKey[];
 
-type SendState = 'idle' | 'sending' | 'success' | 'mailto';
+type SendState = 'idle' | 'sending' | 'success' | 'error';
 
 export default function MailComposer({
   isOpen,
@@ -75,6 +75,7 @@ export default function MailComposer({
   const [activeTemplate, setActiveTemplate] = useState<TemplateKey | null>(null);
   const [sendState, setSendState] = useState<SendState>('idle');
   const [sentTo, setSentTo]   = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Sync props when modal opens
   useEffect(() => {
@@ -128,20 +129,15 @@ export default function MailComposer({
           setSendState('success');
           return;
         }
-      } catch {
-        // fall through to mailto
+        const errData = await res.json().catch(() => ({}));
+        setErrorMsg(errData.error || `Server error ${res.status}. Check Render logs.`);
+      } catch (e: unknown) {
+        setErrorMsg(e instanceof Error ? e.message : 'Network error — is the backend running?');
       }
+    } else {
+      setErrorMsg('Not authenticated. Please log out and log back in.');
     }
-
-    // Mailto fallback
-    const params = new URLSearchParams();
-    if (cc.trim())  params.set('cc',  cc.trim());
-    if (bcc.trim()) params.set('bcc', bcc.trim());
-    params.set('subject', subject.trim());
-    params.set('body',    body.trim());
-    const mailtoUrl = `mailto:${to.trim()}?${params.toString()}`;
-    window.open(mailtoUrl, '_blank');
-    setSendState('mailto');
+    setSendState('error');
   };
 
   const handleClose = () => {
@@ -192,26 +188,29 @@ export default function MailComposer({
           </div>
         )}
 
-        {/* Mailto fallback state */}
-        {sendState === 'mailto' && (
-          <div className="flex flex-col items-center justify-center py-16 px-8 gap-4">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-blue-50">
-              <Mail className="w-7 h-7 text-blue-500" />
+        {/* Error state */}
+        {sendState === 'error' && (
+          <div className="flex flex-col items-center justify-center py-12 px-8 gap-4">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-red-50">
+              <X className="w-7 h-7 text-red-500" />
             </div>
-            <p className="text-base font-semibold text-gray-800">Opening email client…</p>
-            <p className="text-sm text-gray-500 text-center">Your default email app should open with this message pre-filled.</p>
+            <p className="text-base font-semibold text-gray-800">Email not sent</p>
+            <p className="text-sm text-red-500 text-center max-w-sm">{errorMsg}</p>
+            <p className="text-xs text-gray-400 text-center max-w-sm">
+              Gmail is not configured yet. Complete the setup in Render env vars (GMAIL_USER, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN) then redeploy.
+            </p>
             <button
-              onClick={handleClose}
-              className="mt-2 px-5 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+              onClick={() => setSendState('idle')}
+              className="mt-2 px-5 py-2 rounded-lg text-sm font-medium text-white"
               style={{ backgroundColor: '#1C4B42' }}
             >
-              Close
+              Back to compose
             </button>
           </div>
         )}
 
         {/* Compose form */}
-        {sendState !== 'success' && sendState !== 'mailto' && (
+        {sendState !== 'success' && sendState !== 'error' && (
           <div className="flex flex-col overflow-y-auto" style={{ maxHeight: '80vh' }}>
             {/* From */}
             <div className="flex items-center gap-3 px-6 py-3 border-b" style={{ borderColor: '#F2F7F1' }}>
