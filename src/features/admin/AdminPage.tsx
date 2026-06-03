@@ -20,6 +20,7 @@ import LpManager from './LpManager';
 import NavigationManager from './NavigationManager';
 import RecruitmentConfigManager from './RecruitmentConfigManager';
 import OperationsConfigManager from './OperationsConfigManager';
+import MasterSheetManager from './MasterSheetDownloader';
 import {
   Settings,
   Building2,
@@ -41,6 +42,7 @@ import {
   Navigation,
   UserCheck,
   Sliders,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -49,7 +51,8 @@ type AdminTab =
   | 'permissions' | 'announcements' | 'sync' | 'investment_settings'
   | 'homepage' | 'kpi_thresholds' | 'finance_config' | 'taxonomy'
   | 'portfolio_snapshot' | 'users'
-  | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config';
+  | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config'
+  | 'master_sheet';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
   // ── Platform ──────────────────────────────────────────────────────────────
@@ -71,6 +74,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: str
   // ── Finance ───────────────────────────────────────────────────────────────
   { key: 'finance_config',     label: 'Finance Config',       Icon: Landmark,         group: 'Finance' },
   { key: 'lps',                label: 'LP Investors',         Icon: Wallet,           group: 'Finance' },
+  { key: 'master_sheet',       label: 'Master Sheet',         Icon: FileSpreadsheet,  group: 'Finance' },
   // ── Investment ────────────────────────────────────────────────────────────
   { key: 'investment_settings', label: 'Deal Stages',         Icon: TrendingUp,       group: 'Investment' },
   // ── Operations ────────────────────────────────────────────────────────────
@@ -155,6 +159,14 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
     affects: ['Operations → Meeting Notes → type filter and badges', 'Operations → Tasks → priority labels and colors', 'Operations → Intros → status labels and colors'],
     note: 'Existing records keep their type/status keys — only the display labels change.',
   },
+  master_sheet: {
+    affects: [
+      'Portfolio Companies — currentValuation, moic, irr, revenue fields',
+      'Finance → Fund Overview → Portfolio Snapshot — valuation and MOIC columns',
+      'Portfolio cards — MOIC badges and current valuation display',
+    ],
+    note: 'Download the pre-populated template, fill in updated numbers in Excel, then re-upload to sync data back into the portal.',
+  },
 };
 
 export default function AdminPage() {
@@ -184,6 +196,7 @@ export default function AdminPage() {
     navigation:           <NavigationManager />,
     recruitment_config:   <RecruitmentConfigManager />,
     operations_config:    <OperationsConfigManager />,
+    master_sheet:         <MasterSheetManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);
