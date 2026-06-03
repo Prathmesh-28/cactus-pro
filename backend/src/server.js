@@ -59,9 +59,9 @@ app.get('/api/files/download/:fileId', async (req, res) => {
 const { sendGeneric } = require('./lib/email');
 app.post('/api/email/send', authenticate, async (req, res) => {
   try {
-    const { to, subject, body, cc, from_name } = req.body;
+    const { to, subject, body, cc, bcc, from_name } = req.body;
     if (!to || !subject || !body) return res.status(400).json({ error: 'to, subject, body required' });
-    await sendGeneric({ to, subject, body, cc, from_name: from_name || 'Cactus Partners' });
+    await sendGeneric({ to, subject, body, cc, bcc, from_name: from_name || 'Cactus Partners' });
     res.json({ ok: true });
   } catch (err) {
     console.error('Email send error:', err.message);
