@@ -1,54 +1,51 @@
 /**
  * Email service
  *
- * Generic emails → Gmail SMTP via Nodemailer + App Password (no OAuth needed)
+ * Generic emails → Resend API (free, 100/day, works on Render, no SMTP)
  *   Required env vars on Render:
- *     GMAIL_USER         prathmeshwalimbe.cactuspartners@gmail.com
- *     GMAIL_APP_PASSWORD  16-char app password from Google Account settings
+ *     RESEND_API_KEY    → get from resend.com (free account, 2 mins)
+ *     RESEND_FROM       → e.g. "Cactus Partners <you@yourdomain.com>"
+ *                         OR leave blank to use onboarding@resend.dev (for testing)
  *
  * Invite / Password reset → EmailJS (unchanged)
  */
 
-const nodemailer = require('nodemailer');
 const APP_URL = process.env.FRONTEND_URL || 'https://cactus-pro.vercel.app';
 
-// ─── Gmail SMTP transporter ───────────────────────────────────────────────────
+// ─── Resend API (HTTPS, no SMTP, works everywhere) ───────────────────────────
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host:   'smtp.gmail.com',
-    port:   587,
-    secure: false,
-    family: 4,          // force IPv4 — Render free tier blocks IPv6 outbound
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-    tls: { rejectUnauthorized: false },
-  });
-}
+async function sendViaResend({ to, subject, body, cc, bcc, from_name }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('RESEND_API_KEY not set. Sign up free at resend.com and add the key to Render.');
 
-async function sendViaGmail({ to, subject, body, cc, bcc, from_name }) {
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const from = process.env.RESEND_FROM || `${from_name || 'Cactus Partners'} <onboarding@resend.dev>`;
 
-  if (!user || !pass) {
-    throw new Error('Gmail not configured. Add GMAIL_USER and GMAIL_APP_PASSWORD to Render env vars.');
-  }
-
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from:    `"${from_name || 'Cactus Partners'}" <${user}>`,
-    to,
-    cc:      cc  || undefined,
-    bcc:     bcc || undefined,
+  const payload = {
+    from,
+    to:      Array.isArray(to) ? to : [to],
     subject,
     text:    body,
-    // Also send HTML version with line breaks preserved
     html:    `<pre style="font-family:Arial,sans-serif;font-size:14px;white-space:pre-wrap">${body}</pre>`,
+    ...(cc  ? { cc:  Array.isArray(cc)  ? cc  : [cc]  } : {}),
+    ...(bcc ? { bcc: Array.isArray(bcc) ? bcc : [bcc] } : {}),
+  };
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method:  'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify(payload),
   });
 
-  console.log(`✓ Email sent via Gmail SMTP to ${to} — "${subject}"`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(`Resend error ${res.status}: ${err.message || JSON.stringify(err)}`);
+  }
+
+  const data = await res.json();
+  console.log(`✓ Email sent via Resend to ${to} — id: ${data.id}`);
 }
 
 // ─── EmailJS (invite + password reset only — unchanged) ──────────────────────
@@ -81,7 +78,7 @@ async function sendViaEmailJS(templateId, params) {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 async function sendGeneric({ to, subject, body, cc, bcc, from_name }) {
-  await sendViaGmail({ to, subject, body, cc, bcc, from_name });
+  await sendViaResend({ to, subject, body, cc, bcc, from_name });
 }
 
 async function sendInvite({ to, name, token, inviterName }) {
