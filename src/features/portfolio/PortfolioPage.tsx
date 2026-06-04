@@ -45,11 +45,11 @@ export default function PortfolioPage() {
   const { store, canAccess, canExport, visiblePortfolioTabs } = useApp();
   const [activePortfolioTab, setActivePortfolioTab] = useState<PortfolioTab>('companies');
 
-  // Filter tabs based on role — portfolio_viewer only sees allowed sub-tabs
+  // Filter tabs based on role — portfolio_viewer only sees allowed sub-tabs; 'admin' is always hidden from viewers
   const allowedSubTabs = visiblePortfolioTabs();
   const visibleTabs = allowedSubTabs.length === 0
     ? PORTFOLIO_TABS  // show all for team + admin
-    : PORTFOLIO_TABS.filter(t => allowedSubTabs.includes(t.key) || t.key === 'companies');
+    : PORTFOLIO_TABS.filter(t => t.key !== 'admin' && (allowedSubTabs.includes(t.key) || t.key === 'companies'));
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCompany, setSelectedCompany] = useState<PortfolioCompany | null>(null);
   const [search, setSearch] = useState('');

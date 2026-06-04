@@ -196,6 +196,29 @@ function ViewerSettingsTab({ updateRole }: { updateRole: (r: any) => void }) {
         })}
       </div>
 
+      {/* Live viewer tab preview */}
+      <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Viewer Navigation Preview</p>
+        <p className="text-xs text-gray-400">This is exactly what a Portfolio Viewer sees in their top tab bar.</p>
+        <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-gray-50 border border-gray-100">
+          {/* Companies is always visible */}
+          {[{ key: 'companies', label: 'Companies' }, ...PORTFOLIO_SUB_TABS.filter(t => t.key !== 'companies' && visible.includes(t.key))].map((tab, i) => (
+            <span key={tab.key}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium border ${
+                i === 0
+                  ? 'bg-[#1E293B] text-white border-[#1E293B]'
+                  : 'bg-white text-gray-700 border-gray-200'
+              }`}>
+              {tab.label}
+            </span>
+          ))}
+          <span className="px-3 py-1.5 rounded-md text-xs font-medium border bg-gray-100 text-gray-300 border-gray-100 line-through select-none">
+            Portfolio Admin
+          </span>
+        </div>
+        <p className="text-[10px] text-gray-400 italic">"Portfolio Admin" tab is always hidden from viewers — shown above as strikethrough for reference.</p>
+      </div>
+
       <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-xs text-gray-500 space-y-1">
         <p className="font-semibold text-gray-600">How to invite a Portfolio Viewer:</p>
         <ol className="list-decimal list-inside space-y-0.5">
