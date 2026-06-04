@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, lazy, Suspense, useCallback } from 'react';
 import {
   LayoutDashboard, TrendingUp, BarChart2, Layers, Activity,
   Edit2, X, Plus, Check, RefreshCw,
@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
-import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
+const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 import type {
   PortfolioCompany, CompanyFinancialPeriod, FundInvestment,
   CompanyHealth, HealthSignal, YearStyle, FYQuarter,
@@ -1162,7 +1162,7 @@ export default function PortfolioAdmin() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           {activeTab === 'sync' && (
-            <TeamSyncPanel team="portfolio" />
+            <Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="portfolio" /></Suspense>
           )}
           {activeTab === 'metrics' && (
             <div>

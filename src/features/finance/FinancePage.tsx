@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target, BookOpen, RefreshCw as SyncIcon } from 'lucide-react';
@@ -15,7 +15,7 @@ import ValuationLog from './ValuationLog';
 import LpCommHub from './LpCommHub';
 import FundClosingTracker from './FundClosingTracker';
 import FundLedger from './FundLedger';
-import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
+const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 
 type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing' | 'fund_ledger' | 'team_sync';
 
@@ -149,7 +149,7 @@ export default function FinancePage() {
           {activeTab === 'lp_comms'      && <div className="p-6"><LpCommHub /></div>}
           {activeTab === 'fund_closing'  && <div className="p-6"><FundClosingTracker /></div>}
           {activeTab === 'fund_ledger'   && <div className="p-6"><FundLedger /></div>}
-          {activeTab === 'team_sync'     && <div className="p-6"><TeamSyncPanel team="finance" /></div>}
+          {activeTab === 'team_sync'     && <div className="p-6"><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="finance" /></Suspense></div>}
         </div>
       </div>
     </FundProvider>

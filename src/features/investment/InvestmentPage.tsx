@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, lazy, Suspense, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
 import SectorPill from '../../components/ui/SectorPill';
@@ -17,7 +17,7 @@ import CoInvestorCrm from './CoInvestorCrm';
 import ReferenceChecks from './ReferenceChecks';
 import { useBulkSelect } from '../../hooks/useBulkSelect';
 import BulkActionBar from '../../components/ui/BulkActionBar';
-import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
+const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 
 type InvTab = 'pipeline' | 'ic_memos' | 'dd' | 'co_investors' | 'ref_checks' | 'team_sync';
 
@@ -549,7 +549,7 @@ export default function InvestmentPage() {
         {activeTab === 'dd'           && <DdChecklist />}
         {activeTab === 'co_investors' && <CoInvestorCrm />}
         {activeTab === 'ref_checks'   && <ReferenceChecks />}
-        {activeTab === 'team_sync'    && <TeamSyncPanel team="investment" />}
+        {activeTab === 'team_sync'    && <Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="investment" /></Suspense>}
       </div>
     </main>
   );

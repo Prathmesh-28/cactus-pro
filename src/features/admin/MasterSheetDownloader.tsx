@@ -1,4 +1,10 @@
-import * as XLSX from 'xlsx';
+// xlsx loaded lazily only on download click (saves 468KB from initial bundle)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _XLSX: any = null;
+async function getXLSX() {
+  if (!_XLSX) _XLSX = await import('xlsx');
+  return _XLSX;
+}
 import { Download, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
@@ -12,7 +18,8 @@ export default function MasterSheetDownloader() {
   const { store } = useApp();
   const [lastDownloaded, setLastDownloaded] = useState<string | null>(() => localStorage.getItem(LS_KEY));
 
-  function handleDownload() {
+  async function handleDownload() {
+    const XLSX = await getXLSX();
     const wb        = XLSX.utils.book_new();
     const companies = store.companies        ?? [];
     const sectors   = store.sectors          ?? [];

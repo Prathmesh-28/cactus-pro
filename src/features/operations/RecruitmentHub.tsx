@@ -1055,7 +1055,7 @@ export default function RecruitmentHub() {
 
   // ─── Pipeline / Candidates bulk stage dropdowns ────────────────────────────
   const [pipelineBulkStage, setPipelineBulkStage] = useState<CandidateStage>('shortlisted');
-  const [_candidateBulkStage, _setCandidateBulkStage] = useState<CandidateStage>('shortlisted');
+  const [candidateBulkStage, setCandidateBulkStage] = useState<CandidateStage>('shortlisted');
 
   // ─── Derived ───────────────────────────────────────────────────────────────
   const profileCandidate = profileCandidateId ? candidates.find(c => c.id === profileCandidateId) ?? null : null;
@@ -1084,7 +1084,7 @@ export default function RecruitmentHub() {
   const hiredCandidates = useMemo(() => candidates.filter(c => c.stage === 'hired'), [candidates]);
 
   // ─── Bulk select hooks (after derived lists) ───────────────────────────────
-  void useBulkSelect(filteredCandidates); // const _bulkCandidates = useBulkSelect(filteredCandidates);
+  const bulkCandidates = useBulkSelect(filteredCandidates);
   const bulkPipeline   = useBulkSelect(filteredPipelineCandidates);
 
   // ─── Job actions ───────────────────────────────────────────────────────────
@@ -1601,7 +1601,12 @@ export default function RecruitmentHub() {
                   <option key={s} value={s}>{STAGE_LABELS[s]}</option>
                 ))}
               </select>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+                {bulkCandidates.count > 0 && (
+                  <span style={{ fontSize: 12, color: PRIMARY, fontWeight: 600 }}>
+                    {bulkCandidates.count} selected
+                  </span>
+                )}
                 <button style={btnOutline} onClick={runAIScreenAll}>
                   <BarChart2 size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />Run AI Screen All
                 </button>
@@ -1616,6 +1621,13 @@ export default function RecruitmentHub() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: `${PRIMARY}08` }}>
+                    <th style={{ padding: '10px 10px', width: 36 }}>
+                      <input type="checkbox"
+                        checked={bulkCandidates.isAllSelected}
+                        onChange={bulkCandidates.toggleAll}
+                        style={{ cursor: 'pointer', accentColor: PRIMARY }}
+                      />
+                    </th>
                     {['Name', 'Job Applied', 'Stage', 'AI Score', 'Source', 'Applied', ''].map(h => (
                       <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
@@ -1623,18 +1635,23 @@ export default function RecruitmentHub() {
                 </thead>
                 <tbody>
                   {filteredCandidates.length === 0 ? (
-                    <tr><td colSpan={7} style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No candidates found.</td></tr>
+                    <tr><td colSpan={8} style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No candidates found.</td></tr>
                   ) : (
                     filteredCandidates.map(c => {
                       const job = jobs.find(j => j.id === c.jobId);
+                      const isChecked = bulkCandidates.isSelected(c.id);
                       return (
                         <tr
                           key={c.id}
-                          onClick={() => setProfileCandidateId(c.id)}
-                          style={{ borderTop: '1px solid #f3f4f6', cursor: 'pointer', transition: 'background 0.1s' }}
-                          onMouseEnter={e => (e.currentTarget.style.background = BG)}
-                          onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+                          onClick={() => bulkCandidates.count > 0 ? bulkCandidates.toggle(c.id) : setProfileCandidateId(c.id)}
+                          style={{ borderTop: '1px solid #f3f4f6', cursor: 'pointer', transition: 'background 0.1s', background: isChecked ? `${PRIMARY}08` : '#fff' }}
+                          onMouseEnter={e => { if (!isChecked) (e.currentTarget as HTMLElement).style.background = BG; }}
+                          onMouseLeave={e => { if (!isChecked) (e.currentTarget as HTMLElement).style.background = '#fff'; }}
                         >
+                          <td style={{ padding: '12px 10px' }} onClick={e => { e.stopPropagation(); bulkCandidates.toggle(c.id); }}>
+                            <input type="checkbox" checked={isChecked} onChange={() => bulkCandidates.toggle(c.id)}
+                              style={{ cursor: 'pointer', accentColor: PRIMARY }} />
+                          </td>
                           <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#111827' }}>{c.name}</td>
                           <td style={{ padding: '12px 14px', fontSize: 12, color: '#6b7280' }}>{job?.title ?? '—'}</td>
                           <td style={{ padding: '12px 14px' }}><StageBadge stage={c.stage} /></td>
@@ -1660,6 +1677,61 @@ export default function RecruitmentHub() {
                 </tbody>
               </table>
             </div>
+
+            {/* Candidates BulkActionBar */}
+            <BulkActionBar
+              count={bulkCandidates.count}
+              total={filteredCandidates.length}
+              onClear={bulkCandidates.clear}
+              onSelectAll={bulkCandidates.toggleAll}
+              actions={[
+                {
+                  label: candidateBulkStage ? `Move → ${STAGE_LABELS[candidateBulkStage]}` : 'Move to Stage…',
+                  onClick: () => {
+                    bulkCandidates.selectedItems.forEach(c => handleMoveStage(c.id, candidateBulkStage));
+                    bulkCandidates.clear();
+                  },
+                },
+                {
+                  label: 'Run AI Screen',
+                  variant: 'primary' as const,
+                  onClick: () => {
+                    bulkCandidates.selectedItems.forEach(c => {
+                      const job = jobs.find(j => j.id === c.jobId);
+                      if (!job || !c.resumeText) return;
+                      const resumeLower = c.resumeText.toLowerCase();
+                      const matched = job.requirements.filter(r => r.toLowerCase().split(/\s+/).some(w => w.length > 2 && resumeLower.includes(w)));
+                      const score = Math.round((matched.length / Math.max(job.requirements.length, 1)) * 100);
+                      const missing = job.requirements.filter(r => !matched.includes(r));
+                      updateCandidate({ ...c, aiScore: score, aiSummary: `Matched ${matched.length}/${job.requirements.length}. Strong: ${matched.slice(0,3).join(', ')||'None'}. Missing: ${missing.slice(0,3).join(', ')||'None'}.` });
+                    });
+                    bulkCandidates.clear();
+                  },
+                },
+                {
+                  label: 'Delete Selected',
+                  variant: 'danger' as const,
+                  onClick: () => {
+                    if (!window.confirm(`Delete ${bulkCandidates.count} candidate(s)?`)) return;
+                    bulkCandidates.selectedItems.forEach(c => deleteCandidate(c.id));
+                    bulkCandidates.clear();
+                  },
+                },
+              ]}
+            />
+
+            {/* Stage selector for bulk move */}
+            {bulkCandidates.count > 0 && (
+              <div style={{ position: 'fixed', bottom: 68, left: '50%', transform: 'translateX(-50%)', zIndex: 51, background: '#fff', border: `2px solid ${PRIMARY}`, borderRadius: 10, padding: '8px 16px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+                <label style={{ fontSize: 11, color: PRIMARY, fontWeight: 600, marginRight: 8 }}>Move selected to:</label>
+                <select value={candidateBulkStage} onChange={e => setCandidateBulkStage(e.target.value as CandidateStage)}
+                  style={{ fontSize: 12, border: `1px solid ${PRIMARY}`, borderRadius: 6, padding: '4px 8px', color: PRIMARY }}>
+                  {(Object.keys(STAGE_LABELS) as CandidateStage[]).map(s => (
+                    <option key={s} value={s}>{STAGE_LABELS[s]}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         )}
 

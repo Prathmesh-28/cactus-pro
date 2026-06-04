@@ -462,7 +462,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Fund investment ledger (Finance namespace) ───────────────────────────
   const addFundInvestment    = (x: FundInvestment) => setStore(s => ({ ...s, fundInvestments: [...(s.fundInvestments??[]), x] }));
   const updateFundInvestment = (x: FundInvestment) => setStore(s => ({ ...s, fundInvestments: (s.fundInvestments??[]).map((i:any)=>i.id===x.id?x:i) }));
-  const deleteFundInvestment = (id: string) => setStore(s => ({ ...s, fundInvestments: (s.fundInvestments??[]).filter((i:any)=>i.id!==id) }));
+  const deleteFundInvestment = (id: string) => setStore(s => ({
+    ...s,
+    fundInvestments: (s.fundInvestments??[]).filter((i:any)=>i.id!==id),
+    // Cascade: also remove the matching portfolioFundView entry (pf_ prefix)
+    portfolioFundView: (s.portfolioFundView??[]).filter((i:any)=>i.id!==`pf_${id}`),
+  }));
   // ── Portfolio fund view (Portfolio namespace — completely independent) ────
   const addPortfolioFundView    = (x: FundInvestment) => setStore(s => ({ ...s, portfolioFundView: [...(s.portfolioFundView??[]), x] }));
   const updatePortfolioFundView = (x: FundInvestment) => setStore(s => ({ ...s, portfolioFundView: (s.portfolioFundView??[]).map((i:any)=>i.id===x.id?x:i) }));
