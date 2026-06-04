@@ -75,21 +75,15 @@ export default function Header() {
           <div className="flex items-center h-16 gap-6">
 
             {/* Logo + wordmark */}
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
+            <Link to="/" className="flex items-center flex-shrink-0 group">
               {firm.logoUrl ? (
-                <img src={firm.logoUrl} alt={firm.name} className="h-9 w-auto object-contain" />
+                <img src={firm.logoUrl} alt={firm.name} className="h-8 w-auto object-contain" />
               ) : (
-                <div className="flex items-center gap-2">
-                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="28" height="28" rx="6" fill="rgba(255,255,255,0.15)"/>
-                    <path d="M14 22V10M14 10C14 10 10 8 10 5C10 5 12 7 14 7C16 7 18 5 18 5C18 8 14 10 14 10Z" stroke="#86CA0F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10 22V16C10 16 7 15 7 12" stroke="#86CA0F" strokeWidth="1.8" strokeLinecap="round"/>
-                    <path d="M18 22V16C18 16 21 15 21 12" stroke="#86CA0F" strokeWidth="1.8" strokeLinecap="round"/>
-                  </svg>
-                  <span className="font-heading font-bold text-xl hidden sm:block text-white">
-                    {firm.name}
-                  </span>
-                </div>
+                <img
+                  src="/cactus-logo-white.svg"
+                  alt="Cactus Partners"
+                  className="h-8 w-auto object-contain"
+                />
               )}
             </Link>
 

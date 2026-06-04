@@ -45,16 +45,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden"
-              style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
-              {firmLogo
-                ? <img src={firmLogo} alt="Cactus Partners" className="w-full h-full object-cover" />
-                : <span className="text-white text-2xl font-bold">🌵</span>}
-            </div>
-            <span className="text-white font-heading font-bold text-2xl tracking-tight">
-              {store.firm?.name || 'Cactus Partners'}
-            </span>
+          <div className="mb-3">
+            {firmLogo
+              ? <img src={firmLogo} alt="Cactus Partners" className="h-10 w-auto object-contain mx-auto" />
+              : <img src="/cactus-logo-white.svg" alt="Cactus Partners" className="h-10 w-auto object-contain mx-auto" />}
           </div>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
             Portfolio Management Portal

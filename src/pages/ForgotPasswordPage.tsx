@@ -32,14 +32,10 @@ export default function ForgotPasswordPage() {
       style={{ background: 'linear-gradient(135deg, #0A2321 0%, #1C4B42 60%, #254536 100%)' }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center overflow-hidden"
-              style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
-              {firmLogo
-                ? <img src={firmLogo} alt="logo" className="w-full h-full object-cover" />
-                : <span className="text-white text-xl">🌵</span>}
-            </div>
-            <span className="text-white font-heading font-bold text-xl">{store.firm?.name || 'Cactus Partners'}</span>
+          <div>
+            {firmLogo
+              ? <img src={firmLogo} alt="Cactus Partners" className="h-9 w-auto object-contain mx-auto" />
+              : <img src="/cactus-logo-white.svg" alt="Cactus Partners" className="h-9 w-auto object-contain mx-auto" />}
           </div>
         </div>
 
