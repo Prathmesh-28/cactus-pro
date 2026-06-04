@@ -391,6 +391,7 @@ export interface AppStore {
   onboardingTasks:     OnboardingTask[];
   // ── Financial Time Series ─────────────────────────────────────────────────
   financialPeriods:    CompanyFinancialPeriod[];
+  fundInvestments:     FundInvestment[];
   // ── Shared admin configs (synced to PostgreSQL, shared across all users) ───
   navConfig:           NavTabConfig[] | null;
   recruitmentConfig:   RecruitmentAppConfig | null;
@@ -945,4 +946,79 @@ export interface FounderPortalAccess {
   lastLoginAt?: string;
   invitedAt: string;
   invitedBy: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FUND INVESTMENT LEDGER
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface FundFollowOn {
+  id: string;
+  date: string;           // YYYY-MM-DD
+  round: string;          // "Series A", "Series B", "Bridge"
+  amount: string;         // ₹Cr invested by Cactus in this round
+  preMoneyVal: string;    // ₹Cr company pre-money
+  postMoneyVal: string;   // ₹Cr company post-money
+  ownershipPost: string;  // Cactus % after this round
+  leadInvestor: string;
+  notes: string;
+}
+
+export interface FundInvestment {
+  id: string;
+  fund: string;           // 'Fund 1' | 'Fund 2'
+  companyId: string;
+
+  // ── Initial investment ─────────────────────────────────────────────────
+  investmentDate: string;       // First cheque date YYYY-MM-DD
+  stageAtEntry: string;         // Seed / Pre-Series A / Series A / Series B
+  preMoneyAtEntry: string;      // ₹Cr valuation before Cactus invested
+  postMoneyAtEntry: string;     // ₹Cr valuation after Cactus first cheque
+  firstCheque: string;          // ₹Cr — first investment
+  ownershipAtEntry: string;     // % after first investment
+  instrument: string;           // Equity / SAFE / Convertible Note
+
+  // ── Follow-on rounds ───────────────────────────────────────────────────
+  followOns: FundFollowOn[];
+
+  // ── Totals (auto-calc from first + follow-ons) ─────────────────────────
+  totalInvested: string;        // ₹Cr — sum of all cheques
+  currentOwnership: string;     // % today after all dilution
+  currentFMV: string;           // ₹Cr — Cactus stake FMV today
+  currentValuation: string;     // ₹Cr — company total valuation
+
+  // ── Returns ────────────────────────────────────────────────────────────
+  moic: string;                 // currentFMV / totalInvested
+  irr: string;                  // % annualized IRR
+  dpi: string;                  // Distributions / Paid-In (cash returned)
+  unrealizedValue: string;      // ₹Cr — paper gain
+  realizedValue: string;        // ₹Cr — actual cash returned
+
+  // ── Latest operating metrics (auto-pulled from financialPeriods) ───────
+  latestFY: string;             // 'FY2025'
+  revenue: string;              // ₹Cr
+  revenueGrowthYoY: string;     // %
+  arr: string;                  // ₹Cr Annual Recurring Revenue
+  mrr: string;                  // ₹Cr Monthly Recurring Revenue
+  grossMargin: string;          // %
+  ebitdaMargin: string;         // %
+  monthlyBurn: string;          // ₹Cr
+  cash: string;                 // ₹Cr
+  runway: string;               // months
+  headcount: number;
+  nrr: string;                  // % Net Revenue Retention
+
+  // ── Status ────────────────────────────────────────────────────────────
+  status: 'Active' | 'Watch' | 'Exited' | 'Written Off';
+  exitDate?: string;
+  exitProceeds?: string;
+  exitType?: 'IPO' | 'M&A' | 'Secondary' | 'Buyback';
+
+  // ── Notes ─────────────────────────────────────────────────────────────
+  boardSeat: boolean;
+  leadOrFollow: 'Lead' | 'Follow' | 'Co-lead';
+  nextRoundExpected: string;
+  nextRoundSize: string;
+  notes: string;
+  updatedAt: string;
 }

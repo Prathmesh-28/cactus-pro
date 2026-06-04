@@ -15,7 +15,7 @@ import type {
   ResearchDocument, FounderPortalAccess,
   JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
   CompanyFinancialPeriod,
-  NavTabConfig, RecruitmentAppConfig, OpsAppConfig,
+  NavTabConfig, RecruitmentAppConfig, OpsAppConfig, FundInvestment,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -104,6 +104,10 @@ interface AppContextValue {
   updateFinancialPeriod: (x: CompanyFinancialPeriod) => void;
   deleteFinancialPeriod: (id: string) => void;
   upsertFinancialPeriod: (x: CompanyFinancialPeriod) => void; // add or update by composite key
+  // Fund investment ledger
+  addFundInvestment: (x: FundInvestment) => void;
+  updateFundInvestment: (x: FundInvestment) => void;
+  deleteFundInvestment: (id: string) => void;
   // Shared config setters (synced to PostgreSQL for all users)
   setNavConfig: (cfg: NavTabConfig[]) => void;
   setRecruitmentConfig: (cfg: RecruitmentAppConfig) => void;
@@ -352,6 +356,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { ...s, financialPeriods: [...(s.financialPeriods??[]), x] };
   });
 
+  // ── Fund investment ledger ────────────────────────────────────────────────
+  const addFundInvestment    = (x: FundInvestment) => setStore(s => ({ ...s, fundInvestments: [...(s.fundInvestments??[]), x] }));
+  const updateFundInvestment = (x: FundInvestment) => setStore(s => ({ ...s, fundInvestments: (s.fundInvestments??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteFundInvestment = (id: string) => setStore(s => ({ ...s, fundInvestments: (s.fundInvestments??[]).filter((i:any)=>i.id!==id) }));
+
   // ── Shared config (all users see same values via PostgreSQL) ─────────────
   const setNavConfig         = (cfg: NavTabConfig[])         => setStore(s => ({ ...s, navConfig: cfg }));
   const setRecruitmentConfig = (cfg: RecruitmentAppConfig)   => setStore(s => ({ ...s, recruitmentConfig: cfg }));
@@ -417,6 +426,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addOfferLetter, updateOfferLetter, deleteOfferLetter,
     addOnboardingTask, updateOnboardingTask, deleteOnboardingTask,
     addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
+    addFundInvestment, updateFundInvestment, deleteFundInvestment,
     setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,

@@ -1426,6 +1426,217 @@ export const defaultConfig: AppStore = {
   interviews:          [],
   offerLetters:        [],
   onboardingTasks:     [],
+  fundInvestments: (() => {
+    const now = new Date().toISOString();
+    const inv = (
+      id: string, fund: string, companyId: string,
+      investmentDate: string, stageAtEntry: string,
+      preMoneyAtEntry: string, postMoneyAtEntry: string,
+      firstCheque: string, ownershipAtEntry: string, instrument: string,
+      followOns: import('./types').FundFollowOn[],
+      totalInvested: string, currentOwnership: string,
+      currentFMV: string, currentValuation: string,
+      moic: string, irr: string, dpi: string,
+      unrealizedValue: string, realizedValue: string,
+      latestFY: string, revenue: string, revenueGrowthYoY: string,
+      arr: string, mrr: string, grossMargin: string, ebitdaMargin: string,
+      monthlyBurn: string, cash: string, runway: string, headcount: number, nrr: string,
+      status: 'Active' | 'Watch' | 'Exited' | 'Written Off',
+      boardSeat: boolean, leadOrFollow: 'Lead' | 'Follow' | 'Co-lead',
+      nextRoundExpected: string, nextRoundSize: string, notes: string
+    ): import('./types').FundInvestment => ({
+      id, fund, companyId, investmentDate, stageAtEntry,
+      preMoneyAtEntry, postMoneyAtEntry, firstCheque, ownershipAtEntry, instrument,
+      followOns, totalInvested, currentOwnership, currentFMV, currentValuation,
+      moic, irr, dpi, unrealizedValue, realizedValue,
+      latestFY, revenue, revenueGrowthYoY, arr, mrr, grossMargin, ebitdaMargin,
+      monthlyBurn, cash, runway, headcount, nrr,
+      status, boardSeat, leadOrFollow, nextRoundExpected, nextRoundSize, notes,
+      updatedAt: now,
+    });
+
+    return [
+      // ══════════════════════════════════════════════════════════════════
+      // FUND 1 — ₹250 Cr corpus, Vintage FY2021-22
+      // ══════════════════════════════════════════════════════════════════
+
+      // c3: Lohum — Battery Recycling, Series B
+      inv('fi1','Fund 1','c3',
+        '2021-04-15','Seed',
+        '175','200','25','12.5%','Equity',
+        [
+          { id:'fo_c3_1', date:'2022-06-01', round:'Series A', amount:'8', preMoneyVal:'600', postMoneyVal:'625', ownershipPost:'10.2%', leadInvestor:'360 ONE', notes:'Lead follow-on' },
+          { id:'fo_c3_2', date:'2023-09-10', round:'Series B', amount:'15', preMoneyVal:'4400', postMoneyVal:'4500', ownershipPost:'2.92%', leadInvestor:'Tata Capital', notes:'Series B — maintained pro-rata' },
+        ],
+        '48','2.92%','137.2','4700',
+        '2.9x','38%','0.0x','112.2','0',
+        'FY2025','835','39%','','','46%','18%','10','150','15',520,'',
+        'Active',true,'Follow','Q3 FY2026','','IPO planned 2027. BPCL + Tata co-investors.'
+      ),
+
+      // c1: Bellatrix Aerospace — Satellite Propulsion, Series A
+      inv('fi2','Fund 1','c1',
+        '2021-04-16','Seed',
+        '120','130','6','4.6%','Equity',
+        [
+          { id:'fo_c1_1', date:'2023-03-01', round:'Series A', amount:'10', preMoneyVal:'800', postMoneyVal:'840', ownershipPost:'3.41%', leadInvestor:'Cactus Partners', notes:'Cactus LED — $20M round' },
+        ],
+        '16','3.41%','28.5','836',
+        '1.8x','28%','0.0x','12.5','0',
+        'FY2025','1.75','94%','','','','‑70%','4','50','12',72,'',
+        'Active',true,'Lead','H1 FY2027','₹200Cr','Satellite propulsion. ISRO contracts in pipeline.'
+      ),
+
+      // c4: Indigrid Technology — EV Powertrain/ESDM, Series A
+      inv('fi3','Fund 1','c4',
+        '2021-04-18','Pre-Series A',
+        '55','68','12','17.6%','Equity',
+        [
+          { id:'fo_c4_1', date:'2022-11-01', round:'Series A', amount:'6', preMoneyVal:'580', postMoneyVal:'620', ownershipPost:'15.44%', leadInvestor:'Cactus Partners', notes:'Pro-rata maintained' },
+        ],
+        '18','15.44%','98.8','640',
+        '5.5x','36%','0.0x','80.8','0',
+        'FY2025','110','34%','','','22%','11%','5','35','7',300,'',
+        'Active',true,'Lead','FY2026','₹80Cr','Amit Sharma on board. OEM contracts expanding.'
+      ),
+
+      // c5: Brandworks Technologies — EMS/AI Hardware, Series A
+      inv('fi4','Fund 1','c5',
+        '2021-04-19','Pre-Series A',
+        '100','112','8','7.1%','Equity',
+        [
+          { id:'fo_c5_1', date:'2023-01-15', round:'Series A', amount:'7', preMoneyVal:'1000', postMoneyVal:'1040', ownershipPost:'5.74%', leadInvestor:'Cactus Partners', notes:'Cactus LED Series A' },
+        ],
+        '15','5.74%','63.1','1100',
+        '4.2x','34%','0.0x','48.1','0',
+        'FY2025','258','32%','','','24%','11%','6','50','8',420,'',
+        'Active',true,'Lead','FY2027','₹150Cr','Nikita Kumawat. Palghar HQ. EMS + AI edge devices.'
+      ),
+
+      // c6: Intangles — Automotive IoT SaaS, Series A
+      inv('fi5','Fund 1','c6',
+        '2021-04-20','Seed',
+        '80','88','6','6.8%','Equity',
+        [
+          { id:'fo_c6_1', date:'2022-08-01', round:'Series A', amount:'4', preMoneyVal:'290', postMoneyVal:'310', ownershipPost:'5.0%', leadInvestor:'Cactus Partners', notes:'Follow-on pro-rata' },
+        ],
+        '10','5.0%','16.0','320',
+        '1.6x','22%','0.0x','6.0','0',
+        'FY2025','32','45%','32','2.7','68%','13%','2','35','18',140,'110%',
+        'Active',false,'Follow','FY2026','₹40Cr','Connected fleet platform. NRR >110%.'
+      ),
+
+      // c7: Kapture CRM — AI CX SaaS, Series A
+      inv('fi6','Fund 1','c7',
+        '2021-04-22','Seed',
+        '60','66','5','7.6%','Equity',
+        [
+          { id:'fo_c7_1', date:'2022-12-01', round:'Series A', amount:'6', preMoneyVal:'400', postMoneyVal:'430', ownershipPost:'8.52%', leadInvestor:'Cactus Partners', notes:'Cactus LED — maintained stake' },
+        ],
+        '11','8.52%','38.0','446',
+        '3.5x','38%','0.0x','27.0','0',
+        'FY2025','52','37%','52','4.3','75%','18%','2','35','18',200,'118%',
+        'Active',true,'Lead','FY2026','₹80Cr','CEO Sheshgiri Kamath. NRR 118%. B2B CX.'
+      ),
+
+      // c13: Rubix — Materials Tech Distribution, Series B
+      inv('fi7','Fund 1','c13',
+        '2021-04-15','Series A',
+        '380','430','50','11.6%','Equity',
+        [
+          { id:'fo_c13_1', date:'2023-06-01', round:'Series B', amount:'30', preMoneyVal:'1700', postMoneyVal:'1800', ownershipPost:'9.8%', leadInvestor:'Axis Growth Avenues', notes:'Series B — partial exit ₹100Cr via secondary' },
+        ],
+        '80','9.8%','176.4','1800',
+        '2.2x','30%','1.25x','96.4','100',
+        'FY2025','310','29%','','','30%','15%','8','80','10',540,'',
+        'Active',false,'Follow','FY2027','','Materials distribution. Partial exit FY24 at 4.5x.'
+      ),
+
+      // ══════════════════════════════════════════════════════════════════
+      // FUND 2 — ₹350 Cr corpus, Vintage FY2022-23
+      // ══════════════════════════════════════════════════════════════════
+
+      // c8: Auric — D2C Health Drinks, Seed (ZENITH DRINKS)
+      inv('fi8','Fund 2','c8',
+        '2022-03-01','Seed',
+        '80','95','15','15.8%','Equity',
+        [
+          { id:'fo_c8_1', date:'2023-08-01', round:'Seed Extension', amount:'8', preMoneyVal:'850', postMoneyVal:'900', ownershipPost:'16.95%', leadInvestor:'Cactus Partners', notes:'Cactus LED — all rounds 4&5' },
+          { id:'fo_c8_2', date:'2024-11-01', round:'Pre-Series A', amount:'10', preMoneyVal:'920', postMoneyVal:'960', ownershipPost:'16.95%', leadInvestor:'Cactus Partners', notes:'Bridge to Series A' },
+        ],
+        '33','16.95%','165.5','977',
+        '5.0x','52%','0.0x','132.5','0',
+        'FY2025','126','129%','','','58%','10%','3','40','13',130,'',
+        'Active',true,'Lead','FY2026','₹120Cr','DPIIT registered. 7 rounds. 459% revenue CAGR.'
+      ),
+
+      // c9: AMPM — D2C Women Fashion, Seed
+      inv('fi9','Fund 2','c9',
+        '2022-04-01','Seed',
+        '48','68','20','29.4%','Equity',
+        [
+          { id:'fo_c9_1', date:'2023-10-01', round:'Seed+', amount:'8', preMoneyVal:'72', postMoneyVal:'80', ownershipPost:'30.12%', leadInvestor:'Cactus Partners', notes:'Follow-on to maintain stake' },
+        ],
+        '28','30.12%','25.0','83',
+        '0.9x','15%','0.0x','‑3.0','0',
+        'FY2025','43','43%','','','52%','7%','5','26','5',72,'',
+        'Watch',true,'Lead','FY2026','₹40Cr','Largest stake 30.12%. CEO Arun Bothra. Scaling D2C.'
+      ),
+
+      // c10: Ananant Systems — Semiconductors/5G, Seed
+      inv('fi10','Fund 2','c10',
+        '2022-05-01','Pre-Seed',
+        '35','42','5','11.9%','SAFE',
+        [
+          { id:'fo_c10_1', date:'2023-12-01', round:'Seed', amount:'3', preMoneyVal:'120', postMoneyVal:'130', ownershipPost:'7.17%', leadInvestor:'Cactus Partners', notes:'SAFE converted + follow-on' },
+        ],
+        '8','7.17%','9.97','139',
+        '1.2x','20%','0.0x','1.97','0',
+        'FY2025','0.8','300%','','','','‑80%','2','22','11',38,'',
+        'Active',false,'Lead','FY2026','₹30Cr','BSNL 5G chip. Deep-tech, long horizon.'
+      ),
+
+      // c11: Vitraya — AI Health Claims, Series A
+      inv('fi11','Fund 2','c11',
+        '2022-06-01','Pre-Series A',
+        '150','168','8','4.8%','Equity',
+        [
+          { id:'fo_c11_1', date:'2024-01-01', round:'Series A', amount:'10', preMoneyVal:'240', postMoneyVal:'265', ownershipPost:'8.07%', leadInvestor:'Cactus Partners', notes:'Cactus LED Series A' },
+        ],
+        '18','8.07%','22.6','280',
+        '1.3x','22%','0.0x','4.6','0',
+        'FY2025','20','43%','','','70%','10%','','','',72,'',
+        'Active',true,'Lead','FY2026','₹40Cr','PROFITABLE FY25. CEO Mrinal Sinha. Delhi/Mohali.'
+      ),
+
+      // c12: ParkMate — Valet Parking, Seed
+      inv('fi12','Fund 2','c12',
+        '2022-07-01','Seed',
+        '22','28','3','10.7%','Equity',
+        [
+          { id:'fo_c12_1', date:'2024-03-01', round:'Seed+', amount:'2', preMoneyVal:'38', postMoneyVal:'42', ownershipPost:'13.0%', leadInvestor:'Cactus Partners', notes:'Bridge round' },
+        ],
+        '5','13.0%','5.6','43',
+        '1.1x','18%','0.0x','0.6','0',
+        'FY2025','5.29','51%','','','47%','8%','','','',30,'',
+        'Active',false,'Lead','FY2026','₹15Cr','#1 ranked valet. CEO Dhananjay Bharadwaj.'
+      ),
+
+      // c2: ShowroomB2B — AI Apparel Sourcing, Series A
+      inv('fi13','Fund 2','c2',
+        '2022-08-01','Pre-Series A',
+        '200','220','10','4.5%','Equity',
+        [
+          { id:'fo_c2_1', date:'2026-01-01', round:'Series A', amount:'156', preMoneyVal:'1000', postMoneyVal:'1156', ownershipPost:'4.84%', leadInvestor:'Cactus Partners', notes:'CACTUS LED ₹156Cr Series A Jan 2026' },
+        ],
+        '166','4.84%','50.8','1050',
+        '0.3x','24%','0.0x','‑115.2','0',
+        'FY2025','99.8','61%','','','21%','9%','','','',195,'',
+        'Active',true,'Lead','FY2027','','3FATE TECH entity. CEO Abhishek Dua.'
+      ),
+    ];
+  })(),
+
   financialPeriods: (() => {
     const now = new Date().toISOString();
     const src = 'Default Data';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
-import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target, BookOpen } from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
@@ -14,8 +14,9 @@ import CapitalCallTracker from './CapitalCallTracker';
 import ValuationLog from './ValuationLog';
 import LpCommHub from './LpCommHub';
 import FundClosingTracker from './FundClosingTracker';
+import FundLedger from './FundLedger';
 
-type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing';
+type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing' | 'fund_ledger';
 
 const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'overview',      label: 'Fund Overview',   Icon: LayoutDashboard },
@@ -25,6 +26,7 @@ const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'valuations',    label: 'Valuation Log',    Icon: TrendingUp },
   { key: 'lp_comms',      label: 'LP Comms',         Icon: Mail },
   { key: 'fund_closing',  label: 'Fund Closing',     Icon: Target },
+  { key: 'fund_ledger',  label: 'Fund Ledger',      Icon: BookOpen },
 ];
 
 function FinanceExportMenu() {
@@ -144,6 +146,7 @@ export default function FinancePage() {
           {activeTab === 'valuations'    && <div className="p-6"><ValuationLog /></div>}
           {activeTab === 'lp_comms'      && <div className="p-6"><LpCommHub /></div>}
           {activeTab === 'fund_closing'  && <div className="p-6"><FundClosingTracker /></div>}
+          {activeTab === 'fund_ledger'   && <div className="p-6"><FundLedger /></div>}
         </div>
       </div>
     </FundProvider>
