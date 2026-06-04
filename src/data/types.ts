@@ -391,7 +391,8 @@ export interface AppStore {
   onboardingTasks:     OnboardingTask[];
   // ── Financial Time Series ─────────────────────────────────────────────────
   financialPeriods:    CompanyFinancialPeriod[];
-  fundInvestments:     FundInvestment[];
+  fundInvestments:     FundInvestment[];          // Finance team only (finance namespace)
+  portfolioFundView:   FundInvestment[];          // Portfolio team only (portfolio namespace) — independent copy
   // ── Shared admin configs (synced to PostgreSQL, shared across all users) ───
   navConfig:           NavTabConfig[] | null;
   recruitmentConfig:   RecruitmentAppConfig | null;

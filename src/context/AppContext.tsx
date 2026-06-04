@@ -34,6 +34,7 @@ const FINANCE_FIELDS = new Set([
 const PORTFOLIO_FIELDS = new Set([
   'founderContacts','companyHealth','newsItems','portfolioUpdates',
   'financialPeriods','researchDocs','founderPortalAccess',
+  'portfolioFundView', // Portfolio team's independent copy of fund investment data
 ]);
 const INVESTMENT_FIELDS = new Set([
   'icMemos','ddChecklists','referenceChecks','coInvestors',
@@ -156,10 +157,14 @@ interface AppContextValue {
   updateFinancialPeriod: (x: CompanyFinancialPeriod) => void;
   deleteFinancialPeriod: (id: string) => void;
   upsertFinancialPeriod: (x: CompanyFinancialPeriod) => void; // add or update by composite key
-  // Fund investment ledger
+  // Fund investment ledger (Finance team — finance namespace)
   addFundInvestment: (x: FundInvestment) => void;
   updateFundInvestment: (x: FundInvestment) => void;
   deleteFundInvestment: (id: string) => void;
+  // Portfolio team's independent fund view (portfolio namespace — NOT linked to finance)
+  addPortfolioFundView: (x: FundInvestment) => void;
+  updatePortfolioFundView: (x: FundInvestment) => void;
+  deletePortfolioFundView: (id: string) => void;
   // Shared config setters (synced to PostgreSQL for all users)
   setNavConfig: (cfg: NavTabConfig[]) => void;
   setRecruitmentConfig: (cfg: RecruitmentAppConfig) => void;
@@ -424,10 +429,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { ...s, financialPeriods: [...(s.financialPeriods??[]), x] };
   });
 
-  // ── Fund investment ledger ────────────────────────────────────────────────
+  // ── Fund investment ledger (Finance namespace) ───────────────────────────
   const addFundInvestment    = (x: FundInvestment) => setStore(s => ({ ...s, fundInvestments: [...(s.fundInvestments??[]), x] }));
   const updateFundInvestment = (x: FundInvestment) => setStore(s => ({ ...s, fundInvestments: (s.fundInvestments??[]).map((i:any)=>i.id===x.id?x:i) }));
   const deleteFundInvestment = (id: string) => setStore(s => ({ ...s, fundInvestments: (s.fundInvestments??[]).filter((i:any)=>i.id!==id) }));
+  // ── Portfolio fund view (Portfolio namespace — completely independent) ────
+  const addPortfolioFundView    = (x: FundInvestment) => setStore(s => ({ ...s, portfolioFundView: [...(s.portfolioFundView??[]), x] }));
+  const updatePortfolioFundView = (x: FundInvestment) => setStore(s => ({ ...s, portfolioFundView: (s.portfolioFundView??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deletePortfolioFundView = (id: string) => setStore(s => ({ ...s, portfolioFundView: (s.portfolioFundView??[]).filter((i:any)=>i.id!==id) }));
 
   // ── Shared config (all users see same values via PostgreSQL) ─────────────
   const setNavConfig         = (cfg: NavTabConfig[])         => setStore(s => ({ ...s, navConfig: cfg }));
@@ -495,6 +504,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addOnboardingTask, updateOnboardingTask, deleteOnboardingTask,
     addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
     addFundInvestment, updateFundInvestment, deleteFundInvestment,
+    addPortfolioFundView, updatePortfolioFundView, deletePortfolioFundView,
     setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,

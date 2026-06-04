@@ -23,15 +23,17 @@ import NewsFeed from './NewsFeed';
 import ResearchLibrary from './ResearchLibrary';
 import FounderPortalManager from './FounderPortalManager';
 import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
+import PortfolioFundView from './PortfolioFundView';
 
-type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'team_sync';
+type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'fund_view' | 'team_sync';
 const PORTFOLIO_TABS: { key: PortfolioTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'companies',  label: 'Companies',         Icon: Building2 },
+  { key: 'companies',  label: 'Companies',          Icon: Building2 },
   { key: 'founders',   label: 'Founder Directory',  Icon: Users },
   { key: 'health',     label: 'Health Dashboard',   Icon: Activity },
   { key: 'news',       label: 'News Feed',           Icon: Newspaper },
   { key: 'research',   label: 'Research Library',   Icon: BookOpen },
   { key: 'portal',     label: 'Founder Portal',     Icon: Globe },
+  { key: 'fund_view',  label: 'Fund View',           Icon: TrendingUp },
   { key: 'team_sync',  label: 'My Data Sync',       Icon: Users },
 ];
 
@@ -160,6 +162,7 @@ export default function PortfolioPage() {
       {activePortfolioTab === 'news'      && <NewsFeed />}
       {activePortfolioTab === 'research'  && <ResearchLibrary />}
       {activePortfolioTab === 'portal'     && <FounderPortalManager />}
+      {activePortfolioTab === 'fund_view'  && <PortfolioFundView />}
       {activePortfolioTab === 'team_sync'  && <div className="py-2"><TeamSyncPanel team="portfolio" /></div>}
 
       {/* Companies tab — existing content */}

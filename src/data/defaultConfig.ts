@@ -1775,6 +1775,16 @@ export const defaultConfig: AppStore = {
   recruitmentConfig:   null,
   opsConfig:           null,
   financeData:         {},
+  // Portfolio team's independent copy — same seed data, diverges from finance copy over time
+  // Portfolio team's independent copy of fund investment data
+  // Same seed as fundInvestments but with pf_ id prefix — diverges independently from finance copy
+  get portfolioFundView() {
+    return (this.fundInvestments as import('./types').FundInvestment[]).map(inv => ({
+      ...inv,
+      id: `pf_${inv.id}`,
+      followOns: inv.followOns.map(fo => ({ ...fo, id: `pf_${fo.id}` })),
+    }));
+  },
 
   portfolioSnapshot: [
     { companyId: 'c3',  dateOfFirstInvestment: '15.4.21', currentStake: 300000000,  currentEquityValue: 20000000, valueOfInvestment: 10000000, moic: 3, irr: 30 },
