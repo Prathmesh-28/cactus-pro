@@ -1042,8 +1042,21 @@ function CompanyHealthTab() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function PortfolioAdmin() {
-  const { updateRole } = useApp();
+  const { updateRole, canEditPortfolio, currentRole } = useApp();
   const [activeTab, setActiveTab] = useState<TabId>('sync');
+
+  // Portfolio Viewer and any role that cannot edit portfolio must never see this
+  if (!canEditPortfolio() && currentRole !== 'super_admin') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3 text-center px-6">
+        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+          <Info size={22} className="text-gray-400" />
+        </div>
+        <p className="text-base font-semibold text-gray-700">Access Restricted</p>
+        <p className="text-sm text-gray-400 max-w-xs">Portfolio Admin is only accessible to Portfolio Team and Super Admin.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: BG }}>

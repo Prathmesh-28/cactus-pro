@@ -42,7 +42,7 @@ type SortDir = 'asc' | 'desc';
 type ViewMode = 'table' | 'operational';
 
 export default function PortfolioPage() {
-  const { store, canAccess, canExport, visiblePortfolioTabs } = useApp();
+  const { store, canAccess, canExport, canEditPortfolio, visiblePortfolioTabs } = useApp();
   const [activePortfolioTab, setActivePortfolioTab] = useState<PortfolioTab>('companies');
 
   // Filter tabs based on role — portfolio_viewer only sees allowed sub-tabs; 'admin' is always hidden from viewers
@@ -169,7 +169,7 @@ export default function PortfolioPage() {
       {activePortfolioTab === 'research'  && <ResearchLibrary />}
       {activePortfolioTab === 'portal'     && <FounderPortalManager />}
       {activePortfolioTab === 'fund_view'  && <PortfolioFundView />}
-      {activePortfolioTab === 'admin'      && <PortfolioAdmin />}
+      {activePortfolioTab === 'admin' && (canExport() || canEditPortfolio()) && <PortfolioAdmin />}
 
       {/* Companies tab — existing content */}
       {activePortfolioTab === 'companies' && <div className="space-y-8">
