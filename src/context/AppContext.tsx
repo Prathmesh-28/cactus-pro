@@ -23,6 +23,58 @@ const ROLE_KEY = 'cactus_role';
 const KV_NS    = 'app';
 const KV_KEY   = 'store';
 
+// ─── Team data isolation ──────────────────────────────────────────────────────
+// Each team's private fields live in their own KV namespace.
+// Super admin reads & writes all. Other roles only touch their namespace.
+
+const FINANCE_FIELDS = new Set([
+  'capitalEvents','valuationMarks','lpCommunications','lpCommitments',
+  'financeData','fundInvestments','opsConfig','firmEvents',
+]);
+const PORTFOLIO_FIELDS = new Set([
+  'founderContacts','companyHealth','newsItems','portfolioUpdates',
+  'financialPeriods','researchDocs','founderPortalAccess',
+]);
+const INVESTMENT_FIELDS = new Set([
+  'icMemos','ddChecklists','referenceChecks','coInvestors',
+  'introRequests','coInvestors',
+]);
+const OPERATIONS_FIELDS = new Set([
+  'tasks','meetingNotes','signingDocs','firmEvents',
+  'recruitmentConfig','jobOpenings','candidates','interviews',
+  'offerLetters','onboardingTasks','introRequests',
+]);
+
+// Which namespace a field belongs to
+function fieldNamespace(field: string): string {
+  if (FINANCE_FIELDS.has(field))    return 'finance';
+  if (PORTFOLIO_FIELDS.has(field))  return 'portfolio';
+  if (INVESTMENT_FIELDS.has(field)) return 'investment';
+  if (OPERATIONS_FIELDS.has(field)) return 'operations';
+  return 'app'; // global — shared
+}
+
+// Fields accessible to a given role
+function accessibleNamespaces(role: string): string[] {
+  if (role === 'super_admin') return ['app','finance','portfolio','investment','operations'];
+  if (role === 'finance_team')    return ['app','finance'];
+  if (role === 'portfolio_team')  return ['app','portfolio','operations'];
+  if (role === 'investment_team') return ['app','investment','operations'];
+  return ['app','operations'];
+}
+
+// Split a store object into per-namespace buckets
+function splitStoreByNamespace(store: AppStore): Record<string, Partial<AppStore>> {
+  const buckets: Record<string, Partial<AppStore>> = {
+    app: {}, finance: {}, portfolio: {}, investment: {}, operations: {},
+  };
+  for (const [k, v] of Object.entries(store)) {
+    const ns = fieldNamespace(k);
+    (buckets[ns] as Record<string, unknown>)[k] = v;
+  }
+  return buckets;
+}
+
 // ─── Read from localStorage (fast, synchronous) ───────────────────────────────
 function loadLocal(): AppStore | null {
   try {
@@ -138,23 +190,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Debounce timer for backend saves
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Hydrate from PostgreSQL on mount ────────────────────────────────────────
+  // ── Hydrate from PostgreSQL on mount (team-namespaced) ──────────────────────
   useEffect(() => {
-    kvGet(KV_NS, KV_KEY).then(remote => {
-      if (remote && typeof remote === 'object') {
-        const remoteStore = remote as AppStore;
-        setStoreRaw(remoteStore);
-        localStorage.setItem(LS_KEY, JSON.stringify(remoteStore));
+    const role = (localStorage.getItem(ROLE_KEY) as string) ?? 'super_admin';
+    const namespaces = accessibleNamespaces(role);
 
-        // Push finance data keys back into localStorage so finance hooks read synced data
-        if (remoteStore.financeData) {
-          Object.entries(remoteStore.financeData).forEach(([k, v]) => {
+    Promise.all(
+      namespaces.map(ns => kvGet(ns, KV_KEY).then(v => ({ ns, v })).catch(() => ({ ns, v: null })))
+    ).then(results => {
+      // Merge all namespace stores into one
+      let merged: Partial<AppStore> = {};
+      for (const { v } of results) {
+        if (v && typeof v === 'object') merged = { ...merged, ...(v as Partial<AppStore>) };
+      }
+
+      if (Object.keys(merged).length > 0) {
+        const mergedStore = { ...(loadLocal() ?? defaultConfig), ...merged } as AppStore;
+        setStoreRaw(mergedStore);
+        localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
+
+        // Push finance data keys into localStorage for finance tab hooks
+        if (mergedStore.financeData) {
+          Object.entries(mergedStore.financeData).forEach(([k, v]) => {
             try { localStorage.setItem(k, JSON.stringify(v)); } catch {}
           });
         }
       }
       setLoading(false);
-    }).catch(() => setLoading(false));
+    });
   }, []);
 
   // ── Bridge: finance tab writes → AppContext → PostgreSQL ─────────────────────
@@ -181,16 +244,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(FIN_EVT, handler);
   }, []);
 
-  // ── Save to localStorage immediately + PostgreSQL debounced ─────────────────
+  // ── Save to localStorage immediately + PostgreSQL debounced (team-namespaced)
   const setStore = useCallback((updater: AppStore | ((prev: AppStore) => AppStore)) => {
     setStoreRaw(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      // Instant local save
+      // Instant local cache
       localStorage.setItem(LS_KEY, JSON.stringify(next));
-      // Debounced backend save (400ms after last change)
+      // Debounced backend save — split by namespace, write each separately
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => {
-        kvSet(KV_NS, KV_KEY, next).catch(() => {});
+        const buckets = splitStoreByNamespace(next);
+        for (const [ns, data] of Object.entries(buckets)) {
+          if (Object.keys(data).length > 0) {
+            kvSet(ns, KV_KEY, data).catch(() => {});
+          }
+        }
       }, 400);
       return next;
     });

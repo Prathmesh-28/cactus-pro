@@ -17,8 +17,9 @@ import CoInvestorCrm from './CoInvestorCrm';
 import ReferenceChecks from './ReferenceChecks';
 import { useBulkSelect } from '../../hooks/useBulkSelect';
 import BulkActionBar from '../../components/ui/BulkActionBar';
+import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
 
-type InvTab = 'pipeline' | 'ic_memos' | 'dd' | 'co_investors' | 'ref_checks';
+type InvTab = 'pipeline' | 'ic_memos' | 'dd' | 'co_investors' | 'ref_checks' | 'team_sync';
 
 const TABS: { key: InvTab; label: string; Icon: React.ElementType }[] = [
   { key: 'pipeline',     label: 'Pipeline',        Icon: Kanban },
@@ -26,6 +27,7 @@ const TABS: { key: InvTab; label: string; Icon: React.ElementType }[] = [
   { key: 'dd',           label: 'Due Diligence',    Icon: ClipboardCheck },
   { key: 'co_investors', label: 'Co-investors',     Icon: Users },
   { key: 'ref_checks',   label: 'Reference Checks', Icon: CheckSquare },
+  { key: 'team_sync',   label: 'My Data Sync',     Icon: Upload },
 ];
 
 const EMPTY: Omit<Deal, 'id'> = {
@@ -547,6 +549,7 @@ export default function InvestmentPage() {
         {activeTab === 'dd'           && <DdChecklist />}
         {activeTab === 'co_investors' && <CoInvestorCrm />}
         {activeTab === 'ref_checks'   && <ReferenceChecks />}
+        {activeTab === 'team_sync'    && <TeamSyncPanel team="investment" />}
       </div>
     </main>
   );

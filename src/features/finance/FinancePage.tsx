@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
-import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target, BookOpen, RefreshCw as SyncIcon } from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
@@ -15,8 +15,9 @@ import ValuationLog from './ValuationLog';
 import LpCommHub from './LpCommHub';
 import FundClosingTracker from './FundClosingTracker';
 import FundLedger from './FundLedger';
+import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
 
-type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing' | 'fund_ledger';
+type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing' | 'fund_ledger' | 'team_sync';
 
 const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'overview',      label: 'Fund Overview',   Icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'lp_comms',      label: 'LP Comms',         Icon: Mail },
   { key: 'fund_closing',  label: 'Fund Closing',     Icon: Target },
   { key: 'fund_ledger',  label: 'Fund Ledger',      Icon: BookOpen },
+  { key: 'team_sync',   label: 'My Data Sync',     Icon: SyncIcon },
 ];
 
 function FinanceExportMenu() {
@@ -147,6 +149,7 @@ export default function FinancePage() {
           {activeTab === 'lp_comms'      && <div className="p-6"><LpCommHub /></div>}
           {activeTab === 'fund_closing'  && <div className="p-6"><FundClosingTracker /></div>}
           {activeTab === 'fund_ledger'   && <div className="p-6"><FundLedger /></div>}
+          {activeTab === 'team_sync'     && <div className="p-6"><TeamSyncPanel team="finance" /></div>}
         </div>
       </div>
     </FundProvider>

@@ -22,15 +22,17 @@ import HealthDashboard from './HealthDashboard';
 import NewsFeed from './NewsFeed';
 import ResearchLibrary from './ResearchLibrary';
 import FounderPortalManager from './FounderPortalManager';
+import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
 
-type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal';
+type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'team_sync';
 const PORTFOLIO_TABS: { key: PortfolioTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'companies', label: 'Companies',        Icon: Building2 },
-  { key: 'founders',  label: 'Founder Directory', Icon: Users },
-  { key: 'health',    label: 'Health Dashboard',  Icon: Activity },
-  { key: 'news',      label: 'News Feed',          Icon: Newspaper },
-  { key: 'research',  label: 'Research Library',  Icon: BookOpen },
-  { key: 'portal',    label: 'Founder Portal',    Icon: Globe },
+  { key: 'companies',  label: 'Companies',         Icon: Building2 },
+  { key: 'founders',   label: 'Founder Directory',  Icon: Users },
+  { key: 'health',     label: 'Health Dashboard',   Icon: Activity },
+  { key: 'news',       label: 'News Feed',           Icon: Newspaper },
+  { key: 'research',   label: 'Research Library',   Icon: BookOpen },
+  { key: 'portal',     label: 'Founder Portal',     Icon: Globe },
+  { key: 'team_sync',  label: 'My Data Sync',       Icon: Users },
 ];
 
 type SortKey = keyof Pick<PortfolioCompany, 'name' | 'stage' | 'cactusInvestment' | 'currentValuation' | 'moic' | 'irr' | 'status'>;
@@ -157,7 +159,8 @@ export default function PortfolioPage() {
       {activePortfolioTab === 'health'    && <HealthDashboard />}
       {activePortfolioTab === 'news'      && <NewsFeed />}
       {activePortfolioTab === 'research'  && <ResearchLibrary />}
-      {activePortfolioTab === 'portal'    && <FounderPortalManager />}
+      {activePortfolioTab === 'portal'     && <FounderPortalManager />}
+      {activePortfolioTab === 'team_sync'  && <div className="py-2"><TeamSyncPanel team="portfolio" /></div>}
 
       {/* Companies tab — existing content */}
       {activePortfolioTab === 'companies' && <div className="space-y-8">
