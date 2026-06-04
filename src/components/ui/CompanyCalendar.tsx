@@ -145,7 +145,7 @@ function parseCSV(text: string): { rows: Partial<CalEvent>[]; errors: string[] }
 // ─── Bulk Upload Panel ────────────────────────────────────────────────────────
 
 function BulkUploadPanel({
-  companyId, companyName, onImport, onClose,
+  companyId: _companyId, companyName, onImport, onClose,
 }: {
   companyId: string; companyName: string;
   onImport: (rows: Partial<CalEvent>[]) => void; onClose: () => void;

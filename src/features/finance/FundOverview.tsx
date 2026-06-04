@@ -154,7 +154,7 @@ export default function FundOverview() {
   const { store } = useApp();
   const [metrics, setMetrics] = useKvState<MetricValues>('fin_metrics', DEFAULT_METRICS);
   const [cash,    setCash]    = useKvState<CashValues>('fin_cash', DEFAULT_CASH);
-  const [expAgg,  setExpAgg]  = useKvState<{ fundLife: number; sixMonths: number } | null>('fin_expenses_agg', null);
+  const [expAgg] = useKvState<{ fundLife: number; sixMonths: number } | null>('fin_expenses_agg', null);
   const [fund, setFund]       = useState<'fund_1' | 'fund_2'>('fund_1');
 
   const setMetric = (k: MetricKey, v: number | null) => setMetrics({ ...metrics, [k]: v });
