@@ -36,15 +36,22 @@ function useListen(keys: string[], cb: () => void) {
 
 // ─── KV helpers ───────────────────────────────────────────────────────────────
 
+// In-memory cache — populated on write so hooks read instantly without waiting
+// for KV round-trip. KV is the durable source; cache is the fast path.
+const memCache = new Map<string, unknown>();
+
 async function kvRead<T>(key: string): Promise<T | null> {
+  if (memCache.has(key)) return memCache.get(key) as T;
   const v = await kvGet(NS, key);
+  if (v !== null && v !== undefined) memCache.set(key, v);
   return (v as T) ?? null;
 }
 
-// Debounce writes per key so rapid edits don't flood the server.
+// Debounce KV writes per key; update cache and fire local event immediately.
 const writeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 function kvWrite(key: string, val: unknown) {
-  dispatchLocal(key); // instant local reactivity
+  memCache.set(key, val);   // instant in-memory update
+  dispatchLocal(key);        // notify same-browser listeners — they read from cache
   if (writeTimers[key]) clearTimeout(writeTimers[key]);
   writeTimers[key] = setTimeout(() => {
     kvSet(NS, key, val).catch(() => {});
@@ -189,7 +196,8 @@ export function useDeleteDynamicTable(_section?: SectionKey) {
     isPending: false,
     mutateAsync: async (tableKey: string) => {
       const lk = dynKey(fund, tableKey);
-      await kvSet(NS, lk, null); // null means deleted
+      memCache.delete(lk);
+      await kvSet(NS, lk, null);
       dispatchLocal(lk);
     },
   };
