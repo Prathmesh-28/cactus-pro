@@ -7,6 +7,7 @@ import {
   type SyncSource,
 } from '../../lib/api';
 import CsvTemplateLibrary from '../../components/ui/CsvTemplateLibrary';
+import TeamGuide from '../../components/ui/TeamGuide';
 
 const ic = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white';
 
@@ -423,6 +424,15 @@ export default function SyncManager() {
           ))}
         </div>
       )}
+
+      {/* ── Team Guides — for super admin to see all team sync explanations ── */}
+      <hr className="border-gray-100" />
+      <div className="space-y-4">
+        <p className="text-sm font-bold text-gray-700">All Team Data Sync Guides</p>
+        {(['finance','portfolio','investment','operations'] as const).map(t => (
+          <TeamGuide key={t} team={t} />
+        ))}
+      </div>
 
       {/* ── CSV Template Library ─────────────────────────────────────────────── */}
       <hr className="border-gray-100" />

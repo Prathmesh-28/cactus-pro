@@ -968,7 +968,198 @@ export default function PortfolioAdmin() {
       </div>
 
       {/* Tab Content */}
-      <div className="p-4">
+      <div className="p-4 space-y-4">
+
+        {/* ── Per-tab guide banners ──────────────────────────────────────────── */}
+        {activeTab === 'sync' && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-3">
+            <p className="text-sm font-bold text-emerald-800">📂 Data Sync — How it works for Portfolio Team</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  step: '1. Download template',
+                  detail: 'Scroll down → CSV Templates section → click "Export Data" next to Financial Periods, Portfolio Updates, or Company Health. File downloads with your current data already filled in.',
+                  color: '#1C4B42',
+                },
+                {
+                  step: '2. Edit in Excel / Sheets',
+                  detail: 'Add new rows at the bottom. Update existing values. Column headers must stay exactly as they are — these are the mapping keys.',
+                  color: '#0891B2',
+                },
+                {
+                  step: '3. Upload to SharePoint + Sync',
+                  detail: 'Save file to your SharePoint/OneDrive folder → Share → "Anyone with link" → copy URL → paste in "Add SharePoint Source" above → Preview → Save → Sync Now.',
+                  color: '#7C3AED',
+                },
+              ].map(s => (
+                <div key={s.step} className="bg-white rounded-lg p-3 border border-emerald-100">
+                  <p className="text-xs font-bold mb-1" style={{ color: s.color }}>{s.step}</p>
+                  <p className="text-xs text-gray-600 leading-relaxed">{s.detail}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-lg bg-white border border-emerald-100 p-3 text-xs space-y-1">
+              <p className="font-semibold text-gray-700">What each CSV maps to in the portal:</p>
+              {[
+                { csv: 'FY Revenue & Ops',  maps: 'Portfolio → Company → Funding tab → FY/CY quarterly table. Shows Revenue, ARR, MOIC, IRR, Burn, Runway per quarter.', key: 'financial_periods' },
+                { csv: 'Portfolio Updates',  maps: 'Operations → Portfolio Updates tab. Monthly founder check-ins.', key: 'portfolio_updates' },
+                { csv: 'Company Health',     maps: 'Portfolio → Health Dashboard tab. Traffic-light signals per company per quarter.', key: 'health_dashboard' },
+                { csv: 'Founder Contacts',   maps: 'Portfolio → Founder Directory tab. All founder contact info.', key: 'founder_contacts' },
+              ].map(r => (
+                <div key={r.csv} className="flex items-start gap-2 py-1 border-t border-gray-50">
+                  <code className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded shrink-0 font-mono">{r.csv}</code>
+                  <span className="text-gray-600">{r.maps}</span>
+                  <code className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded shrink-0 ml-auto">{r.key}</code>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'metrics' && (
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+            <p className="text-sm font-bold text-blue-800 mb-2">📊 Company Metrics — What this tab does</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-blue-700">
+              <div>
+                <p className="font-semibold mb-1">What you can edit here:</p>
+                <ul className="space-y-1 list-disc list-inside text-blue-600">
+                  <li>Revenue (₹Cr) — current FY25 revenue</li>
+                  <li>Current Valuation (₹Cr) — latest FMV mark</li>
+                  <li>MOIC — multiple on invested capital</li>
+                  <li>IRR % — annualised return</li>
+                  <li>Ownership % — current Cactus stake</li>
+                  <li>Status — Active / Watch / Exited</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Where these values appear in the portal:</p>
+                <ul className="space-y-1 list-disc list-inside text-blue-600">
+                  <li>Portfolio → Companies tab → each company card</li>
+                  <li>Portfolio → Fund View → MOIC/IRR columns</li>
+                  <li>Homepage → KPI strip (Total AUM, Avg MOIC)</li>
+                  <li>Finance → Portfolio Snapshot table</li>
+                  <li>Company Drawer → Overview tab → Key Metrics</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-3 bg-white rounded-lg p-3 text-xs text-gray-600 border border-blue-100">
+              <strong>To sync from SharePoint:</strong> Download the "Portfolio Team Data" template from Data Sync tab →
+              fill the sheet named <code className="bg-gray-100 px-1 rounded">FY Revenue & Ops</code> with company metrics →
+              upload to SharePoint → paste URL in Data Sync → Sync Now.
+              The <code className="bg-gray-100 px-1 rounded">Company Name</code> column is the key — it must match exactly.
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'periods' && (
+          <div className="rounded-xl border border-purple-100 bg-purple-50 p-4 space-y-3">
+            <p className="text-sm font-bold text-purple-800">📈 Financial Periods — What this tab does</p>
+            <div className="text-xs text-purple-700 space-y-2">
+              <p>This is the most important data table. Every row = one company + one time period (quarter or annual).</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg p-3 border border-purple-100">
+                  <p className="font-bold text-purple-800 mb-1">Composite Key (do NOT change these 4 columns)</p>
+                  <ul className="space-y-0.5 list-disc list-inside text-purple-600">
+                    <li><strong>Company ID</strong> — e.g. c3 for Lohum</li>
+                    <li><strong>Year Style</strong> — FY or CY</li>
+                    <li><strong>Fiscal Year</strong> — FY2025 or 2025</li>
+                    <li><strong>Quarter</strong> — Q1/Q2/Q3/Q4 or blank for Annual</li>
+                  </ul>
+                  <p className="mt-2 text-[10px] text-purple-500">These 4 together identify the row. If you add a row with the same key, it updates instead of duplicating.</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-purple-100">
+                  <p className="font-bold text-purple-800 mb-1">Where this data appears in the portal</p>
+                  <ul className="space-y-0.5 list-disc list-inside text-purple-600">
+                    <li>Click any company → <strong>Funding tab</strong> → quarterly table</li>
+                    <li>FY/CY toggle auto-converts (enter once as FY)</li>
+                    <li>Portfolio → <strong>Fund View</strong> → revenue history</li>
+                    <li>Finance → <strong>Valuation Log</strong> → MOIC/IRR marks</li>
+                    <li>Master Sheet export → pre-fills with this data</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-3 border border-purple-100 text-gray-600">
+                <p className="font-semibold mb-1">SharePoint sync for Financial Periods:</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Go to <strong>Data Sync tab</strong> → click "Export Data" next to "Financial Periods (FY/CY Quarterly)"</li>
+                  <li>Opens Excel with all 200+ rows pre-filled (FY23–FY30 for all 13 companies)</li>
+                  <li>Add new rows at the bottom or update existing values</li>
+                  <li>Upload to SharePoint → Share → copy link</li>
+                  <li>Data Sync → "Add SharePoint Source" → select "Portfolio Team Data" → paste URL → Preview → Save</li>
+                  <li>The sheet named <code className="bg-gray-100 px-1 rounded">FY Revenue & Ops</code> maps to kvKey <code className="bg-gray-100 px-1 rounded">financial_periods</code></li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'fund' && (
+          <div className="rounded-xl border border-amber-100 bg-amber-50 p-4 space-y-3">
+            <p className="text-sm font-bold text-amber-800">💰 Fund View — What this tab does</p>
+            <div className="text-xs text-amber-700 space-y-2">
+              <p>This is the Portfolio team's <strong>independent copy</strong> of the fund investment ledger. It is NOT linked to the Finance team's copy — both teams manage their own version.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg p-3 border border-amber-100">
+                  <p className="font-bold text-amber-800 mb-1">What each row represents</p>
+                  <ul className="space-y-0.5 list-disc list-inside text-amber-700">
+                    <li>One Cactus investment per company per fund</li>
+                    <li>A company can appear twice (Fund 1 + Fund 2)</li>
+                    <li>Each row has: first cheque, all follow-ons, current FMV, MOIC, IRR</li>
+                    <li>Edit to update valuations as new marks are set</li>
+                  </ul>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-amber-100">
+                  <p className="font-bold text-amber-800 mb-1">Where it appears in the portal</p>
+                  <ul className="space-y-0.5 list-disc list-inside text-amber-700">
+                    <li>Portfolio → <strong>Fund View tab</strong> → full investment ledger</li>
+                    <li>Company Drawer → <strong>Financials tab</strong> → Fund 1/Fund 2 section</li>
+                    <li>Company Drawer → <strong>Funding tab</strong> → investment timeline</li>
+                    <li>Portfolio → Fund View → Fund Overview (Called Capital, NAV, TVPI, IRR)</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-3 border border-amber-100 text-gray-600">
+                <p className="font-semibold mb-1">To update from SharePoint:</p>
+                <p>There is no separate CSV template for Fund View — edit directly in this tab using the Edit button per row.
+                For bulk updates to FMV/MOIC/IRR, use <strong>Financial Periods tab</strong> (FY Revenue & Ops sheet) which
+                has the valuation marks per quarter, then run <strong>Sync</strong> from the header.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'health' && (
+          <div className="rounded-xl border border-red-100 bg-red-50 p-4">
+            <p className="text-sm font-bold text-red-800 mb-2">🟢🟡🔴 Company Health — What this tab does</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-red-700">
+              <div>
+                <p className="font-semibold mb-1">What you set here (per company, per quarter):</p>
+                <ul className="space-y-1 list-disc list-inside text-red-600">
+                  <li><strong>Revenue Growth</strong> — green/amber/red/grey</li>
+                  <li><strong>Burn</strong> — is burn sustainable?</li>
+                  <li><strong>Team Retention</strong> — key hires/departures</li>
+                  <li><strong>Product Progress</strong> — roadmap on track?</li>
+                  <li><strong>Fundraising</strong> — next round visibility</li>
+                  <li><strong>Overall Signal</strong> — one click summary</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Where it appears:</p>
+                <ul className="space-y-1 list-disc list-inside text-red-600">
+                  <li>Portfolio → <strong>Health Dashboard tab</strong> — grid of all companies with colour dots</li>
+                  <li>4-quarter trend chart showing portfolio health over time</li>
+                  <li>Filter: "Show Amber+Red only" for watch-list view</li>
+                  <li>Master Sheet export → Company Health sheet</li>
+                </ul>
+                <div className="mt-2 bg-white rounded-lg p-2 border border-red-100">
+                  <p className="font-semibold text-gray-700 mb-1">Sync from SharePoint:</p>
+                  <p className="text-gray-500">Download "Company Health" template from Data Sync → fill signals → upload to SharePoint → sync. Sheet name must be <code className="bg-gray-100 px-1 rounded">Company Health</code> → maps to <code className="bg-gray-100 px-1 rounded">health_dashboard</code>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           {activeTab === 'sync' && (
             <TeamSyncPanel team="portfolio" />
