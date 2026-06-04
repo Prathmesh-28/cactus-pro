@@ -1101,6 +1101,17 @@ export const defaultConfig: AppStore = {
       canExport: false,
       canAddNotes: false,
     },
+    {
+      // Read-only viewer of portfolio data — Portfolio Admin controls which sub-tabs they see
+      role: 'portfolio_viewer',
+      displayName: 'Portfolio Viewer',
+      visibleTabs: ['portfolio'],
+      accessibleTabs: ['portfolio'],
+      canExport: false,
+      canAddNotes: false,
+      canEditPortfolio: false,
+      visiblePortfolioTabs: ['companies', 'health', 'news', 'fund_view'] as import('./types').PortfolioSubTab[],
+    },
   ],
 
   announcements: [

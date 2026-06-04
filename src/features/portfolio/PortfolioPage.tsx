@@ -42,8 +42,14 @@ type SortDir = 'asc' | 'desc';
 type ViewMode = 'table' | 'operational';
 
 export default function PortfolioPage() {
-  const { store, canAccess, canExport } = useApp();
+  const { store, canAccess, canExport, visiblePortfolioTabs } = useApp();
   const [activePortfolioTab, setActivePortfolioTab] = useState<PortfolioTab>('companies');
+
+  // Filter tabs based on role — portfolio_viewer only sees allowed sub-tabs
+  const allowedSubTabs = visiblePortfolioTabs();
+  const visibleTabs = allowedSubTabs.length === 0
+    ? PORTFOLIO_TABS  // show all for team + admin
+    : PORTFOLIO_TABS.filter(t => allowedSubTabs.includes(t.key) || t.key === 'companies');
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCompany, setSelectedCompany] = useState<PortfolioCompany | null>(null);
   const [search, setSearch] = useState('');
@@ -140,7 +146,7 @@ export default function PortfolioPage() {
     <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       {/* Portfolio tab bar */}
       <div className="flex gap-1 border-b border-gray-200 overflow-x-auto">
-        {PORTFOLIO_TABS.map(({ key, label, Icon }) => (
+        {visibleTabs.map(({ key, label, Icon }) => (
           <button
             key={key}
             onClick={() => setActivePortfolioTab(key)}

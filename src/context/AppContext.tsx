@@ -94,6 +94,7 @@ interface AppContextValue {
   canExport: () => boolean;
   canAddNotes: () => boolean;
   canEditPortfolio: () => boolean;  // portfolio team admin — edit company data, financial periods, fund view
+  visiblePortfolioTabs: () => string[];  // which portfolio sub-tabs the current role can see
   updateFirm: (f: FirmConfig) => void;
   addSector: (s: Sector) => void;
   updateSector: (s: Sector) => void;
@@ -308,6 +309,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const canExport  = () => getRoleConfig().canExport;
   const canAddNotes = () => getRoleConfig().canAddNotes;
   const canEditPortfolio = () => !!(getRoleConfig().canEditPortfolio) || currentRole === 'super_admin';
+  const visiblePortfolioTabs = (): string[] => {
+    if (currentRole === 'super_admin' || currentRole === 'portfolio_team') return []; // all visible
+    return getRoleConfig().visiblePortfolioTabs ?? [];
+  };
 
   // ── Firm ──────────────────────────────────────────────────────────────────
   const updateFirm = (firm: FirmConfig) => setStore(s => ({ ...s, firm }));
@@ -497,7 +502,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value: AppContextValue = {
     store, loading, currentRole, setCurrentRole,
-    canAccess, canExport, canAddNotes, canEditPortfolio,
+    canAccess, canExport, canAddNotes, canEditPortfolio, visiblePortfolioTabs,
     updateFirm,
     addSector, updateSector, deleteSector,
     addPerson, updatePerson, deletePerson,

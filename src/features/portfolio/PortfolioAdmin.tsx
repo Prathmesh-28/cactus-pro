@@ -9,7 +9,7 @@ import { generateId } from '../../lib/utils';
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 import type {
   PortfolioCompany, CompanyFinancialPeriod, FundInvestment,
-  CompanyHealth, HealthSignal, YearStyle, FYQuarter,
+  CompanyHealth, HealthSignal, YearStyle, FYQuarter, PortfolioSubTab,
 } from '../../data/types';
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
@@ -18,7 +18,7 @@ const PRIMARY   = '#1C4B42';
 const BG        = '#F6FAF7';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type TabId = 'sync' | 'metrics' | 'periods' | 'fund' | 'health';
+type TabId = 'sync' | 'metrics' | 'periods' | 'fund' | 'health' | 'viewer';
 
 interface Tab { id: TabId; label: string; icon: React.ReactNode }
 
@@ -28,6 +28,7 @@ const TABS: Tab[] = [
   { id: 'periods', label: 'Financial Periods', icon: <BarChart2 size={15} /> },
   { id: 'fund',    label: 'Fund View',         icon: <Layers size={15} /> },
   { id: 'health',  label: 'Company Health',    icon: <Activity size={15} /> },
+  { id: 'viewer', label: 'Viewer Settings',    icon: <LayoutDashboard size={15} /> },
 ];
 
 // ─── Helper: current quarter string ──────────────────────────────────────────
@@ -114,6 +115,97 @@ function EditableCell({
       {value === '' || value === 0 ? <span className="text-gray-300 text-xs">—</span> : value}
       <Edit2 size={10} className="opacity-0 group-hover:opacity-40" />
     </span>
+  );
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VIEWER SETTINGS TAB
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PORTFOLIO_SUB_TABS: { key: PortfolioSubTab; label: string; desc: string }[] = [
+  { key: 'companies',  label: 'Companies',         desc: 'Portfolio company cards, search, and filters' },
+  { key: 'founders',   label: 'Founder Directory', desc: 'Contact list of all portfolio founders' },
+  { key: 'health',     label: 'Health Dashboard',  desc: 'Traffic-light health signals per company' },
+  { key: 'news',       label: 'News Feed',          desc: 'News monitoring and press coverage' },
+  { key: 'research',   label: 'Research Library',  desc: 'Sector research documents and market maps' },
+  { key: 'portal',     label: 'Founder Portal',    desc: 'Founder portal access management' },
+  { key: 'fund_view',  label: 'Fund View',          desc: 'Investment ledger — MOIC, IRR, returns' },
+];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ViewerSettingsTab({ updateRole }: { updateRole: (r: any) => void }) {
+  const { store } = useApp();
+  const viewerRole = store.roles.find(r => r.role === 'portfolio_viewer');
+
+  if (!viewerRole) return (
+    <div className="text-center py-8 text-gray-400 text-sm">
+      Portfolio Viewer role not found. Contact Super Admin.
+    </div>
+  );
+
+  const visible = viewerRole.visiblePortfolioTabs ?? [];
+
+  const toggle = (tab: PortfolioSubTab) => {
+    const next = visible.includes(tab)
+      ? visible.filter((t: PortfolioSubTab) => t !== tab)
+      : [...visible, tab];
+    updateRole({ ...viewerRole, visiblePortfolioTabs: next });
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-xl bg-blue-50 border border-blue-100 p-4">
+        <p className="text-sm font-bold text-blue-800 mb-1">Portfolio Viewer Role</p>
+        <p className="text-xs text-blue-600">
+          Portfolio Viewers have <strong>read-only access</strong> to the sections you enable below.
+          They cannot edit any data, cannot access Finance/Investment/Operations/Admin tabs.
+          "Companies" is always visible and cannot be hidden.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        {PORTFOLIO_SUB_TABS.map(tab => {
+          const isOn     = tab.key === 'companies' || visible.includes(tab.key);
+          const isLocked = tab.key === 'companies';
+          return (
+            <div key={tab.key}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-colors ${
+                isOn ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-gray-100'
+              }`}>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">{tab.label}</p>
+                <p className="text-xs text-gray-500">{tab.desc}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {isLocked && <span className="text-[10px] text-gray-400 italic">always on</span>}
+                <button
+                  disabled={isLocked}
+                  onClick={() => !isLocked && toggle(tab.key)}
+                  className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isOn ? 'bg-[#1C4B42]' : 'bg-gray-200'
+                  }`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                    isOn ? 'translate-x-5' : 'translate-x-0'
+                  }`} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-xs text-gray-500 space-y-1">
+        <p className="font-semibold text-gray-600">How to invite a Portfolio Viewer:</p>
+        <ol className="list-decimal list-inside space-y-0.5">
+          <li>Go to <strong>Admin → Users & Access</strong></li>
+          <li>Click "Invite User" → enter their email</li>
+          <li>Set Role to <strong>Portfolio Viewer</strong></li>
+          <li>They receive an invite link → can only see the sections enabled above</li>
+        </ol>
+      </div>
+    </div>
   );
 }
 
@@ -396,6 +488,7 @@ function PeriodModal({ period, onClose, onSave }: PeriodModalProps) {
           >
             Save Period
           </button>
+
         </div>
       </div>
     </div>
@@ -636,6 +729,7 @@ function FundViewModal({
           >
             Save
           </button>
+
         </div>
       </div>
     </div>
@@ -925,6 +1019,7 @@ function CompanyHealthTab() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function PortfolioAdmin() {
+  const { updateRole } = useApp();
   const [activeTab, setActiveTab] = useState<TabId>('sync');
 
   return (
@@ -1203,6 +1298,10 @@ export default function PortfolioAdmin() {
               </div>
               <CompanyHealthTab />
             </div>
+          )}
+
+          {activeTab === 'viewer' && (
+            <ViewerSettingsTab updateRole={updateRole} />
           )}
         </div>
       </div>

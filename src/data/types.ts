@@ -171,7 +171,10 @@ export interface FundMetric {
 
 export type TabName = 'portfolio' | 'finance' | 'investment' | 'admin' | 'toolkit' | 'workspace' | 'operations';
 
-export type RoleName = 'super_admin' | 'portfolio_team' | 'finance_team' | 'investment_team';
+export type RoleName = 'super_admin' | 'portfolio_team' | 'finance_team' | 'investment_team' | 'portfolio_viewer';
+
+// Which portfolio sub-tabs a viewer is allowed to see (controlled by Portfolio Admin)
+export type PortfolioSubTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'fund_view';
 
 export interface RolePermissions {
   role: RoleName;
@@ -180,7 +183,8 @@ export interface RolePermissions {
   accessibleTabs: TabName[];
   canExport: boolean;
   canAddNotes: boolean;
-  canEditPortfolio?: boolean;  // Portfolio admin — can edit company data, financial periods, fund view
+  canEditPortfolio?: boolean;   // Portfolio admin — can edit company data, financial periods, fund view
+  visiblePortfolioTabs?: PortfolioSubTab[]; // Which portfolio sub-tabs this role can see
 }
 
 // ─── Announcements ────────────────────────────────────────────────────────────
