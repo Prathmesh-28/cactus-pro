@@ -3,11 +3,12 @@
  * Used in TeamSyncPanel, Admin Data Sync, and Portfolio Admin.
  */
 import { useState } from 'react';
-import { Download, FileSpreadsheet, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Download, FileSpreadsheet, ChevronDown, ChevronUp, Info, Database } from 'lucide-react';
 import {
   CSV_TEMPLATES, downloadCsvTemplate, downloadAllTeamTemplates,
-  type CsvTemplate,
+  DATA_GENERATORS, type CsvTemplate,
 } from '../../lib/csvTemplates';
+import { useApp } from '../../context/AppContext';
 
 const TEAM_COLORS: Record<string, string> = {
   finance:    '#1C4B42',
@@ -17,7 +18,7 @@ const TEAM_COLORS: Record<string, string> = {
   global:     '#6B7280',
 };
 
-function TemplateRow({ t }: { t: CsvTemplate }) {
+function TemplateRow({ t, store }: { t: CsvTemplate; store: Record<string, unknown> }) {
   const [open, setOpen] = useState(false);
   const color = TEAM_COLORS[t.team] ?? '#6B7280';
 
@@ -27,20 +28,30 @@ function TemplateRow({ t }: { t: CsvTemplate }) {
         onClick={() => setOpen(o => !o)}>
         <FileSpreadsheet size={15} style={{ color }} className="shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800">{t.label}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-gray-800">{t.label}</p>
+            {DATA_GENERATORS[t.id] && (() => {
+              const count = DATA_GENERATORS[t.id](store).length;
+              return count > 0 ? (
+                <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                  <Database size={9} />{count} rows
+                </span>
+              ) : null;
+            })()}
+          </div>
           <p className="text-xs text-gray-500 truncate">{t.description}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 hidden sm:inline">
-            {t.headers.length} columns
+            {t.headers.length} cols
           </span>
           <button
-            onClick={e => { e.stopPropagation(); downloadCsvTemplate(t); }}
+            onClick={e => { e.stopPropagation(); downloadCsvTemplate(t, store); }}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: color }}
           >
             <Download size={12} />
-            Download
+            {DATA_GENERATORS[t.id] && DATA_GENERATORS[t.id](store).length > 0 ? 'Export Data' : 'Template'}
           </button>
           {open ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
         </div>
@@ -113,11 +124,14 @@ interface Props {
 }
 
 export default function CsvTemplateLibrary({ team, compact = false }: Props) {
+  const { store } = useApp();
   const templates = team === 'all'
     ? CSV_TEMPLATES
     : CSV_TEMPLATES.filter(t => t.team === team || t.team === 'global');
 
   const color = team === 'all' ? '#1C4B42' : (TEAM_COLORS[team] ?? '#1C4B42');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const storeAny = store as Record<string, any>;
 
   return (
     <div className="space-y-4">
@@ -130,7 +144,7 @@ export default function CsvTemplateLibrary({ team, compact = false }: Props) {
           </p>
         </div>
         <button
-          onClick={() => team === 'all' ? CSV_TEMPLATES.forEach((t, i) => setTimeout(() => downloadCsvTemplate(t), i * 300)) : downloadAllTeamTemplates(team)}
+          onClick={() => team === 'all' ? CSV_TEMPLATES.forEach((t, i) => setTimeout(() => downloadCsvTemplate(t, storeAny), i * 300)) : downloadAllTeamTemplates(team, storeAny)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
           style={{ backgroundColor: color }}
         >
@@ -156,7 +170,7 @@ export default function CsvTemplateLibrary({ team, compact = false }: Props) {
       {/* Template list */}
       <div className="space-y-2">
         {templates.map(t => (
-          <TemplateRow key={t.id} t={t} />
+          <TemplateRow key={t.id} t={t} store={storeAny} />
         ))}
       </div>
     </div>

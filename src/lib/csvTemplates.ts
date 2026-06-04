@@ -367,8 +367,230 @@ export const CSV_TEMPLATES: CsvTemplate[] = [
 
 // ── Download helper ──────────────────────────────────────────────────────────
 
-export function downloadCsvTemplate(template: CsvTemplate): void {
-  const rows = [template.headers, ...template.exampleRows];
+// ── Data generators — pull actual store data as CSV rows ─────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Store = Record<string, any>;
+
+function safe(v: unknown): string {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+  if (Array.isArray(v)) return v.join(', ');
+  return String(v);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const DATA_GENERATORS: Record<string, (store: Store) => string[][]> = {
+  'fund-metrics': (store) => {
+    const invs: Store[] = store.fundInvestments ?? [];
+    if (!invs.length) return [];
+    const funds = [...new Set(invs.map((i: Store) => i.fund as string))];
+    const rows: string[][] = [];
+    const metrics = [
+      { label: 'Called Capital', fn: (f: string) => String(invs.filter(i => !f || i.fund === f).reduce((s: number, i: Store) => s + parseFloat(i.totalInvested || '0'), 0).toFixed(2)) },
+      { label: 'NAV', fn: (f: string) => String(invs.filter(i => !f || i.fund === f).reduce((s: number, i: Store) => s + parseFloat(i.currentFMV || '0'), 0).toFixed(2)) },
+      { label: 'Distributions', fn: (f: string) => String(invs.filter(i => !f || i.fund === f).reduce((s: number, i: Store) => s + parseFloat(i.realizedValue || '0'), 0).toFixed(2)) },
+      { label: 'TVPI', fn: (f: string) => { const t = invs.filter(i => !f || i.fund === f); const c = t.reduce((s: number, i: Store) => s + parseFloat(i.totalInvested || '0'), 0); const n = t.reduce((s: number, i: Store) => s + parseFloat(i.currentFMV || '0'), 0) + t.reduce((s: number, i: Store) => s + parseFloat(i.realizedValue || '0'), 0); return c > 0 ? (n/c).toFixed(2) : '0'; } },
+      { label: 'DPI', fn: (f: string) => { const t = invs.filter(i => !f || i.fund === f); const c = t.reduce((s: number, i: Store) => s + parseFloat(i.totalInvested || '0'), 0); const d = t.reduce((s: number, i: Store) => s + parseFloat(i.realizedValue || '0'), 0); return c > 0 ? (d/c).toFixed(2) : '0'; } },
+      { label: 'Gross IRR', fn: (f: string) => { const t = invs.filter(i => !f || i.fund === f); return t.length ? (t.reduce((s: number, i: Store) => s + parseFloat(i.irr || '0') * parseFloat(i.totalInvested || '0'), 0) / Math.max(t.reduce((s: number, i: Store) => s + parseFloat(i.totalInvested || '0'), 0), 1)).toFixed(1) : '0'; } },
+      { label: 'MOIC', fn: (f: string) => { const t = invs.filter(i => !f || i.fund === f); const c = t.reduce((s: number, i: Store) => s + parseFloat(i.totalInvested || '0'), 0); const n = t.reduce((s: number, i: Store) => s + parseFloat(i.currentFMV || '0'), 0); return c > 0 ? (n/c).toFixed(2) : '0'; } },
+    ];
+    metrics.forEach(m => {
+      rows.push([m.label, ...funds.map(f => m.fn(f)), m.fn(''), '₹ Cr or x', '']);
+    });
+    return rows;
+  },
+
+  'cash-flows': (store) => {
+    const cf: Store[] = store.cashFlow ?? [];
+    return cf.map(q => [safe(q.quarter), safe(q.contributions), safe(q.distributions), safe(q.nav), '', '', '']);
+  },
+
+  'financial-periods': (store) => {
+    const periods: Store[] = store.financialPeriods ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return periods.map(p => [
+      cMap[p.companyId] ?? p.companyId, safe(p.companyId), safe(p.yearStyle), safe(p.periodLabel),
+      safe(p.periodType), safe(p.fiscalYear), safe(p.quarter),
+      safe(p.revenue), safe(p.arr), safe(p.mrr), safe(p.gmv),
+      safe(p.revenueGrowthYoY), safe(p.arrGrowthYoY), safe(p.nrr), safe(p.churnPct),
+      safe(p.grossMarginPct), safe(p.ebitdaMarginPct), safe(p.netMarginPct),
+      safe(p.currentValuation), safe(p.moic), safe(p.irr), safe(p.methodology),
+      safe(p.headcount), safe(p.monthlyBurn), safe(p.cash), safe(p.runway),
+      safe(p.cac), safe(p.ltv), safe(p.ltvCacRatio),
+      safe(p.notes), safe(p.source), safe(p.updatedBy), safe(p.updatedAt),
+    ]);
+  },
+
+  'portfolio-updates': (store) => {
+    const updates: Store[] = store.portfolioUpdates ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return updates.map(u => [
+      cMap[u.companyId] ?? u.companyId, safe(u.month), safe(u.status),
+      safe(u.revenue), safe(u.burn), safe(u.cash), safe(u.headcount),
+      safe(u.highlights), safe(u.challenges), safe(u.asks), safe(u.nextMonthGoals), safe(u.submittedBy),
+    ]);
+  },
+
+  'company-health': (store) => {
+    const health: Store[] = store.companyHealth ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return health.map(h => [
+      cMap[h.companyId] ?? h.companyId, safe(h.companyId), safe(h.quarter),
+      safe(h.revenueGrowth), safe(h.burn), safe(h.teamRetention),
+      safe(h.productProgress), safe(h.fundraising), safe(h.overallSignal),
+      safe(h.notes), safe(h.reviewedBy), safe(h.reviewedAt),
+    ]);
+  },
+
+  'founder-contacts': (store) => {
+    const contacts: Store[] = store.founderContacts ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return contacts.map(fc => [
+      cMap[fc.companyId] ?? fc.companyId, safe(fc.name), safe(fc.role),
+      safe(fc.email), safe(fc.phone), safe(fc.linkedInUrl), safe(fc.twitterUrl),
+      safe(fc.birthday), safe(fc.location), safe(fc.lastContactedAt),
+      safe(fc.tags), safe(fc.notes),
+    ]);
+  },
+
+  'valuation-log': (store) => {
+    const marks: Store[] = store.valuationMarks ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return marks.map(m => [
+      cMap[m.companyId] ?? m.companyId, safe(m.quarter), safe(m.fmv),
+      safe(m.methodology), safe(m.moicAtMark), safe(m.notes), safe(m.markedBy), safe(m.markedAt),
+    ]);
+  },
+
+  'capital-calls': (store) => {
+    const events: Store[] = store.capitalEvents ?? [];
+    const rows: string[][] = [];
+    events.forEach(e => {
+      if (!e.lpReceipts?.length) {
+        rows.push([safe(e.type), safe(e.noticeDate), safe(e.dueDate), safe(e.amount), safe(e.fund), safe(e.purpose), safe(e.status), '', '', '']);
+      } else {
+        e.lpReceipts.forEach((r: Store) => {
+          rows.push([safe(e.type), safe(e.noticeDate), safe(e.dueDate), safe(e.amount), safe(e.fund), safe(e.purpose), safe(e.status), safe(r.lpId), safe(r.amount), safe(r.receivedAt)]);
+        });
+      }
+    });
+    return rows;
+  },
+
+  'deal-pipeline': (store) => {
+    const deals: Store[] = store.deals ?? [];
+    const sectors: Store[] = store.sectors ?? [];
+    const people: Store[] = store.people ?? [];
+    const sMap = Object.fromEntries(sectors.map((s: Store) => [s.id, s.name]));
+    const pMap = Object.fromEntries(people.map((p: Store) => [p.id, p.name]));
+    return deals.map(d => [
+      safe(d.companyName), sMap[d.sectorId] ?? safe(d.sectorId), safe(d.ticketSize),
+      '', pMap[d.leadPartnerId] ?? safe(d.leadPartnerId), safe(d.dateAdded), safe(d.stage), safe(d.notes),
+    ]);
+  },
+
+  'ic-memos': (store) => {
+    const memos: Store[] = store.icMemos ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return memos.map(m => [
+      cMap[m.companyId] ?? m.companyId, safe(m.roundName), safe(m.askAmount), safe(m.proposedValuation),
+      safe(m.status), safe(m.icDate), safe(m.recommendation), safe(m.preparedBy),
+      Array.isArray(m.reviewedBy) ? m.reviewedBy.join(',') : safe(m.reviewedBy), safe(m.recommendationNote),
+    ]);
+  },
+
+  'reference-checks': (store) => {
+    const refs: Store[] = store.referenceChecks ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return refs.map(r => [
+      cMap[r.companyId] ?? r.companyId, safe(r.subjectName), safe(r.subjectRole),
+      safe(r.referentName), safe(r.referentRole), safe(r.referentCompany),
+      safe(r.relationship), safe(r.date), safe(r.conductedBy), safe(r.sentiment),
+      safe(r.strengthsNoted), safe(r.weaknessesNoted), safe(r.wouldWorkAgain), safe(r.rawNotes),
+    ]);
+  },
+
+  'co-investors': (store) => {
+    const coinvs: Store[] = store.coInvestors ?? [];
+    return coinvs.map(c => [
+      safe(c.firmName), safe(c.partnerName), safe(c.email), safe(c.phone), safe(c.linkedInUrl),
+      safe(c.sectors), safe(c.stages), safe(c.checkSizeMin), safe(c.checkSizeMax),
+      safe(c.geography), safe(c.warmth), safe(c.sharedDeals), safe(c.notes),
+    ]);
+  },
+
+  'tasks': (store) => {
+    const tasks: Store[] = store.tasks ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return tasks.map(t => [
+      safe(t.title), safe(t.description), cMap[t.companyId] ?? safe(t.companyId),
+      safe(t.assignee), safe(t.dueDate), safe(t.priority), safe(t.status), safe(t.tags),
+    ]);
+  },
+
+  'meeting-notes': (store) => {
+    const notes: Store[] = store.meetingNotes ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return notes.map(n => [
+      safe(n.title), safe(n.type), safe(n.date),
+      cMap[n.companyId] ?? safe(n.companyId),
+      Array.isArray(n.attendees) ? n.attendees.join(',') : safe(n.attendees),
+      safe(n.summary),
+      Array.isArray(n.actionItems) ? n.actionItems.map((a: Store) => `${a.text} (${a.assignee})`).join(' | ') : '',
+      safe(n.nextMeetingDate),
+    ]);
+  },
+
+  'intro-requests': (store) => {
+    const intros: Store[] = store.introRequests ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return intros.map(i => [
+      safe(i.requestedBy), cMap[i.requestedByCompanyId] ?? safe(i.requestedByCompanyId),
+      safe(i.targetName), safe(i.targetRole), safe(i.targetCompany),
+      safe(i.purpose), safe(i.assignedTo), safe(i.status),
+      safe(i.requestDate), safe(i.closedDate), safe(i.notes),
+    ]);
+  },
+
+  'lp-investors': (store) => {
+    const lps: Store[] = store.lps ?? [];
+    return lps.map(lp => [
+      safe(lp.name), '', safe(lp.commitment), safe(lp.called),
+      safe(lp.distributed), safe(lp.nav), '', '', '',
+    ]);
+  },
+
+  'candidates': (store) => {
+    const candidates: Store[] = store.candidates ?? [];
+    const jobs: Store[] = store.jobOpenings ?? [];
+    const jMap = Object.fromEntries(jobs.map((j: Store) => [j.id, j.title]));
+    return candidates.map(c => [
+      jMap[c.jobId] ?? safe(c.jobId), safe(c.name), safe(c.email), safe(c.phone),
+      safe(c.linkedInUrl), safe(c.currentCompany), safe(c.currentRole),
+      safe(c.noticePeriod), safe(c.expectedCTC), safe(c.currentCTC),
+      safe(c.location), safe(c.source), safe(c.resumeUrl), safe(c.notes),
+    ]);
+  },
+};
+
+export function downloadCsvTemplate(template: CsvTemplate, store?: Store): void {
+  // Use real store data if provided and generator exists, else fall back to example rows
+  let dataRows = template.exampleRows;
+  if (store && DATA_GENERATORS[template.id]) {
+    const generated = DATA_GENERATORS[template.id](store);
+    if (generated.length > 0) dataRows = generated;
+  }
+  const rows = [template.headers, ...dataRows];
   const csvContent = rows.map(row =>
     row.map(cell => {
       const str = String(cell ?? '');
@@ -389,10 +611,10 @@ export function downloadCsvTemplate(template: CsvTemplate): void {
   URL.revokeObjectURL(url);
 }
 
-export function downloadAllTeamTemplates(team: string): void {
+export function downloadAllTeamTemplates(team: string, store?: Store): void {
   const templates = CSV_TEMPLATES.filter(t => t.team === team || t.team === 'global');
   templates.forEach((t, i) => {
-    setTimeout(() => downloadCsvTemplate(t), i * 300);
+    setTimeout(() => downloadCsvTemplate(t, store), i * 300);
   });
 }
 
