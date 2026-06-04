@@ -1672,17 +1672,50 @@ export const defaultConfig: AppStore = {
     };
 
     return [
-      // ─── c3: Lohum (Battery Recycling, Series B) ──────────────────────────
-      // Revenue: FY23 ~₹400Cr, FY24 ~₹600Cr, FY25 ₹835Cr
-      p('fp_c3_fy23','c3','FY2023',undefined,'400','','','','42','12','8','65','','','','2500','1.8','28',320,'8','85','','','','','Last Round'),
-      p('fp_c3_fy24','c3','FY2024',undefined,'600','','','','44','15','10','50','','','','3200','2.3','32',410,'9','120','','','','','Last Round'),
-      p('fp_c3_fy25','c3','FY2025',undefined,'835','','','','46','18','13','39','','','','4700','3.4','38',520,'10','150','','','','Profitable FY25','Last Round'),
-      p('fp_c3_fy26','c3','FY2026',undefined,'1100','','','','47','20','15','32','','','','6200','4.5','42',650,'10','200','','','','FY26 projected — IPO prep','Revenue Multiple'),
-      // Quarterly FY25
-      p('fp_c3_fy25q1','c3','FY2025','Q1','185','','','','45','16','11','','','','','4200','3.0','35',490,'10','135','','','','','Last Round'),
-      p('fp_c3_fy25q2','c3','FY2025','Q2','200','','','','45','17','12','','','','','4400','3.2','36',500,'10','140','','','','','Last Round'),
-      p('fp_c3_fy25q3','c3','FY2025','Q3','215','','','','46','18','13','','','','','4600','3.3','37',510,'10','145','','','','','Last Round'),
-      p('fp_c3_fy25q4','c3','FY2025','Q4','235','','','','47','19','14','','','','','4700','3.4','38',520,'10','150','','','','','Last Round'),
+      // ═══ c3: LOHUM — Battery Recycling, Series B ═══════════════════════════
+      // Cactus invested: ₹25Cr (Seed Apr-21) + ₹8Cr (Series A Jun-22) + ₹15Cr (Series B Sep-23) = ₹48Cr total
+      // Ownership: 2.92% post Series B. MOIC based on FMV = valuation × 2.92% / 48Cr
+      // Revenue: FY23 ₹400Cr → FY24 ₹600Cr → FY25 ₹835Cr → FY26 ₹1,100Cr → FY27 ₹1,400Cr
+      // Gross Margin: 42-48% (improving as mix shifts to higher-margin black mass)
+      // EBITDA: turned positive FY24, growing each quarter
+      // Headcount: 280 (FY23) → 410 (FY24) → 520 (FY25) → 650 (FY26) → 800 (FY27)
+      // Valuation: ₹2,200Cr(FY23) → ₹3,200Cr(FY24) → ₹4,700Cr(FY25) → ₹6,200Cr(FY26) → ₹8,000Cr(FY27)
+
+      // ── FY2023 — Q1=Apr-Jun'22 | Q2=Jul-Sep'22 | Q3=Oct-Dec'22 | Q4=Jan-Mar'23
+      // Format: p(id,co,fy,qtr, rev,arr,mrr,gmv, gm%,ebitda%,net%, revYoY,arrYoY,nrr,churn, val,moic,irr, hc,burn,cash,runway, cac,ltv,ltvcac, notes,method)
+      p('fp_c3_fy23q1','c3','FY2023','Q1', '82','','','', '40','-2','-8','', '','','', '1800','1.1','18', 270,'12','80','', '','','', 'Q1 FY23 — Battery collection ramp. Pre-EBITDA. First OEM trial contracts.','Last Round'),
+      p('fp_c3_fy23q2','c3','FY2023','Q2', '96','','','', '41','0','-5','', '','','', '1950','1.2','20', 285,'11','88','9', '','','', 'Q2 FY23 — Tata Motors supply contract signed. EBITDA breakeven quarter.','Last Round'),
+      p('fp_c3_fy23q3','c3','FY2023','Q3', '108','','','', '42','4','-2','', '','','', '2100','1.3','22', 300,'10','95','10', '','','', 'Q3 FY23 — Cactus Series A ₹8Cr follow-on. 2nd plant commissioned. Black mass exports start.','Last Round'),
+      p('fp_c3_fy23q4','c3','FY2023','Q4', '114','','','', '43','6','2','', '','','', '2200','1.35','22', 310,'9','100','11', '','','', 'Q4 FY23 — EBITDA ₹6.8Cr. 360 ONE partnership. First profitable quarter.','Last Round'),
+      p('fp_c3_fy23','c3','FY2023',undefined, '400','','','', '42','2','-3','65','','','', '2200','1.35','22', 320,'10','100','10', '','','', 'FY23 — ₹400Cr. EBITDA positive in H2. 2 plants operational. Series A closed.','Last Round'),
+
+      // ── FY2024 — Q1=Apr-Jun'23 | Q2=Jul-Sep'23 | Q3=Oct-Dec'23 | Q4=Jan-Mar'24
+      p('fp_c3_fy24q1','c3','FY2024','Q1', '130','','','', '43','8','4','59','','','', '2500','1.5','24', 345,'9','110','12', '','','', 'Q1 FY24 — Mahindra EV contract live. Black mass exports ₹22Cr. Revenue +59% YoY.','Last Round'),
+      p('fp_c3_fy24q2','c3','FY2024','Q2', '145','','','', '44','11','6','51','','','', '2800','1.7','26', 365,'8','125','16', '','','', 'Q2 FY24 — 3rd plant commissioned. ₹145Cr quarter. EBITDA ₹16Cr.','Last Round'),
+      p('fp_c3_fy24q3','c3','FY2024','Q3', '158','','','', '44','13','8','46','','','', '3000','1.85','28', 385,'8','132','17', '','','', 'Q3 FY24 — Series B term sheet signed. Tata Capital leading. EBITDA ₹20.5Cr.','Last Round'),
+      p('fp_c3_fy24q4','c3','FY2024','Q4', '167','','','', '45','15','10','42','','','', '3200','1.95','30', 410,'7','140','20', '','','', 'Q4 FY24 — Series B closed ₹15Cr Cactus. IPO planning committee. EBITDA ₹25Cr.','Last Round'),
+      p('fp_c3_fy24','c3','FY2024',undefined, '600','','','', '44','12','7','50','','','', '3200','1.95','30', 410,'8','140','18', '','','', 'FY24 — ₹600Cr (+50%). EBITDA ₹72Cr (12%). Fully profitable. IPO planning begins.','Last Round'),
+
+      // ── FY2025 — Q1=Apr-Jun'24 | Q2=Jul-Sep'24 | Q3=Oct-Dec'24 | Q4=Jan-Mar'25
+      p('fp_c3_fy25q1','c3','FY2025','Q1', '185','','','', '45','16','11','39','','','', '4200','2.6','34', 490,'10','135','14', '','','', 'Q1 FY25 — Maruti Suzuki agreement. Black mass margin expansion. EBITDA ₹29.6Cr.','Last Round'),
+      p('fp_c3_fy25q2','c3','FY2025','Q2', '200','','','', '45','17','12','38','','','', '4400','2.7','36', 500,'10','140','14', '','','', 'Q2 FY25 — ₹200Cr quarter. 4th plant operating. EBITDA ₹34Cr (17% margin).','Last Round'),
+      p('fp_c3_fy25q3','c3','FY2025','Q3', '215','','','', '46','18','13','36','','','', '4600','2.85','37', 510,'10','145','15', '','','', 'Q3 FY25 — BPCL JV signed. International offtake. EBITDA ₹38.7Cr.','Last Round'),
+      p('fp_c3_fy25q4','c3','FY2025','Q4', '235','','','', '47','19','14','34','','','', '4700','2.92','38', 520,'9','150','17', '','','', 'Q4 FY25 — ₹835Cr FY close. EBITDA ₹150Cr total. DRHP filing H1 FY26.','Last Round'),
+      p('fp_c3_fy25','c3','FY2025',undefined, '835','','','', '46','18','13','39','','','', '4700','2.92','38', 520,'10','150','15', '','','', 'FY25 — ₹835Cr (+39%). EBITDA ₹150Cr (18%). Profitable. IPO DRHP prep. Soonicorn.','Last Round'),
+
+      // ── FY2026 — Q1=Apr-Jun'25 | Q2=Jul-Sep'25 | Q3=Oct-Dec'25 | Q4=Jan-Mar'26 [Projected]
+      p('fp_c3_fy26q1','c3','FY2026','Q1', '252','','','', '46','20','15','35','','','', '5200','3.2','39', 570,'9','180','20', '','','', 'Q1 FY26 — DRHP filed. Pre-IPO roadshow prep. 5th plant groundbreaking. EBITDA ₹50.4Cr.','Revenue Multiple'),
+      p('fp_c3_fy26q2','c3','FY2026','Q2', '268','','','', '47','21','16','32','','','', '5500','3.4','40', 590,'8','195','24', '','','', 'Q2 FY26 — SEBI approval. Global battery OEM agreements. EBITDA ₹56.3Cr.','Revenue Multiple'),
+      p('fp_c3_fy26q3','c3','FY2026','Q3', '282','','','', '47','22','17','31','','','', '5800','3.6','41', 620,'8','210','26', '','','', 'Q3 FY26 — IPO roadshow. International black mass pricing premium. EBITDA ₹62Cr.','Revenue Multiple'),
+      p('fp_c3_fy26q4','c3','FY2026','Q4', '298','','','', '48','23','18','30','','','', '6200','3.8','42', 650,'7','220','31', '','','', 'Q4 FY26 — IPO listing. ₹1,100Cr FY run-rate. Market cap target ₹8,000Cr+. EBITDA ₹68.5Cr.','Revenue Multiple'),
+      p('fp_c3_fy26','c3','FY2026',undefined, '1100','','','', '47','22','17','32','','','', '6200','3.8','42', 650,'8','220','28', '','','', 'FY26 — ₹1,100Cr (+32%). EBITDA ₹242Cr (22%). IPO year. Pre-IPO val ₹6,200Cr.','Revenue Multiple'),
+
+      // ── FY2027 — Q1=Apr-Jun'26 | Q2=Jul-Sep'26 | Q3=Oct-Dec'26 | Q4=Jan-Mar'27 [Post-IPO]
+      p('fp_c3_fy27q1','c3','FY2027','Q1', '322','','','', '48','24','19','28','','','', '7000','4.3','43', 700,'6','280','47', '','','', 'Q1 FY27 — Post-IPO listed NSE/BSE. Public market re-rating. EBITDA ₹77.3Cr.','DCF'),
+      p('fp_c3_fy27q2','c3','FY2027','Q2', '345','','','', '49','25','20','29','','','', '7400','4.6','44', 730,'5','310','62', '','','', 'Q2 FY27 — First public quarterly results. Institutional demand strong. EBITDA ₹86.3Cr.','DCF'),
+      p('fp_c3_fy27q3','c3','FY2027','Q3', '368','','','', '49','26','21','28','','','', '7700','4.8','45', 760,'5','340','68', '','','', 'Q3 FY27 — 6th plant. Global expansion. EV battery leadership. EBITDA ₹95.7Cr.','DCF'),
+      p('fp_c3_fy27q4','c3','FY2027','Q4', '365','','','', '50','26','21','27','','','', '8000','4.9','46', 800,'4','380','95', '','','', 'Q4 FY27 — ₹1,400Cr FY close. EBITDA ₹94.9Cr. Lock-up ends. Cactus partial exit possible.','DCF'),
+      p('fp_c3_fy27','c3','FY2027',undefined, '1400','','','', '49','25','20','27','','','', '8000','4.9','46', 800,'5','380','76', '','','', 'FY27 — ₹1,400Cr (+27%). EBITDA ₹350Cr (25%). Listed. Cactus FMV ₹233Cr = 4.9x MOIC.','DCF'),
 
       // ─── c8: Auric (D2C Health Drinks, Seed) ──────────────────────────────
       // Revenue: FY23 ~₹18Cr, FY24 ~₹55Cr, FY25 ₹126Cr
