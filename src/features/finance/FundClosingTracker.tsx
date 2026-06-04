@@ -87,7 +87,7 @@ function ProgressBars({ softCircled, signed, funded, target }: ProgressBarProps)
           <span>{fmtCr(funded)} / {fmtCr(target)} ({pct(funded, target)})</span>
         </div>
         <div className="h-3 rounded-full bg-gray-100 overflow-hidden">
-          <div className="h-full rounded-full transition-all" style={{ width: `${fundPct}%`, backgroundColor: '#1C4B42' }} />
+          <div className="h-full rounded-full transition-all" style={{ width: `${fundPct}%`, backgroundColor: '#1E293B' }} />
         </div>
       </div>
     </div>
@@ -139,12 +139,12 @@ function AddLpModal({ fundName, onSave, onClose }: AddLpModalProps) {
   };
 
   const inputCls = "w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500";
-  const borderStyle = { borderColor: '#D4EDAA' };
+  const borderStyle = { borderColor: '#E2E8F0' };
   const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[95vh] flex flex-col" style={{ borderTop: '4px solid #1C4B42' }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[95vh] flex flex-col" style={{ borderTop: '4px solid #1E293B' }}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <h2 className="text-base font-semibold text-gray-900">Add LP Commitment</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
@@ -209,7 +209,7 @@ function AddLpModal({ fundName, onSave, onClose }: AddLpModalProps) {
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
           <button onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100">Cancel</button>
-          <button onClick={(e: React.MouseEvent) => { e.preventDefault(); if (lpName && targetCommitment) { const form = { lpName, lpEmail, targetCommitment, softCircledAmount: softCircledAmount || '0', signedAmount: signedAmount || '0', calledAmount: calledAmount || '0', status, leadPartner, notes, lpaSentDate: lpaSentDate || undefined, lpaSignedDate: lpaSignedDate || undefined, firstCloseDate: firstCloseDate || undefined }; onSave({ id: generateId(), fund: fundName, ...form }); onClose(); } }} className="px-5 py-2 text-sm font-semibold rounded-lg text-white" style={{ backgroundColor: '#1C4B42' }}>
+          <button onClick={(e: React.MouseEvent) => { e.preventDefault(); if (lpName && targetCommitment) { const form = { lpName, lpEmail, targetCommitment, softCircledAmount: softCircledAmount || '0', signedAmount: signedAmount || '0', calledAmount: calledAmount || '0', status, leadPartner, notes, lpaSentDate: lpaSentDate || undefined, lpaSignedDate: lpaSignedDate || undefined, firstCloseDate: firstCloseDate || undefined }; onSave({ id: generateId(), fund: fundName, ...form }); onClose(); } }} className="px-5 py-2 text-sm font-semibold rounded-lg text-white" style={{ backgroundColor: '#1E293B' }}>
             Add LP
           </button>
         </div>
@@ -250,7 +250,7 @@ function CommitmentRow({ commitment, onUpdate, onDelete }: CommitmentRowProps) {
             value={amountDraft}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmountDraft(e.target.value)}
             className="w-20 border rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-green-500"
-            style={{ borderColor: '#D4EDAA' }}
+            style={{ borderColor: '#E2E8F0' }}
             autoFocus
           />
           <button onClick={() => saveEdit(field)} className="text-green-600 hover:text-green-800">
@@ -355,7 +355,7 @@ function StatsCards({ commitments, target }: StatsCardsProps) {
     { label: 'Target Size',     value: fmtCr(target),       icon: <Target className="w-5 h-5" />,       color: '#374151', bg: '#F3F4F6' },
     { label: 'Soft Circled',    value: fmtCr(softCircled),  icon: <TrendingUp className="w-5 h-5" />,   color: '#1D4ED8', bg: '#EFF6FF' },
     { label: 'LPA Signed',      value: fmtCr(signed),       icon: <CheckCircle2 className="w-5 h-5" />, color: '#4F46E5', bg: '#EEF2FF' },
-    { label: 'Funded / Called', value: fmtCr(funded),       icon: <DollarSign className="w-5 h-5" />,   color: '#1C4B42', bg: '#F0F7E6' },
+    { label: 'Funded / Called', value: fmtCr(funded),       icon: <DollarSign className="w-5 h-5" />,   color: '#1E293B', bg: '#F8FAFC' },
     { label: '% to Target',     value: toTarget,             icon: <Users className="w-5 h-5" />,        color: '#047857', bg: '#ECFDF5' },
   ];
 
@@ -405,15 +405,15 @@ export default function FundClosingTracker() {
   return (
     <div className="flex flex-col min-h-full" style={{ backgroundColor: '#F6FAF7' }}>
       {/* Header */}
-      <div className="border-b px-6 md:px-10 py-6 bg-white/70" style={{ borderColor: '#D4EDAA' }}>
+      <div className="border-b px-6 md:px-10 py-6 bg-white/70" style={{ borderColor: '#E2E8F0' }}>
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
-          <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide" style={{ color: '#1C4B42' }}>
+          <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide" style={{ color: '#1E293B' }}>
             Fund Closing Tracker
           </h1>
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm"
-            style={{ backgroundColor: '#1C4B42' }}
+            style={{ backgroundColor: '#1E293B' }}
           >
             <Plus className="w-4 h-4" /> Add LP
           </button>
@@ -428,7 +428,7 @@ export default function FundClosingTracker() {
               value={fundName}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFundName(e.target.value)}
               className={inputCls}
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
               placeholder="Fund name"
             />
           </div>
@@ -439,7 +439,7 @@ export default function FundClosingTracker() {
               value={targetFundSize}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetFundSize(e.target.value)}
               className={inputCls}
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
               placeholder="e.g. 10000"
             />
           </div>
@@ -450,7 +450,7 @@ export default function FundClosingTracker() {
               value={firstCloseDate}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstCloseDate(e.target.value)}
               className={inputCls}
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
           <div>
@@ -460,7 +460,7 @@ export default function FundClosingTracker() {
               value={finalCloseDate}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFinalCloseDate(e.target.value)}
               className={inputCls}
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
         </div>
@@ -472,13 +472,13 @@ export default function FundClosingTracker() {
         <StatsCards commitments={fundCommitments} target={targetNum} />
 
         {/* Progress bars */}
-        <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: '#D4EDAA' }}>
+        <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: '#E2E8F0' }}>
           <h2 className="text-sm font-semibold text-gray-700 mb-4">Fund Closing Progress</h2>
           <ProgressBars softCircled={softCircled} signed={signed} funded={funded} target={targetNum} />
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden" style={{ borderColor: '#D4EDAA' }}>
+        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-700">LP Commitments ({fundCommitments.length})</h2>
           </div>
@@ -491,7 +491,7 @@ export default function FundClosingTracker() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead style={{ backgroundColor: '#F0F7E6' }}>
+                <thead style={{ backgroundColor: '#F8FAFC' }}>
                   <tr>
                     {['LP Name', 'Email', 'Target (₹L)', 'Soft Circled', 'LPA Signed', 'Called', 'Status', 'Lead Partner', ''].map((h: string) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">

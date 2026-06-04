@@ -12,9 +12,9 @@ import type { FundInvestment, FundFollowOn } from '../../data/types';
 import { generateId } from '../../lib/utils';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const PRIMARY   = '#1C4B42';
-const ACCENT    = '#86CA0F';
-const BG        = '#F6FAF7';
+const PRIMARY   = '#1E293B';
+const ACCENT    = '#94A3B8';
+const BG        = '#F8FAFC';
 const FUNDS     = ['Fund 1', 'Fund 2'] as const;
 const STAGES    = ['Pre-Seed', 'Seed', 'Pre-Series A', 'Series A', 'Series B', 'Series C', 'Growth'];
 const INSTRUMENTS = ['Equity', 'SAFE', 'Convertible Note', 'Preference Shares'];
@@ -382,7 +382,7 @@ function InvestmentModal({ initial, companies, onSave, onClose }: ModalProps) {
     onSave({ ...form, updatedAt: new Date().toISOString() });
   };
 
-  const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1C4B42]/30 bg-white';
+  const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/30 bg-white';
   const labelCls = 'block text-xs font-medium text-gray-600 mb-1';
 
   return (
@@ -639,7 +639,7 @@ function InvestmentModal({ initial, companies, onSave, onClose }: ModalProps) {
                     type="checkbox"
                     checked={form.boardSeat}
                     onChange={(e) => set('boardSeat', e.target.checked)}
-                    className="w-4 h-4 rounded accent-[#1C4B42]"
+                    className="w-4 h-4 rounded accent-[#1E293B]"
                   />
                   <span className="text-sm text-gray-700">Board Seat</span>
                 </label>

@@ -96,7 +96,7 @@ function DetailPanel({ comm, lpNames, onClose, onSend, onDelete }: DetailPanelPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" style={{ borderTop: '4px solid #1C4B42' }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" style={{ borderTop: '4px solid #1E293B' }}>
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
           <div className="flex-1 min-w-0 pr-4">
@@ -187,7 +187,7 @@ function DetailPanel({ comm, lpNames, onClose, onSend, onDelete }: DetailPanelPr
               <button
                 onClick={() => onSend(comm.id)}
                 className="flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-lg text-white"
-                style={{ backgroundColor: '#1C4B42' }}
+                style={{ backgroundColor: '#1E293B' }}
               >
                 <Send className="w-4 h-4" /> Send Now
               </button>
@@ -259,7 +259,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col" style={{ borderTop: '4px solid #1C4B42' }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col" style={{ borderTop: '4px solid #1E293B' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <h2 className="text-base font-semibold text-gray-900">New Communication</h2>
@@ -278,7 +278,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
                   key={key}
                   onClick={() => applyTemplate(key)}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors hover:bg-green-50"
-                  style={{ borderColor: '#86CA0F', color: '#1C4B42' }}
+                  style={{ borderColor: '#94A3B8', color: '#1E293B' }}
                 >
                   {key}
                 </button>
@@ -293,7 +293,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
               value={type}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setType(e.target.value as LpCommType)}
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             >
               {(Object.keys(COMM_TYPE_LABELS) as LpCommType[]).map((k: LpCommType) => (
                 <option key={k} value={k}>{COMM_TYPE_LABELS[k]}</option>
@@ -310,7 +310,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
               placeholder="Email subject line"
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
 
@@ -323,7 +323,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
               placeholder="Write your message here..."
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 resize-none font-mono"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
 
@@ -348,12 +348,12 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && addAttachment()}
                 placeholder="https://..."
                 className="flex-1 border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-green-500"
-                style={{ borderColor: '#D4EDAA' }}
+                style={{ borderColor: '#E2E8F0' }}
               />
               <button
                 onClick={addAttachment}
                 className="px-3 py-1.5 text-xs rounded-lg border font-medium"
-                style={{ borderColor: '#86CA0F', color: '#1C4B42' }}
+                style={{ borderColor: '#94A3B8', color: '#1E293B' }}
               >
                 Add
               </button>
@@ -373,7 +373,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
               <span className="text-sm text-gray-700">Send to All LPs</span>
             </label>
             {!allLps && (
-              <div className="max-h-40 overflow-y-auto rounded-lg border divide-y divide-gray-100" style={{ borderColor: '#D4EDAA' }}>
+              <div className="max-h-40 overflow-y-auto rounded-lg border divide-y divide-gray-100" style={{ borderColor: '#E2E8F0' }}>
                 {lps.length === 0 ? (
                   <p className="px-4 py-3 text-xs text-gray-400 italic">No LPs found. Add LPs in the Finance section.</p>
                 ) : (
@@ -407,7 +407,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
               onClick={() => { if (subject && body) { onSave(buildComm('draft')); onClose(); } }}
               disabled={!subject || !body}
               className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg border font-medium disabled:opacity-40"
-              style={{ borderColor: '#86CA0F', color: '#1C4B42' }}
+              style={{ borderColor: '#94A3B8', color: '#1E293B' }}
             >
               <FileText className="w-4 h-4" /> Save Draft
             </button>
@@ -415,7 +415,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
               onClick={() => { if (subject && body) { onSave(buildComm('sent')); onClose(); } }}
               disabled={!subject || !body}
               className="flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-lg text-white disabled:opacity-40"
-              style={{ backgroundColor: '#1C4B42' }}
+              style={{ backgroundColor: '#1E293B' }}
             >
               <Send className="w-4 h-4" /> Send
             </button>
@@ -444,10 +444,10 @@ function CommRow({ comm, lpNames: _lpNames, onClick }: CommRowProps) {
     <div
       onClick={onClick}
       className="flex flex-wrap items-center gap-3 px-5 py-4 bg-white rounded-xl border cursor-pointer hover:shadow-md transition-shadow"
-      style={{ borderColor: comm.status === 'draft' ? '#D1D5DB' : '#D4EDAA' }}
+      style={{ borderColor: comm.status === 'draft' ? '#D1D5DB' : '#E2E8F0' }}
     >
       <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-        style={{ backgroundColor: '#F0F7E6', color: '#1C4B42' }}>
+        style={{ backgroundColor: '#F8FAFC', color: '#1E293B' }}>
         <Mail className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
@@ -555,10 +555,10 @@ export default function LpCommHub() {
   return (
     <div className="flex flex-col min-h-full" style={{ backgroundColor: '#F6FAF7' }}>
       {/* Header */}
-      <div className="border-b px-6 md:px-10 py-6 bg-white/70" style={{ borderColor: '#D4EDAA' }}>
+      <div className="border-b px-6 md:px-10 py-6 bg-white/70" style={{ borderColor: '#E2E8F0' }}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide" style={{ color: '#1C4B42' }}>
+            <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide" style={{ color: '#1E293B' }}>
               LP Communication Hub
             </h1>
             <p className="text-xs text-gray-400 mt-1 italic">
@@ -568,7 +568,7 @@ export default function LpCommHub() {
           <button
             onClick={() => setShowCompose(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm"
-            style={{ backgroundColor: '#1C4B42' }}
+            style={{ backgroundColor: '#1E293B' }}
           >
             <Plus className="w-4 h-4" /> New Communication
           </button>

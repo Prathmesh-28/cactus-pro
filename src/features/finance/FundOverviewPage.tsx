@@ -18,7 +18,7 @@ function CompanyAvatar({ name, logoUrl }: { name: string; logoUrl: string }) {
   }
   return (
     <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-      style={{ background: 'linear-gradient(135deg,#3B6D11,#5A9E1B)' }}>
+      style={{ background: 'linear-gradient(135deg,#1E293B,#2D4A6B)' }}>
       {initials}
     </div>
   );
@@ -54,8 +54,8 @@ export default function FundOverviewPage() {
             <button key={f.key} onClick={() => setFund(f.key as 'fund_1' | 'fund_2')}
               className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
               style={fund === f.key
-                ? { backgroundColor: '#3B6D11', color: '#fff' }
-                : { color: '#3B6D11', backgroundColor: 'transparent' }}>
+                ? { backgroundColor: '#1E293B', color: '#fff' }
+                : { color: '#2D6A4F', backgroundColor: 'transparent' }}>
               {f.label}
             </button>
           ))}
@@ -139,7 +139,7 @@ export default function FundOverviewPage() {
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {csv.moic >= (store.kpiThresholds?.moic.good ?? 3)
-                            ? <TrendingUp className="w-3.5 h-3.5" style={{ color: '#3B6D11' }} />
+                            ? <TrendingUp className="w-3.5 h-3.5" style={{ color: '#2D6A4F' }} />
                             : csv.moic < (store.kpiThresholds?.moic.warning ?? 2)
                             ? <TrendingDown className="w-3.5 h-3.5 text-red-500" />
                             : <Minus className="w-3.5 h-3.5 text-gray-400" />}
@@ -153,8 +153,8 @@ export default function FundOverviewPage() {
                       <td className="px-4 py-3 text-right">
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tabular-nums"
                           style={{
-                            backgroundColor: csv.irr >= 30 ? '#D4EDAA' : csv.irr >= 20 ? '#FEF9C3' : '#FEE2E2',
-                            color: csv.irr >= 30 ? '#3B6D11' : csv.irr >= 20 ? '#854D0E' : '#991B1B',
+                            backgroundColor: csv.irr >= 30 ? '#E2E8F0' : csv.irr >= 20 ? '#FEF9C3' : '#FEE2E2',
+                            color: csv.irr >= 30 ? '#2D6A4F' : csv.irr >= 20 ? '#854D0E' : '#991B1B',
                           }}>
                           {csv.irr}%
                         </span>
@@ -170,15 +170,15 @@ export default function FundOverviewPage() {
                       Total / Average
                     </td>
                     <td className="px-4 py-3" />
-                    <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#3B6D11' }}>
+                    <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#2D6A4F' }}>
                       {fmtCr(snapshotData.reduce((s, r) => s + (r.currentStake ?? 0), 0))}
                     </td>
                     <td className="px-4 py-3" />
                     <td className="px-4 py-3" />
-                    <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#3B6D11' }}>
+                    <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#2D6A4F' }}>
                       {snapshotData.length > 0 ? (snapshotData.reduce((s, r) => s + r.moic, 0) / snapshotData.length).toFixed(1) : '—'}x avg
                     </td>
-                    <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#3B6D11' }}>
+                    <td className="px-4 py-3 text-right font-bold tabular-nums" style={{ color: '#2D6A4F' }}>
                       {snapshotData.length > 0 ? Math.round(snapshotData.reduce((s, r) => s + r.irr, 0) / snapshotData.length) : '—'}% avg
                     </td>
                   </tr>

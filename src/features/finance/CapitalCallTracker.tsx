@@ -199,7 +199,7 @@ function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
       className={`rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md ${
         isOverdue ? 'border-red-200' : 'border-gray-200'
       }`}
-      style={{ borderColor: isOverdue ? undefined : '#D4EDAA' }}
+      style={{ borderColor: isOverdue ? undefined : '#E2E8F0' }}
     >
       {/* Header row */}
       <div
@@ -278,9 +278,9 @@ function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
           {event.lpReceipts.length === 0 ? (
             <p className="text-sm text-gray-400 italic">No LPs assigned to this event.</p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border" style={{ borderColor: '#D4EDAA' }}>
+            <div className="overflow-x-auto rounded-lg border" style={{ borderColor: '#E2E8F0' }}>
               <table className="w-full text-sm">
-                <thead className="text-xs font-semibold text-gray-500 border-b" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+                <thead className="text-xs font-semibold text-gray-500 border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
                   <tr>
                     <th className="px-4 py-2 text-left">LP Name</th>
                     <th className="px-4 py-2 text-left">Amount</th>
@@ -310,7 +310,7 @@ function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
             <div className="mt-4">
               <div className="flex justify-between text-xs text-gray-500 mb-1">
                 <span>Collection Progress</span>
-                <span className="font-semibold" style={{ color: '#3B6D11' }}>
+                <span className="font-semibold" style={{ color: '#2D6A4F' }}>
                   {fmtCr(receivedAmount)} / {fmtCr(totalAmount)} ({totalCount > 0 ? Math.round((receivedAmount / totalAmount) * 100) : 0}%)
                 </span>
               </div>
@@ -319,7 +319,7 @@ function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${totalAmount > 0 ? Math.min(100, (receivedAmount / totalAmount) * 100) : 0}%`,
-                    backgroundColor: '#5A9E1B',
+                    backgroundColor: '#2D6A4F',
                   }}
                 />
               </div>
@@ -386,7 +386,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
   const label = type === 'capital_call' ? 'Capital Call' : 'Distribution';
 
   return (
-    <div className="rounded-xl border bg-white shadow-lg p-6" style={{ borderColor: '#D4EDAA' }}>
+    <div className="rounded-xl border bg-white shadow-lg p-6" style={{ borderColor: '#E2E8F0' }}>
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-base font-semibold text-gray-900">New {label}</h3>
         <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
@@ -405,7 +405,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
               onChange={e => setNoticeDate(e.target.value)}
               required
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
 
@@ -418,7 +418,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
               onChange={e => setDueDate(e.target.value)}
               required
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
 
@@ -432,7 +432,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
               onChange={e => setAmount(e.target.value)}
               required
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             />
           </div>
 
@@ -444,7 +444,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
               onChange={e => setFund(e.target.value)}
               required
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ borderColor: '#D4EDAA' }}
+              style={{ borderColor: '#E2E8F0' }}
             >
               {funds.map(f => <option key={f} value={f}>{f}</option>)}
             </select>
@@ -461,7 +461,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
             onChange={e => setPurpose(e.target.value)}
             required
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-            style={{ borderColor: '#D4EDAA' }}
+            style={{ borderColor: '#E2E8F0' }}
           />
         </div>
 
@@ -474,7 +474,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
             value={notes}
             onChange={e => setNotes(e.target.value)}
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 resize-none"
-            style={{ borderColor: '#D4EDAA' }}
+            style={{ borderColor: '#E2E8F0' }}
           />
         </div>
 
@@ -486,7 +486,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
           {lps.length === 0 ? (
             <p className="text-xs text-gray-400 italic">No LPs configured. Add LPs in the Finance section.</p>
           ) : (
-            <div className="max-h-52 overflow-y-auto rounded-lg border divide-y divide-gray-100" style={{ borderColor: '#D4EDAA' }}>
+            <div className="max-h-52 overflow-y-auto rounded-lg border divide-y divide-gray-100" style={{ borderColor: '#E2E8F0' }}>
               {lps.map(lp => (
                 <div
                   key={lp.id}
@@ -515,7 +515,7 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
                       }}
                       onClick={e => e.stopPropagation()}
                       className="w-28 border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-500"
-                      style={{ borderColor: '#D4EDAA' }}
+                      style={{ borderColor: '#E2E8F0' }}
                     />
                   )}
                 </div>
@@ -530,14 +530,14 @@ function NewEventForm({ type, funds, lps, onSubmit, onCancel }: NewEventFormProp
             type="button"
             onClick={onCancel}
             className="px-4 py-2 text-sm rounded-lg border text-gray-600 hover:bg-gray-50"
-            style={{ borderColor: '#D4EDAA' }}
+            style={{ borderColor: '#E2E8F0' }}
           >
             Cancel
           </button>
           <button
             type="submit"
             className="px-5 py-2 text-sm font-semibold rounded-lg text-white"
-            style={{ backgroundColor: '#3B6D11' }}
+            style={{ backgroundColor: '#1E293B' }}
           >
             Create {label === 'Capital Call' ? 'Call' : 'Distribution'}
           </button>
@@ -574,8 +574,8 @@ function SummaryCards({ events }: { events: CapitalEvent[] }) {
       label: 'Total Called (FY)',
       value: fmtCr(totalCalled),
       icon: <DollarSign className="w-5 h-5" />,
-      color: '#3B6D11',
-      bg: '#F0F7E6',
+      color: '#2D6A4F',
+      bg: '#F8FAFC',
     },
     {
       label: 'Total Distributed (FY)',
@@ -648,9 +648,9 @@ export default function CapitalCallTracker() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F0F7E6]">
+    <div className="flex flex-col min-h-full bg-[#F8FAFC]">
       {/* Page header */}
-      <div className="border-b px-6 md:px-10 py-6 bg-white/60" style={{ borderColor: '#D4EDAA' }}>
+      <div className="border-b px-6 md:px-10 py-6 bg-white/60" style={{ borderColor: '#E2E8F0' }}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide text-gray-900">
@@ -663,7 +663,7 @@ export default function CapitalCallTracker() {
           <button
             onClick={() => setShowForm(v => !v)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm"
-            style={{ backgroundColor: '#3B6D11' }}
+            style={{ backgroundColor: '#1E293B' }}
           >
             <Plus className="w-4 h-4" />
             {activeTab === 'capital_call' ? 'New Capital Call' : 'New Distribution'}
@@ -681,13 +681,13 @@ export default function CapitalCallTracker() {
                   ? 'text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900 bg-white/60'
               }`}
-              style={activeTab === tab ? { backgroundColor: '#3B6D11' } : {}}
+              style={activeTab === tab ? { backgroundColor: '#1E293B' } : {}}
             >
               {tab === 'capital_call' ? 'Capital Calls' : 'Distributions'}
               <span className="ml-2 px-1.5 py-0.5 rounded-full text-xs font-semibold"
                 style={{
                   backgroundColor: activeTab === tab ? 'rgba(255,255,255,0.25)' : '#E9F5D4',
-                  color: activeTab === tab ? 'white' : '#3B6D11',
+                  color: activeTab === tab ? 'white' : '#2D6A4F',
                 }}>
                 {events.filter(e => e.type === tab).length}
               </span>
@@ -728,7 +728,7 @@ export default function CapitalCallTracker() {
 
           {filtered.length === 0 ? (
             <div className="rounded-xl border bg-white/70 py-16 flex flex-col items-center gap-3"
-              style={{ borderColor: '#D4EDAA' }}>
+              style={{ borderColor: '#E2E8F0' }}>
               <FileText className="w-10 h-10 text-gray-300" />
               <p className="text-gray-500 font-medium">
                 No {activeTab === 'capital_call' ? 'capital calls' : 'distributions'} yet

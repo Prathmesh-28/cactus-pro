@@ -58,7 +58,7 @@ function GreenCard({ label, value, onEdit, compact = false }:
   { label: string; value: string; onEdit?: () => void; compact?: boolean }) {
   return (
     <div className="relative group rounded-lg text-white p-5 shadow-md flex-1"
-      style={{ background: 'linear-gradient(135deg,#3B6D11,#3B6D11)', minWidth: compact ? 110 : 160 }}>
+      style={{ background: 'linear-gradient(135deg,#1E293B,#2D4A6B)', minWidth: compact ? 110 : 160 }}>
       <div className="text-[11px] uppercase tracking-widest text-white/70 font-semibold">{label}</div>
       <div className={`mt-2 font-serif font-bold leading-none tabular-nums ${compact ? 'text-lg' : 'text-2xl md:text-[26px]'}`}>{value}</div>
       {onEdit && (
@@ -84,7 +84,7 @@ function EditableGreenCard({ def, value, onChange }: { def: MetricDef; value: nu
 
   return (
     <div className="relative group rounded-lg text-white p-5 shadow-md flex-1"
-      style={{ background: 'linear-gradient(135deg,#3B6D11,#3B6D11)', minWidth: 130 }}>
+      style={{ background: 'linear-gradient(135deg,#1E293B,#2D4A6B)', minWidth: 130 }}>
       <div className="text-[11px] uppercase tracking-widest text-white/70 font-semibold">{def.label}</div>
       {editing ? (
         <div className="mt-2 flex items-center gap-1">
@@ -111,7 +111,7 @@ function EditableGreenCard({ def, value, onChange }: { def: MetricDef; value: nu
 function Op({ children, compact = false }: { children: string; compact?: boolean }) {
   return (
     <div className="flex items-center justify-center font-bold select-none shrink-0"
-      style={{ color: '#3B6D11', fontSize: compact ? 20 : 28, minWidth: compact ? 14 : 20 }}>
+      style={{ color: '#2D6A4F', fontSize: compact ? 20 : 28, minWidth: compact ? 14 : 20 }}>
       {children}
     </div>
   );
@@ -147,7 +147,7 @@ export default function FundOverview() {
     <div className="flex flex-col min-h-full">
       {/* Page header */}
       <div className="border-b px-6 md:px-10 py-6 bg-white/50 flex items-start justify-between"
-        style={{ borderColor: '#D4EDAA' }}>
+        style={{ borderColor: '#E2E8F0' }}>
         <div>
           <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide text-gray-900">Fund Overview</h1>
           <p className="text-xs text-gray-400 mt-1 italic">Amounts in INR Cr · Click any value to edit</p>
@@ -157,7 +157,7 @@ export default function FundOverview() {
           {(['fund_1', 'fund_2'] as const).map(f => (
             <button key={f} onClick={() => setFund(f)}
               className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
-              style={fund === f ? { backgroundColor: '#3B6D11', color: '#fff' } : { color: '#3B6D11' }}>
+              style={fund === f ? { backgroundColor: '#1E293B', color: '#fff' } : { color: '#2D6A4F' }}>
               {f === 'fund_1' ? 'Fund 1' : 'Fund 2'}
             </button>
           ))}
@@ -211,23 +211,23 @@ export default function FundOverview() {
         {/* ── LP Summary ───────────────────────────────────────────────────── */}
         <section className="space-y-3">
           <p className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">Limited Partners</p>
-          <div className="rounded-lg border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#D4EDAA' }}>
+          <div className="rounded-lg border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+                <thead className="border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
                   <tr>
                     {['LP Name', 'Commitment', 'Called', 'Distributed', 'NAV'].map(h => (
                       <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-600">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y" style={{ borderColor: '#F0F7E6' }}>
+                <tbody className="divide-y" style={{ borderColor: '#F8FAFC' }}>
                   {store.lps.map(lp => (
-                    <tr key={lp.id} className="hover:bg-[#F0F7E6] transition-colors">
+                    <tr key={lp.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="px-5 py-3 font-medium text-gray-800">{lp.name}</td>
                       <td className="px-5 py-3 text-gray-600">{lp.commitment}</td>
                       <td className="px-5 py-3 text-gray-600">{lp.called}</td>
-                      <td className="px-5 py-3 font-medium" style={{ color: '#3B6D11' }}>{lp.distributed}</td>
+                      <td className="px-5 py-3 font-medium" style={{ color: '#2D6A4F' }}>{lp.distributed}</td>
                       <td className="px-5 py-3 font-semibold text-gray-900">{lp.nav}</td>
                     </tr>
                   ))}
@@ -242,23 +242,23 @@ export default function FundOverview() {
           <div className="flex items-center justify-between">
             <p className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">Portfolio Snapshot</p>
           </div>
-          <div className="rounded-lg border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#D4EDAA' }}>
+          <div className="rounded-lg border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+                <thead className="border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
                   <tr>
                     {['Company', 'Stage', 'Revenue', 'Valuation', 'Ownership %', 'MOIC', 'IRR %', 'Status'].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y" style={{ borderColor: '#F0F7E6' }}>
+                <tbody className="divide-y" style={{ borderColor: '#F8FAFC' }}>
                   {store.companies.filter(c => c.status !== 'Exited').map(c => (
-                    <tr key={c.id} className="hover:bg-[#F0F7E6] transition-colors">
+                    <tr key={c.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="px-4 py-3 font-semibold text-gray-800">{c.name}</td>
                       <td className="px-4 py-3">
                         <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                          style={{ backgroundColor: '#D4EDAA', color: '#3B6D11' }}>{c.stage}</span>
+                          style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>{c.stage}</span>
                       </td>
                       <td className="px-4 py-3 text-gray-600">{c.revenue || '—'}</td>
                       <td className="px-4 py-3 text-gray-700 font-medium">{c.currentValuation || '—'}</td>
@@ -306,7 +306,7 @@ function EditableCashCard({ label, value, onChange, compact = false }:
 
   return (
     <div className="relative group rounded-lg text-white shadow-md flex-1"
-      style={{ background: 'linear-gradient(135deg,#3B6D11,#3B6D11)', padding: compact ? '12px' : '20px', minWidth: compact ? 110 : 160 }}>
+      style={{ background: 'linear-gradient(135deg,#1E293B,#2D4A6B)', padding: compact ? '12px' : '20px', minWidth: compact ? 110 : 160 }}>
       <div className={`uppercase tracking-widest font-semibold text-white/70 ${compact ? 'text-[9px]' : 'text-[11px]'}`}>{label}</div>
       {editing ? (
         <div className="mt-1.5 flex items-center gap-1">

@@ -57,25 +57,25 @@ export default function FinancePage() {
       {/* Finance dashboard CSS variables injected inline so they don't bleed into cactus-pro */}
       <style>{`
         .fin-shell {
-          --background: #F0F7E6;
-          --foreground: #1A1A1A;
+          --background: #F8FAFC;
+          --foreground: #0F172A;
           --card: #ffffff;
-          --card-foreground: #1A1A1A;
-          --primary: #5A9E1B;
+          --card-foreground: #0F172A;
+          --primary: #2D6A4F;
           --primary-foreground: #ffffff;
-          --muted: #e8f5d0;
-          --muted-foreground: #5a7a3a;
-          --accent: #5A9E1B;
+          --muted: #F1F5F9;
+          --muted-foreground: #64748B;
+          --accent: #2D6A4F;
           --accent-foreground: #ffffff;
-          --border: #D4EDAA;
-          --input: #D4EDAA;
-          --ring: #5A9E1B;
-          --sidebar: #8DC63F;
-          --sidebar-foreground: #ffffff;
-          --sidebar-accent: rgba(255,255,255,0.25);
-          --sidebar-border: #D4EDAA;
-          --gradient-primary: linear-gradient(135deg, #3B6D11, #3B6D11);
-          --shadow-card: 0 1px 2px 0 rgb(59 109 17 / 0.06), 0 4px 16px -4px rgb(59 109 17 / 0.10);
+          --border: #E2E8F0;
+          --input: #E2E8F0;
+          --ring: #2D6A4F;
+          --sidebar: #1E293B;
+          --sidebar-foreground: #F1F5F9;
+          --sidebar-accent: rgba(255,255,255,0.10);
+          --sidebar-border: #334155;
+          --gradient-primary: linear-gradient(135deg, #1E3A2F, #2D6A4F);
+          --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.10);
           background: var(--background);
           color: var(--foreground);
           font-family: "DM Sans", system-ui, sans-serif;

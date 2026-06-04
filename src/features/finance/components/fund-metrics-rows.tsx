@@ -304,7 +304,7 @@ function FormulaRow({ children, compact = false }: { children: React.ReactNode; 
 function Op({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
   return (
     <div className="flex items-center justify-center font-bold select-none"
-      style={{ color: "#3B6D11", fontSize: compact ? "20px" : "28px", minWidth: compact ? "14px" : "20px" }}
+      style={{ color: "#2D6A4F", fontSize: compact ? "20px" : "28px", minWidth: compact ? "14px" : "20px" }}
       aria-hidden="true">
       {children}
     </div>

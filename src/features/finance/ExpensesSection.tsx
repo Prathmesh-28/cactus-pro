@@ -85,31 +85,31 @@ function ExpTable({ title, storageKey, defaultRows, columns, centerHeaders }:
   })();
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#D4EDAA' }}>
-      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#D4EDAA' }}>
+    <div className="rounded-lg border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#E2E8F0' }}>
         <h3 className="font-serif text-lg uppercase tracking-wide text-gray-800">{title}</h3>
         <div className="flex items-center gap-2">
           <button onClick={exportCsv} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">
             <Download className="w-3.5 h-3.5" /> Export
           </button>
           <button onClick={addRow} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white"
-            style={{ backgroundColor: '#3B6D11' }}>
+            style={{ backgroundColor: '#1E293B' }}>
             <Plus className="w-3.5 h-3.5" /> Add Row
           </button>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="border-b text-xs font-semibold text-gray-600" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+          <thead className="border-b text-xs font-semibold text-gray-600" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
             <tr>
               <th className="px-4 py-3 text-left w-40">Category</th>
               {columns.map(c => <th key={c} className={`px-3 py-3 whitespace-nowrap ${centerHeaders ? 'text-center' : 'text-right'}`}>{c}</th>)}
               <th className="w-10" />
             </tr>
           </thead>
-          <tbody className="divide-y" style={{ borderColor: '#F0F7E6' }}>
+          <tbody className="divide-y" style={{ borderColor: '#F8FAFC' }}>
             {rows.map(row => (
-              <tr key={row.id} className="hover:bg-[#F0F7E6] transition-colors group">
+              <tr key={row.id} className="hover:bg-[#F8FAFC] transition-colors group">
                 <td className="px-4 py-2.5">
                   {editing?.id === row.id && editing?.col === 'category' ? (
                     <input autoFocus className="w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-500"
@@ -145,10 +145,10 @@ function ExpTable({ title, storageKey, defaultRows, columns, centerHeaders }:
               </tr>
             ))}
             {/* Total row */}
-            <tr className="font-semibold text-gray-800 border-t-2" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+            <tr className="font-semibold text-gray-800 border-t-2" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
               <td className="px-4 py-2.5">Total</td>
               {columns.map(c => (
-                <td key={c} className="px-3 py-2.5 text-right tabular-nums" style={{ color: '#3B6D11' }}>
+                <td key={c} className="px-3 py-2.5 text-right tabular-nums" style={{ color: '#2D6A4F' }}>
                   {c.includes('%') ? '—' : totalRow[c].toLocaleString('en-IN')}
                 </td>
               ))}
@@ -174,18 +174,18 @@ function FundExpChart() {
   });
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm p-6" style={{ borderColor: '#D4EDAA' }}>
+    <div className="rounded-lg border bg-white shadow-sm p-6" style={{ borderColor: '#E2E8F0' }}>
       <h3 className="font-serif text-lg uppercase tracking-wide text-gray-800 mb-5">Expense Trend (INR Lakhs)</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#D4EDAA" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
           <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}L`} />
           <Tooltip formatter={(v: any) => [`${Number(v).toLocaleString('en-IN')} L`, '']}
-            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #D4EDAA' }} />
+            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Bar dataKey="Fund Expenses" fill="#5A9E1B" radius={[3,3,0,0]} maxBarSize={32} />
-          <Bar dataKey="IM Expenses"   fill="#3B6D11" radius={[3,3,0,0]} maxBarSize={32} />
+          <Bar dataKey="Fund Expenses" fill="#2D6A4F" radius={[3,3,0,0]} maxBarSize={32} />
+          <Bar dataKey="IM Expenses"   fill="#1E293B" radius={[3,3,0,0]} maxBarSize={32} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -210,7 +210,7 @@ export default function ExpensesSection() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <div className="border-b px-6 md:px-10 py-6 bg-white/50" style={{ borderColor: '#D4EDAA' }}>
+      <div className="border-b px-6 md:px-10 py-6 bg-white/50" style={{ borderColor: '#E2E8F0' }}>
         <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide text-gray-900">Expenses</h1>
         <p className="text-xs text-gray-400 mt-1 italic">Click any cell to edit · Amounts in INR Lakhs</p>
       </div>

@@ -49,7 +49,7 @@ function EventForm({ initial, onSave, onCancel }:
   const [form, setForm] = useState(initial);
   const ic = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30';
   return (
-    <div className="border rounded-xl p-4 bg-white space-y-3 shadow-sm" style={{ borderColor: '#D4EDAA' }}>
+    <div className="border rounded-xl p-4 bg-white space-y-3 shadow-sm" style={{ borderColor: '#E2E8F0' }}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">Title *</label>
@@ -71,7 +71,7 @@ function EventForm({ initial, onSave, onCancel }:
       <div className="flex gap-2">
         <button onClick={() => form.title && onSave(form)}
           className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg text-white"
-          style={{ backgroundColor: '#3B6D11' }}>
+          style={{ backgroundColor: '#1E293B' }}>
           <Check className="w-3.5 h-3.5" /> Save
         </button>
         <button onClick={onCancel} className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 text-gray-600">
@@ -124,7 +124,7 @@ export default function CompliancesSection() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="border-b px-6 md:px-10 py-6 bg-white/50" style={{ borderColor: '#D4EDAA' }}>
+      <div className="border-b px-6 md:px-10 py-6 bg-white/50" style={{ borderColor: '#E2E8F0' }}>
         <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide text-gray-900">Compliances</h1>
         <p className="text-xs text-gray-400 mt-1 italic">Click a date to add or view events</p>
       </div>
@@ -146,10 +146,10 @@ export default function CompliancesSection() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Calendar */}
-          <div className="lg:col-span-2 rounded-xl border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#D4EDAA' }}>
+          <div className="lg:col-span-2 rounded-xl border bg-white shadow-sm overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
 
             {/* Nav */}
-            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
               <button onClick={() => setCurrent(d => subMonths(d, 1))}
                 className="p-1.5 rounded-lg hover:bg-white transition-colors text-gray-600">
                 <ChevronLeft className="w-4 h-4" />
@@ -162,7 +162,7 @@ export default function CompliancesSection() {
             </div>
 
             {/* Day names */}
-            <div className="grid grid-cols-7 border-b" style={{ borderColor: '#D4EDAA' }}>
+            <div className="grid grid-cols-7 border-b" style={{ borderColor: '#E2E8F0' }}>
               {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => (
                 <div key={d} className="py-2 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-400">{d}</div>
               ))}
@@ -182,19 +182,19 @@ export default function CompliancesSection() {
                       i % 7 === 6 && 'border-r-0',
                       !inMonth && 'opacity-30',
                       isSelected && 'ring-2 ring-inset z-10',
-                      isToday(day) && 'bg-[#F0F7E6]',
+                      isToday(day) && 'bg-[#F8FAFC]',
                     )}
-                    style={{ borderColor: '#F0F7E6', ...(isSelected ? { '--tw-ring-color': '#3B6D11' } as React.CSSProperties : {}) }}>
+                    style={{ borderColor: '#F8FAFC', ...(isSelected ? { '--tw-ring-color': '#1E293B' } as React.CSSProperties : {}) }}>
                     <span className={cn(
                       'inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-medium',
                       isToday(day) ? 'text-white' : 'text-gray-700',
-                    )} style={isToday(day) ? { backgroundColor: '#3B6D11' } : {}}>
+                    )} style={isToday(day) ? { backgroundColor: '#1E293B' } : {}}>
                       {format(day, 'd')}
                     </span>
                     <div className="mt-1 space-y-0.5">
                       {dayEvents.slice(0, 2).map(e => (
                         <div key={e.id} className="truncate text-[10px] font-medium px-1 py-0.5 rounded"
-                          style={{ backgroundColor: '#D4EDAA', color: '#3B6D11' }}>
+                          style={{ backgroundColor: '#E2E8F0', color: '#2D6A4F' }}>
                           {e.title}
                         </div>
                       ))}
@@ -211,15 +211,15 @@ export default function CompliancesSection() {
           {/* Right panel: selected day events + upcoming */}
           <div className="space-y-4">
             {/* Selected day panel */}
-            <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: '#D4EDAA' }}>
-              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+            <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: '#E2E8F0' }}>
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
                 <h3 className="text-sm font-semibold text-gray-700">
                   {selected ? format(selected, 'EEEE, d MMM yyyy') : 'Select a date'}
                 </h3>
                 {selected && (
                   <button onClick={() => { setCreating(true); setEditing(null); }}
                     className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-white"
-                    style={{ backgroundColor: '#3B6D11' }}>
+                    style={{ backgroundColor: '#1E293B' }}>
                     <Plus className="w-3 h-3" /> Add
                   </button>
                 )}
@@ -228,7 +228,7 @@ export default function CompliancesSection() {
                 {!selected && <p className="text-xs text-gray-400 text-center pt-4">Click any date on the calendar</p>}
                 {selected && selectedEvents.length === 0 && <p className="text-xs text-gray-400 text-center pt-4">No events — click Add</p>}
                 {selectedEvents.map(e => (
-                  <div key={e.id} className="rounded-lg border p-3 group" style={{ borderColor: '#D4EDAA' }}>
+                  <div key={e.id} className="rounded-lg border p-3 group" style={{ borderColor: '#E2E8F0' }}>
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-semibold text-gray-800">{e.title}</p>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
@@ -244,16 +244,16 @@ export default function CompliancesSection() {
             </div>
 
             {/* Upcoming events */}
-            <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: '#D4EDAA' }}>
-              <div className="px-4 py-3 border-b" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+            <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: '#E2E8F0' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' }}>
                 <h3 className="text-sm font-semibold text-gray-700">Upcoming Deadlines</h3>
               </div>
-              <div className="divide-y" style={{ borderColor: '#F0F7E6' }}>
+              <div className="divide-y" style={{ borderColor: '#F8FAFC' }}>
                 {upcomingEvents.length === 0 && <p className="text-xs text-gray-400 p-4 text-center">No upcoming events</p>}
                 {upcomingEvents.map(e => (
-                  <div key={e.id} className="flex items-center gap-3 px-4 py-3 hover:bg-[#F0F7E6] transition-colors">
+                  <div key={e.id} className="flex items-center gap-3 px-4 py-3 hover:bg-[#F8FAFC] transition-colors">
                     <div className="w-10 text-center shrink-0">
-                      <p className="text-lg font-serif font-bold leading-none" style={{ color: '#3B6D11' }}>
+                      <p className="text-lg font-serif font-bold leading-none" style={{ color: '#2D6A4F' }}>
                         {format(parseISO(e.due_date), 'd')}
                       </p>
                       <p className="text-[10px] text-gray-400 uppercase">{format(parseISO(e.due_date), 'MMM')}</p>
