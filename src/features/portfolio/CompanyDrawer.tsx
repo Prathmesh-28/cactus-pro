@@ -663,12 +663,50 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       (store.portfolioFundView ?? []).filter(i => i.companyId === company.id),
     [store.portfolioFundView, company.id]);
 
-    // All financial periods for this company, filtered by yearStyle
-    const allPeriods = useMemo(() =>
+    // FY→CY quarter mapping (enter data once as FY, view in either style)
+    // FY Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar
+    // CY Q1=Jan-Mar, Q2=Apr-Jun, Q3=Jul-Sep, Q4=Oct-Dec
+    function fyToCyLabel(p: { fiscalYear: string; quarter?: string; periodType: string }): string {
+      if (p.periodType === 'annual') return `${p.fiscalYear}-Annual (≈CY)`;
+      const fyYear = parseInt(p.fiscalYear.replace('FY', ''));
+      const map: Record<string, { cyYear: number; cyQ: string }> = {
+        Q1: { cyYear: fyYear - 1, cyQ: 'Q2' }, // Apr-Jun → CY Q2
+        Q2: { cyYear: fyYear - 1, cyQ: 'Q3' }, // Jul-Sep → CY Q3
+        Q3: { cyYear: fyYear - 1, cyQ: 'Q4' }, // Oct-Dec → CY Q4
+        Q4: { cyYear: fyYear,     cyQ: 'Q1' }, // Jan-Mar → CY Q1
+      };
+      const m = p.quarter ? map[p.quarter] : null;
+      return m ? `${m.cyYear}-${m.cyQ}` : p.fiscalYear;
+    }
+
+    // All FY periods for this company (source of truth — enter once)
+    const fyPeriods = useMemo(() =>
       (store.financialPeriods ?? [])
-        .filter(p => p.companyId === company.id && p.yearStyle === yearStyle)
+        .filter(p => p.companyId === company.id && p.yearStyle === 'FY')
         .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
-    [store.financialPeriods, company.id, yearStyle]);
+    [store.financialPeriods, company.id]);
+
+    // CY-native periods (if any explicitly stored as CY)
+    const cyNativePeriods = useMemo(() =>
+      (store.financialPeriods ?? [])
+        .filter(p => p.companyId === company.id && p.yearStyle === 'CY')
+        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
+    [store.financialPeriods, company.id]);
+
+    // When CY selected: derive from FY data (auto-convert labels) + native CY rows
+    const allPeriods = useMemo(() => {
+      if (yearStyle === 'FY') return fyPeriods;
+      // Show FY periods relabelled as CY + any native CY rows
+      const fromFY = fyPeriods.map(p => ({
+        ...p,
+        periodLabel: fyToCyLabel(p),
+        fiscalYear: p.periodType === 'annual' ? p.fiscalYear : String(
+          parseInt(p.fiscalYear.replace('FY','')) + (['Q4'].includes(p.quarter ?? '') ? 0 : -1)
+        ),
+      }));
+      return [...fromFY, ...cyNativePeriods]
+        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel));
+    }, [yearStyle, fyPeriods, cyNativePeriods]);
 
     // Unique fiscal years available
     const availableYears = useMemo(() => {
@@ -837,7 +875,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
                   <button key={ys} onClick={() => { setYearStyle(ys); setSelectedYear('all'); }}
                     className="px-3 py-1.5 font-medium transition-colors"
                     style={yearStyle === ys ? { backgroundColor: primaryColor, color: '#fff' } : { color: '#6b7280' }}>
-                    {ys === 'FY' ? 'Indian FY (Apr-Mar)' : 'Calendar Year (Jan-Dec)'}
+                    {ys === 'FY' ? 'Indian FY (Apr-Mar)' : 'Calendar Year (auto-converted from FY)'}
                   </button>
                 ))}
               </div>
@@ -853,8 +891,8 @@ export default function CompanyDrawer({ company, onClose }: Props) {
 
           {periods.length === 0 ? (
             <div className="text-center py-8 rounded-xl border-2 border-dashed border-gray-100">
-              <p className="text-sm text-gray-400">No {yearStyle} data for {company.name}.</p>
-              <p className="text-xs text-gray-300 mt-1">Add data via Portfolio → Fund View or through Master Sheet sync.</p>
+              <p className="text-sm text-gray-400">No data for {company.name} yet.</p>
+              <p className="text-xs text-gray-300 mt-1">Enter as FY (Indian Apr-Mar) — CY view auto-converts. Add via Portfolio Admin → Financial Periods or Master Sheet sync.</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">

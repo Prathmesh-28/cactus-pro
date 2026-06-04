@@ -6,6 +6,7 @@ import {
   runSync, fetchExcelPreview,
   type SyncSource,
 } from '../../lib/api';
+import CsvTemplateLibrary from '../../components/ui/CsvTemplateLibrary';
 
 const ic = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white';
 
@@ -305,6 +306,11 @@ export default function SyncManager() {
           ))}
         </div>
       )}
+
+      {/* ── CSV Template Library ─────────────────────────────────────────────── */}
+      <hr className="border-gray-100" />
+      <CsvTemplateLibrary team="all" />
+      <hr className="border-gray-100" />
 
       {/* Storage explanation */}
       <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 space-y-2">

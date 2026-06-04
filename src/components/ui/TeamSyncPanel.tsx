@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { RefreshCw, Plus, Trash2, ExternalLink, CheckCircle2, AlertCircle, Clock, X, Check } from 'lucide-react';
+import CsvTemplateLibrary from './CsvTemplateLibrary';
 import {
   getSyncSources, createSyncSource, deleteSyncSource,
   runSync, fetchExcelPreview,
@@ -344,6 +345,10 @@ export default function TeamSyncPanel({ team }: Props) {
           ))}
         </div>
       )}
+
+      {/* ── CSV Template Library ─────────────────────────────────────────────── */}
+      <hr className="border-gray-100" />
+      <CsvTemplateLibrary team={team as 'finance' | 'portfolio' | 'investment' | 'operations'} />
     </div>
   );
 }
