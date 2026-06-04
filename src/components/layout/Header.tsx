@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink } from 'lucide-react';
+import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink, RefreshCw } from 'lucide-react';
+import { getSyncSources, runSync } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import RoleSwitcher from './RoleSwitcher';
@@ -29,6 +30,20 @@ export default function Header() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showMailComposer, setShowMailComposer] = useState(false);
   const [showLinkedIn, setShowLinkedIn] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncDone, setSyncDone] = useState(false);
+
+  const handleSyncAll = async () => {
+    setSyncing(true);
+    setSyncDone(false);
+    try {
+      const sources = await getSyncSources();
+      await Promise.all(sources.map(s => runSync(s.id).catch(() => {})));
+      setSyncDone(true);
+      setTimeout(() => setSyncDone(false), 3000);
+    } catch {}
+    setSyncing(false);
+  };
   const profileRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -125,6 +140,21 @@ export default function Header() {
                 <span className="text-[11px] mr-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Role</span>
                 <RoleSwitcher />
               </div>
+
+              {/* Sync All button */}
+              <button
+                onClick={handleSyncAll}
+                disabled={syncing}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
+                style={syncDone
+                  ? { backgroundColor: '#86CA0F', color: '#1C4B42' }
+                  : { backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)' }
+                }
+                title="Sync all SharePoint sources"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'Syncing…' : syncDone ? '✓ Synced' : 'Sync'}
+              </button>
 
               {/* Mail compose button */}
               <button

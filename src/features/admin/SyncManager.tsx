@@ -10,16 +10,96 @@ import CsvTemplateLibrary from '../../components/ui/CsvTemplateLibrary';
 
 const ic = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white';
 
-// Suggested sheet → KV mappings for common Cactus Excel structures
-const SUGGESTED_MAPPINGS = [
-  { label: 'Fund Metrics', kvNamespace: 'finance', kvKey: 'fund_1::fund_metrics' },
-  { label: 'Cash Flows', kvNamespace: 'finance', kvKey: 'fund_1::cash_flows' },
-  { label: 'Fund Expenses', kvNamespace: 'finance', kvKey: 'et:fund_expenses' },
-  { label: 'IM Expenses', kvNamespace: 'finance', kvKey: 'et:im_expenses' },
-  { label: 'Actual vs Budget', kvNamespace: 'finance', kvKey: 'et:im_expenses_actual' },
-  { label: 'Portfolio Snapshot', kvNamespace: 'finance', kvKey: 'pm:Portfolio' },
-  { label: 'Compliance Events', kvNamespace: 'compliance', kvKey: 'events' },
+// Pre-defined source names — picking one auto-wires the sheet mappings
+const PRESET_SOURCES: Array<{
+  name: string;
+  description: string;
+  team: string;
+  sheets: Array<{ sheetName: string; label: string; kvNamespace: string; kvKey: string }>;
+}> = [
+  {
+    name: 'Cactus Master Sheet',
+    description: 'All data — Fund Metrics, Cash Flows, Expenses, Financial Periods, LP Summary',
+    team: 'All Teams',
+    sheets: [
+      { sheetName: 'Fund Metrics',         label: 'Fund Metrics',       kvNamespace: 'finance',   kvKey: 'fund_1::fund_metrics' },
+      { sheetName: 'Cash Flows',           label: 'Cash Flows',         kvNamespace: 'finance',   kvKey: 'fund_1::cash_flows' },
+      { sheetName: 'Fund Expenses',        label: 'Fund Expenses',      kvNamespace: 'finance',   kvKey: 'et:fund_expenses' },
+      { sheetName: 'IM Expenses',          label: 'IM Expenses',        kvNamespace: 'finance',   kvKey: 'et:im_expenses' },
+      { sheetName: 'FY Revenue & Ops',     label: 'Financial Periods',  kvNamespace: 'portfolio', kvKey: 'financial_periods' },
+      { sheetName: 'FY Returns (MOIC-IRR)',label: 'Valuation Log',      kvNamespace: 'finance',   kvKey: 'valuation_log' },
+      { sheetName: 'LP Summary',           label: 'LP Summary',         kvNamespace: 'app',       kvKey: 'lp_summary' },
+      { sheetName: 'Fund Summary',         label: 'Portfolio Snapshot', kvNamespace: 'finance',   kvKey: 'pm:Portfolio' },
+    ],
+  },
+  {
+    name: 'Finance Team Data',
+    description: 'Fund Metrics, Expenses, Capital Calls, Valuation Log',
+    team: 'Finance',
+    sheets: [
+      { sheetName: 'Fund Metrics',   label: 'Fund Metrics',    kvNamespace: 'finance', kvKey: 'fund_1::fund_metrics' },
+      { sheetName: 'Cash Flows',     label: 'Cash Flows',      kvNamespace: 'finance', kvKey: 'fund_1::cash_flows' },
+      { sheetName: 'Fund Expenses',  label: 'Fund Expenses',   kvNamespace: 'finance', kvKey: 'et:fund_expenses' },
+      { sheetName: 'IM Expenses',    label: 'IM Expenses',     kvNamespace: 'finance', kvKey: 'et:im_expenses' },
+      { sheetName: 'Capital Calls',  label: 'Capital Calls',   kvNamespace: 'finance', kvKey: 'capital_calls' },
+      { sheetName: 'Valuation Log',  label: 'Valuation Log',   kvNamespace: 'finance', kvKey: 'valuation_log' },
+    ],
+  },
+  {
+    name: 'Portfolio Team Data',
+    description: 'Financial Periods (FY/CY), Portfolio Updates, Company Health, Founder Contacts',
+    team: 'Portfolio',
+    sheets: [
+      { sheetName: 'FY Revenue & Ops',  label: 'Financial Periods',  kvNamespace: 'portfolio', kvKey: 'financial_periods' },
+      { sheetName: 'Portfolio Updates', label: 'Portfolio Updates',  kvNamespace: 'portfolio', kvKey: 'portfolio_updates' },
+      { sheetName: 'Company Health',    label: 'Health Dashboard',   kvNamespace: 'portfolio', kvKey: 'health_dashboard' },
+      { sheetName: 'Founder Contacts',  label: 'Founder Contacts',   kvNamespace: 'portfolio', kvKey: 'founder_contacts' },
+    ],
+  },
+  {
+    name: 'Investment Team Data',
+    description: 'Deal Pipeline, IC Memos, Reference Checks, Co-investors',
+    team: 'Investment',
+    sheets: [
+      { sheetName: 'Deal Pipeline',    label: 'Deal Pipeline',   kvNamespace: 'investment', kvKey: 'pipeline' },
+      { sheetName: 'IC Memos',         label: 'IC Memos',        kvNamespace: 'investment', kvKey: 'ic_memos' },
+      { sheetName: 'Reference Checks', label: 'Ref Checks',      kvNamespace: 'investment', kvKey: 'ref_checks' },
+      { sheetName: 'Co-investors',     label: 'Co-investors',    kvNamespace: 'investment', kvKey: 'co_investors' },
+    ],
+  },
+  {
+    name: 'Operations Team Data',
+    description: 'Tasks, Meeting Notes, Intro Requests, Recruitment',
+    team: 'Operations',
+    sheets: [
+      { sheetName: 'Tasks',          label: 'Tasks',          kvNamespace: 'operations', kvKey: 'tasks' },
+      { sheetName: 'Meeting Notes',  label: 'Meeting Notes',  kvNamespace: 'operations', kvKey: 'meeting_notes' },
+      { sheetName: 'Intro Requests', label: 'Intro Requests', kvNamespace: 'operations', kvKey: 'intro_requests' },
+      { sheetName: 'Candidates',     label: 'Recruitment',    kvNamespace: 'operations', kvKey: 'recruitment' },
+    ],
+  },
+  {
+    name: 'LP Investors',
+    description: 'LP commitments, called capital, distributions, NAV',
+    team: 'Finance',
+    sheets: [
+      { sheetName: 'LP Summary', label: 'LP Investors', kvNamespace: 'app', kvKey: 'lp_summary' },
+    ],
+  },
+  {
+    name: 'Compliance Calendar',
+    description: 'Regulatory deadlines, compliance events',
+    team: 'Finance',
+    sheets: [
+      { sheetName: 'Compliance Events', label: 'Compliance Events', kvNamespace: 'compliance', kvKey: 'events' },
+    ],
+  },
 ];
+
+// Suggested sheet → KV mappings for common Cactus Excel structures
+const SUGGESTED_MAPPINGS = PRESET_SOURCES.flatMap(s => s.sheets.map(sh => ({
+  label: sh.label, kvNamespace: sh.kvNamespace, kvKey: sh.kvKey,
+})));
 
 interface SheetMapping { sheet: string; kvNamespace: string; kvKey: string; label: string; }
 
@@ -39,7 +119,8 @@ export default function SyncManager() {
   const [syncResult, setSyncResult] = useState<{ id: number; msg: string; ok: boolean } | null>(null);
 
   // New source form
-  const [form, setForm] = useState({ name: '', url: '' });
+  const [selectedPreset, setSelectedPreset] = useState<string>('Cactus Master Sheet');
+  const [form, setForm] = useState({ name: 'Cactus Master Sheet', url: '' });
   const [preview, setPreview] = useState<{ sheets: string[]; rowCounts: Record<string, number> } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState('');
@@ -59,11 +140,21 @@ export default function SyncManager() {
     setPreviewLoading(false);
     if (result.error) { setPreviewError(result.error); return; }
     setPreview({ sheets: result.sheets, rowCounts: result.rowCounts });
-    // Auto-suggest mappings
-    const auto: SheetMapping[] = result.sheets.map(sheet => {
+
+    // Auto-wire from preset first, then fall back to fuzzy match
+    const preset = PRESET_SOURCES.find(ps => ps.name === selectedPreset);
+    const auto: SheetMapping[] = result.sheets.map((sheet: string) => {
+      // Exact match against preset sheet names
+      const presetSheet = preset?.sheets.find(ps =>
+        ps.sheetName.toLowerCase() === sheet.toLowerCase()
+      );
+      if (presetSheet) {
+        return { sheet, kvNamespace: presetSheet.kvNamespace, kvKey: presetSheet.kvKey, label: presetSheet.label };
+      }
+      // Fuzzy fallback
       const suggested = SUGGESTED_MAPPINGS.find(s =>
-        s.label.toLowerCase().includes(sheet.toLowerCase().slice(0, 4)) ||
-        sheet.toLowerCase().includes(s.label.toLowerCase().slice(0, 4))
+        s.label.toLowerCase().includes(sheet.toLowerCase().slice(0, 5)) ||
+        sheet.toLowerCase().includes(s.label.toLowerCase().slice(0, 5))
       );
       return {
         sheet,
@@ -81,7 +172,8 @@ export default function SyncManager() {
     if (src) {
       setSources(prev => [src, ...prev]);
       setCreating(false);
-      setForm({ name: '', url: '' });
+      setForm({ name: 'Cactus Master Sheet', url: '' });
+      setSelectedPreset('Cactus Master Sheet');
       setPreview(null);
       setMappings([]);
     }
@@ -131,14 +223,39 @@ export default function SyncManager() {
             <button onClick={() => setCreating(false)} className="p-1 rounded hover:bg-gray-200 text-gray-400"><X className="w-4 h-4" /></button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-3">
+            {/* Preset source selector */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Source Name</label>
-              <input className={ic} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. Cactus Fund Data FY25" />
+              <label className="block text-xs font-semibold text-gray-600 mb-2">What data are you syncing?</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {PRESET_SOURCES.map(ps => (
+                  <button
+                    key={ps.name}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPreset(ps.name);
+                      setForm(f => ({ ...f, name: ps.name }));
+                    }}
+                    className={`text-left px-3 py-2.5 rounded-lg border text-xs transition-all ${
+                      selectedPreset === ps.name
+                        ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                  >
+                    <p className="font-semibold text-gray-800">{ps.name}</p>
+                    <p className="text-gray-500 mt-0.5 text-[10px]">{ps.description}</p>
+                    <span className="text-[10px] mt-1 inline-block px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{ps.team}</span>
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* URL input */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">SharePoint / OneDrive URL</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                SharePoint / OneDrive URL
+                <span className="ml-1 text-gray-400">(share file → "Anyone with link" → copy link)</span>
+              </label>
               <div className="flex gap-2">
                 <input className={ic + ' flex-1'} value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
                   placeholder="https://yourcompany.sharepoint.com/:x:/s/..." />
