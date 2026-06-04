@@ -1,17 +1,28 @@
 /**
- * localStorage-backed data layer replacing Supabase for the Finance tab.
- * Provides the same hook/function shapes as the original data-hooks.ts and
- * dynamic-tables.ts so the UI components need minimal changes.
+ * KV-backed data layer for the Finance tab.
+ * All data is stored in the 'finance' KV namespace (PostgreSQL via the API server)
+ * so every user sees the same state. No localStorage is used anywhere here.
+ *
+ * Provides the same hook/function shapes as before so UI components are unchanged.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { kvGet, kvSet, kvGetAll } from '../../../lib/api';
 import { getActiveFund } from './fund-context';
 
-// ─── Custom event for cross-component reactivity ─────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const NS = 'finance'; // KV namespace
+
+// ─── Cross-component reactivity (same browser, same session) ─────────────────
+// When we write to KV we also fire a local event so sibling components refresh
+// immediately without waiting for a round-trip.
 
 const EVT = 'fin-store-changed';
-function dispatch(key: string) {
+
+function dispatchLocal(key: string) {
   window.dispatchEvent(new CustomEvent(EVT, { detail: { key } }));
 }
+
 function useListen(keys: string[], cb: () => void) {
   useEffect(() => {
     const h = (e: Event) => {
@@ -23,7 +34,25 @@ function useListen(keys: string[], cb: () => void) {
   }, [keys.join(',')]); // eslint-disable-line
 }
 
-// ─── Types (mirrors dynamic-tables.ts) ───────────────────────────────────────
+// ─── KV helpers ───────────────────────────────────────────────────────────────
+
+async function kvRead<T>(key: string): Promise<T | null> {
+  const v = await kvGet(NS, key);
+  return (v as T) ?? null;
+}
+
+// Debounce writes per key so rapid edits don't flood the server.
+const writeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+function kvWrite(key: string, val: unknown) {
+  dispatchLocal(key); // instant local reactivity
+  if (writeTimers[key]) clearTimeout(writeTimers[key]);
+  writeTimers[key] = setTimeout(() => {
+    kvSet(NS, key, val).catch(() => {});
+    delete writeTimers[key];
+  }, 350);
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type DynColType = 'text' | 'number' | 'date';
 export type DynColumn = { key: string; label: string; type: DynColType };
@@ -44,7 +73,7 @@ export type TableName =
 
 export type SectionKey = 'fund_overview' | 'expenses' | 'investors' | 'available_balances' | 'work_updates';
 
-// ─── Key helpers ─────────────────────────────────────────────────────────────
+// ─── Key helpers ──────────────────────────────────────────────────────────────
 
 function dynKey(fund: string, tableKey: string) {
   return `fin_dyn_${fund}::${tableKey}`;
@@ -56,15 +85,6 @@ function fmvKey(fund: string, rowType: string) {
   return `fin_fmv_${fund}::${rowType}`;
 }
 
-// ─── Raw get/set ──────────────────────────────────────────────────────────────
-
-function lsGet<T>(key: string): T | null {
-  try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch { return null; }
-}
-function lsSet(key: string, val: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(val)); dispatch(key); } catch {}
-}
-
 // ─── genId ────────────────────────────────────────────────────────────────────
 
 export function genId(): string {
@@ -73,7 +93,7 @@ export function genId(): string {
     : `id_${Math.random().toString(36).slice(2)}_${Date.now()}`;
 }
 
-// ─── Auth stub (always can edit) ──────────────────────────────────────────────
+// ─── Auth stub ────────────────────────────────────────────────────────────────
 
 export function useAuth() {
   return {
@@ -97,34 +117,46 @@ export function sectionsForTable(_table: TableName): SectionKey[] { return []; }
 export function useDynamicTable(tableKey: string) {
   const fund = getActiveFund();
   const lk = dynKey(fund, tableKey);
-  const [data, setData] = useState<DynamicShape | null>(() => lsGet(lk));
-  const refresh = useCallback(() => setData(lsGet(lk)), [lk]);
-  useListen([lk], refresh);
-  useEffect(refresh, [fund, tableKey]); // eslint-disable-line
+  const [data, setData] = useState<DynamicShape | null>(null);
+
+  const refresh = useCallback(async () => {
+    const d = await kvRead<DynamicShape>(lk);
+    setData(d);
+  }, [lk]);
+
+  useListen([lk], () => { void refresh(); });
+  useEffect(() => { void refresh(); }, [fund, tableKey]); // eslint-disable-line
+
   return { data };
 }
 
 export function useDynamicTablesByPrefix(prefix: string) {
   const fund = getActiveFund();
-  const [sheets, setSheets] = useState<DynamicShape[]>(() => scanPrefix(fund, prefix));
-  const refresh = useCallback(() => setSheets(scanPrefix(fund, prefix)), [fund, prefix]);
-  useListen([`fin_dyn_${fund}::${prefix}`], refresh);
-  return { data: sheets };
-}
+  const [sheets, setSheets] = useState<DynamicShape[]>([]);
+  const isLoading = useRef(false);
 
-function scanPrefix(fund: string, prefix: string): DynamicShape[] {
-  const fullPrefix = `fin_dyn_${fund}::${prefix}`;
-  const out: DynamicShape[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith(fullPrefix)) {
-      const d = lsGet<DynamicShape>(k);
-      if (d) {
-        out.push({ ...d, table_key: k.replace(`fin_dyn_${fund}::`, '') });
-      }
+  const refresh = useCallback(async () => {
+    if (isLoading.current) return;
+    isLoading.current = true;
+    try {
+      const all = await kvGetAll(NS);
+      const fullPrefix = `fin_dyn_${fund}::${prefix}`;
+      const results: DynamicShape[] = Object.entries(all)
+        .filter(([k]) => k.startsWith(fullPrefix))
+        .map(([k, v]) => {
+          const d = v as DynamicShape;
+          return { ...d, table_key: k.replace(`fin_dyn_${fund}::`, '') };
+        });
+      setSheets(results);
+    } finally {
+      isLoading.current = false;
     }
-  }
-  return out;
+  }, [fund, prefix]);
+
+  useListen([`fin_dyn_${fund}::${prefix}`], () => { void refresh(); });
+  useEffect(() => { void refresh(); }, [fund, prefix]); // eslint-disable-line
+
+  return { data: sheets };
 }
 
 export function useMutateDynamicTable(_section?: SectionKey) {
@@ -133,7 +165,8 @@ export function useMutateDynamicTable(_section?: SectionKey) {
     isPending: false,
     mutateAsync: async (v: { tableKey: string; columns: DynColumn[]; rows: DynRow[] }) => {
       const lk = dynKey(fund, v.tableKey);
-      lsSet(lk, { table_key: v.tableKey, columns: v.columns, rows: v.rows, updated_at: new Date().toISOString() });
+      const shape: DynamicShape = { table_key: v.tableKey, columns: v.columns, rows: v.rows, updated_at: new Date().toISOString() };
+      kvWrite(lk, shape);
     },
   };
 }
@@ -144,7 +177,8 @@ export function useReplaceDynamicTable(_section?: SectionKey) {
     isPending: false,
     mutateAsync: async (v: { tableKey: string; columns: DynColumn[]; rows: DynRow[] }) => {
       const lk = dynKey(fund, v.tableKey);
-      lsSet(lk, { table_key: v.tableKey, columns: v.columns, rows: v.rows, updated_at: new Date().toISOString() });
+      const shape: DynamicShape = { table_key: v.tableKey, columns: v.columns, rows: v.rows, updated_at: new Date().toISOString() };
+      kvWrite(lk, shape);
     },
   };
 }
@@ -155,8 +189,8 @@ export function useDeleteDynamicTable(_section?: SectionKey) {
     isPending: false,
     mutateAsync: async (tableKey: string) => {
       const lk = dynKey(fund, tableKey);
-      localStorage.removeItem(lk);
-      dispatch(lk);
+      await kvSet(NS, lk, null); // null means deleted
+      dispatchLocal(lk);
     },
   };
 }
@@ -166,10 +200,16 @@ export function useDeleteDynamicTable(_section?: SectionKey) {
 export function useTable<T = Record<string, unknown>>(table: TableName) {
   const fund = getActiveFund();
   const lk = tableKey2(fund, table);
-  const [data, setData] = useState<T[]>(() => lsGet<T[]>(lk) ?? []);
-  const refresh = useCallback(() => setData(lsGet<T[]>(lk) ?? []), [lk]);
-  useListen([lk], refresh);
-  useEffect(refresh, [fund, table]); // eslint-disable-line
+  const [data, setData] = useState<T[]>([]);
+
+  const refresh = useCallback(async () => {
+    const d = await kvRead<T[]>(lk);
+    setData(d ?? []);
+  }, [lk]);
+
+  useListen([lk], () => { void refresh(); });
+  useEffect(() => { void refresh(); }, [fund, table]); // eslint-disable-line
+
   return { data, isLoading: false };
 }
 
@@ -187,25 +227,31 @@ export type MetricRow = {
 export function useFundMetricValues(rowType: string) {
   const fund = getActiveFund();
   const lk = fmvKey(fund, rowType);
-  const [data, setData] = useState<MetricRow[]>(() => lsGet<MetricRow[]>(lk) ?? []);
-  const refresh = useCallback(() => setData(lsGet<MetricRow[]>(lk) ?? []), [lk]);
-  useListen([lk], refresh);
-  useEffect(refresh, [fund, rowType]); // eslint-disable-line
+  const [data, setData] = useState<MetricRow[]>([]);
+
+  const refresh = useCallback(async () => {
+    const d = await kvRead<MetricRow[]>(lk);
+    setData(d ?? []);
+  }, [lk]);
+
+  useListen([lk], () => { void refresh(); });
+  useEffect(() => { void refresh(); }, [fund, rowType]); // eslint-disable-line
+
   return { data };
 }
 
-export function upsertFundMetricValue(
+export async function upsertFundMetricValue(
   fund: string, rowType: string, period: string, metricKey: string, value: number | null
 ) {
   const lk = fmvKey(fund, rowType);
-  const rows: MetricRow[] = lsGet<MetricRow[]>(lk) ?? [];
+  const rows: MetricRow[] = (await kvRead<MetricRow[]>(lk)) ?? [];
   const idx = rows.findIndex(r => r.period === period && r.metric_key === metricKey);
   const row: MetricRow = { id: idx >= 0 ? rows[idx].id : genId(), fund, row_type: rowType, period, metric_key: metricKey, value };
   if (idx >= 0) rows[idx] = row; else rows.push(row);
-  lsSet(lk, rows);
+  kvWrite(lk, rows);
 }
 
-// ─── Dynamic table builder helpers (mirrors dynamic-tables.ts) ────────────────
+// ─── Dynamic table builder helpers ───────────────────────────────────────────
 
 export function buildShapeFromAOA(aoa: unknown[][]): { columns: DynColumn[]; rows: DynRow[] } {
   if (!aoa.length) return { columns: [], rows: [] };
@@ -278,10 +324,10 @@ export function useUpsertRow(table: TableName) {
   return {
     isPending: false,
     mutateAsync: async (row: Record<string, unknown>) => {
-      const rows: Record<string, unknown>[] = lsGet(lk) ?? [];
+      const rows: Record<string, unknown>[] = (await kvRead<Record<string, unknown>[]>(lk)) ?? [];
       const idx = rows.findIndex(r => r.id === row.id);
       if (idx >= 0) rows[idx] = { ...rows[idx], ...row }; else rows.push({ ...row, fund });
-      lsSet(lk, rows);
+      kvWrite(lk, rows);
     },
   };
 }
@@ -292,9 +338,9 @@ export function useInsertRow(table: TableName) {
   return {
     isPending: false,
     mutateAsync: async (row: Record<string, unknown>) => {
-      const rows: Record<string, unknown>[] = lsGet(lk) ?? [];
+      const rows: Record<string, unknown>[] = (await kvRead<Record<string, unknown>[]>(lk)) ?? [];
       rows.push({ id: genId(), ...row, fund });
-      lsSet(lk, rows);
+      kvWrite(lk, rows);
     },
   };
 }
@@ -305,8 +351,8 @@ export function useDeleteRow(table: TableName) {
   return {
     isPending: false,
     mutateAsync: async (id: string) => {
-      const rows: Record<string, unknown>[] = lsGet(lk) ?? [];
-      lsSet(lk, rows.filter(r => r.id !== id));
+      const rows: Record<string, unknown>[] = (await kvRead<Record<string, unknown>[]>(lk)) ?? [];
+      kvWrite(lk, rows.filter(r => r.id !== id));
     },
   };
 }
@@ -317,7 +363,7 @@ export function useReplaceTable(table: TableName) {
   return {
     isPending: false,
     mutateAsync: async (rows: Record<string, unknown>[]) => {
-      lsSet(lk, rows.map(r => ({ ...r, fund })));
+      kvWrite(lk, rows.map(r => ({ ...r, fund })));
     },
   };
 }
