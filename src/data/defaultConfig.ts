@@ -1634,6 +1634,48 @@ export const defaultConfig: AppStore = {
         'FY2025','99.8','61%','','','21%','9%','','','',195,'',
         'Active',true,'Lead','FY2027','','3FATE TECH entity. CEO Abhishek Dua.'
       ),
+      // ══════════════════════════════════════════════════════════════════════
+      // CROSS-FUND INVESTMENTS — companies in BOTH Fund 1 AND Fund 2
+      // This happens when Fund 2 does a follow-on in a Fund 1 portfolio company
+      // ══════════════════════════════════════════════════════════════════════
+
+      // c3: LOHUM — Fund 1 did Seed (₹25Cr), Fund 2 co-invested at Series B (₹15Cr)
+      // Fund 1 entry: fi1 (above). This is Fund 2's separate investment in Lohum.
+      inv('fi14','Fund 2','c3',
+        '2023-09-10','Series B',
+        '4400','4500','15','0.33%','Equity',
+        [],  // no further follow-ons from Fund 2 yet
+        '15','0.33%','15.5','4700',
+        '1.03x','38%','0.0x','0.5','0',
+        'FY2025','835','39%','','','46%','18%','10','150','15',520,'',
+        'Active',true,'Follow','FY2026','₹200Cr (pre-IPO)','Fund 2 co-invested at Series B alongside Tata Capital. Combined Cactus holding = 2.92% + 0.33% = 3.25% total.'
+      ),
+
+      // c7: KAPTURE CRM — Fund 1 did Seed (₹5Cr), Fund 2 co-invested at Series A (₹10Cr)
+      // Fund 1 entry: fi6 (above). This is Fund 2's separate stake.
+      inv('fi15','Fund 2','c7',
+        '2022-12-01','Series A',
+        '400','430','10','2.33%','Equity',
+        [],
+        '10','2.33%','10.4','446',
+        '1.04x','38%','0.0x','0.4','0',
+        'FY2025','52','37%','52','4.3','75%','18%','2','35','18',200,'118%',
+        'Active',false,'Co-lead','FY2026','₹30Cr','Fund 2 co-led Series A alongside Fund 1. Combined Cactus = 8.52% + 2.33% = 10.85% total. NRR 118%.'
+      ),
+
+      // c1: BELLATRIX AEROSPACE — Fund 1 did Seed (₹6Cr), Fund 2 LED Series A ($20M)
+      // Fund 1 entry: fi2 (above). Fund 2 was the lead investor in Series A.
+      inv('fi16','Fund 2','c1',
+        '2023-03-01','Series A',
+        '800','840','80','9.52%','Equity',  // ₹80Cr = ~$10M of the $20M round
+        [
+          { id:'fo_c1_f2_1', date:'2026-01-15', round:'Series B Bridge', amount:'15', preMoneyVal:'1100', postMoneyVal:'1130', ownershipPost:'9.1%', leadInvestor:'Cactus Partners', notes:'Fund 2 bridge to Series B ahead of ISRO commercial contracts' },
+        ],
+        '95','9.1%','76.1','836',
+        '0.80x','40%','0.0x','‑18.9','0',
+        'FY2025','1.75','94%','','','','‑70%','4','50','12',72,'',
+        'Active',true,'Lead','FY2027','₹200Cr (Series B)','Fund 2 LED Series A — largest single cheque. Combined Cactus stake = 3.41% (Fund 1) + 9.1% (Fund 2) = 12.51%. Series B targeted FY27.'
+      ),
     ];
   })(),
 
