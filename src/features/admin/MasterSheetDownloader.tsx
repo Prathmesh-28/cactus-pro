@@ -13,10 +13,15 @@ export default function MasterSheetDownloader() {
   const [lastDownloaded, setLastDownloaded] = useState<string | null>(() => localStorage.getItem(LS_KEY));
 
   function handleDownload() {
-    const wb = XLSX.utils.book_new();
-    const companies = store.companies ?? [];
-    const sectors   = store.sectors   ?? [];
-    const lps       = store.lps       ?? [];
+    const wb        = XLSX.utils.book_new();
+    const companies = store.companies        ?? [];
+    const sectors   = store.sectors          ?? [];
+    const lps       = store.lps              ?? [];
+    const periods   = store.financialPeriods ?? [];
+
+    // Lookup helper: find stored period data
+    const findPeriod = (companyId: string, periodLabel: string) =>
+      periods.find(p => p.companyId === companyId && p.periodLabel === periodLabel);
 
     // ════════════════════════════════════════════════════════════════════════
     // SHEET 1: GLOSSARY & FORMULAS
@@ -544,50 +549,37 @@ export default function MasterSheetDownloader() {
       [''],
     ];
     const fyTsRows: (string | number)[][] = [...fyNote, tsColHeaders];
-    // Pre-fill one row per company per pre-built period (blank values, keys filled)
-    const existingFyPeriods = store.financialPeriods?.filter(p => p.yearStyle === 'FY') ?? [];
+    // All periods from FY2023 to FY2027 (annual + quarterly)
+    const allFyPeriods = [
+      'FY2023-Annual',
+      'FY2024-Q1','FY2024-Q2','FY2024-Q3','FY2024-Q4','FY2024-Annual',
+      'FY2025-Q1','FY2025-Q2','FY2025-Q3','FY2025-Q4','FY2025-Annual',
+      'FY2026-Q1','FY2026-Q2','FY2026-Q3','FY2026-Q4','FY2026-Annual',
+      'FY2027-Q1','FY2027-Q2',
+    ];
     companies.forEach(c => {
-      // Only pre-fill periods that have data OR the last 4 quarters + current annual
-      const recentPeriods = ['FY2024-Q3','FY2024-Q4','FY2025-Q1','FY2025-Q2','FY2025-Q3','FY2025-Q4','FY2025-Annual','FY2026-Q1'];
-      recentPeriods.forEach(period => {
+      allFyPeriods.forEach(period => {
         const [fy, qOrAnn] = period.split('-');
         const isAnnual = qOrAnn === 'Annual';
-        const existing = existingFyPeriods.find(p => p.companyId === c.id && p.periodLabel === period);
+        const d = findPeriod(c.id, period);
         fyTsRows.push([
           c.name, c.id, 'FY', period,
           isAnnual ? 'annual' : 'quarterly',
           fy, isAnnual ? '' : qOrAnn,
-          existing?.revenue ?? '',
-          existing?.arr ?? '',
-          existing?.mrr ?? '',
-          existing?.gmv ?? '',
-          existing?.revenueGrowthYoY ?? '',
-          existing?.arrGrowthYoY ?? '',
-          existing?.nrr ?? '',
-          existing?.churnPct ?? '',
-          existing?.grossMarginPct ?? '',
-          existing?.ebitdaMarginPct ?? '',
-          existing?.netMarginPct ?? '',
-          existing?.currentValuation ?? '',
-          existing?.moic ?? '',
-          existing?.irr ?? '',
-          existing?.methodology ?? 'Last Round',
-          existing?.headcount ?? '',
-          existing?.monthlyBurn ?? '',
-          existing?.cash ?? '',
-          existing?.runway ?? '',
-          existing?.cac ?? '',
-          existing?.ltv ?? '',
-          existing?.ltvCacRatio ?? '',
-          existing?.notes ?? '',
-          existing?.source ?? 'Manual',
-          existing?.updatedBy ?? '',
-          existing?.updatedAt ?? '',
+          d?.revenue ?? '',        d?.arr ?? '',           d?.mrr ?? '',         d?.gmv ?? '',
+          d?.revenueGrowthYoY ?? '',d?.arrGrowthYoY ?? '',d?.nrr ?? '',         d?.churnPct ?? '',
+          d?.grossMarginPct ?? '', d?.ebitdaMarginPct ?? '',d?.netMarginPct ?? '',
+          d?.currentValuation ?? '',d?.moic ?? '',         d?.irr ?? '',
+          d?.methodology ?? (d ? 'Last Round' : ''),
+          d?.headcount ?? '',      d?.monthlyBurn ?? '',   d?.cash ?? '',        d?.runway ?? '',
+          d?.cac ?? '',            d?.ltv ?? '',           d?.ltvCacRatio ?? '',
+          d?.notes ?? '',          d?.source ?? (d ? 'Default Data' : ''),
+          d?.updatedBy ?? '',      d?.updatedAt ?? '',
         ]);
       });
     });
-    // Add blank rows for future data entry
-    for (let i = 0; i < 50; i++) fyTsRows.push(Array(tsColHeaders.length).fill(''));
+    // Blank rows for future additions
+    for (let i = 0; i < 30; i++) fyTsRows.push(Array(tsColHeaders.length).fill(''));
 
     const fyTsWs = XLSX.utils.aoa_to_sheet(fyTsRows);
     fyTsWs['!cols'] = w(tsColHeaders.length);
@@ -616,7 +608,7 @@ export default function MasterSheetDownloader() {
       ['FY2023-Annual','FY2024-Q1','FY2024-Q2','FY2024-Q3','FY2024-Q4','FY2024-Annual','FY2025-Q1','FY2025-Q2'].forEach(period => {
         const [fy, qOrAnn] = period.split('-');
         const isAnnual = qOrAnn === 'Annual';
-        const existing = existingFyPeriods.find(p => p.companyId === c.id && p.periodLabel === period);
+        const existing = findPeriod(c.id, period);
         fyRetRows.push([
           c.name, c.id, 'FY', period,
           isAnnual ? 'annual' : 'quarterly', fy, isAnnual ? '' : qOrAnn,

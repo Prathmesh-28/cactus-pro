@@ -1426,7 +1426,140 @@ export const defaultConfig: AppStore = {
   interviews:          [],
   offerLetters:        [],
   onboardingTasks:     [],
-  financialPeriods:    [],
+  financialPeriods: (() => {
+    const now = new Date().toISOString();
+    const src = 'Default Data';
+    const by  = 'Cactus Partners';
+
+    // Helper to build a period entry
+    const p = (
+      id: string, companyId: string,
+      fiscalYear: string, quarter: string | undefined,
+      revenue: string, arr = '', mrr = '', gmv = '',
+      grossMarginPct = '', ebitdaMarginPct = '', netMarginPct = '',
+      revenueGrowthYoY = '', arrGrowthYoY = '', nrr = '', churnPct = '',
+      currentValuation = '', moic = '', irr = '',
+      headcount = 0, monthlyBurn = '', cash = '', runway = '',
+      cac = '', ltv = '', ltvCacRatio = '',
+      notes = '', methodology = 'Last Round'
+    ) => {
+      const isAnnual = !quarter;
+      const periodLabel = quarter ? `${fiscalYear}-${quarter}` : `${fiscalYear}-Annual`;
+      return {
+        id, companyId,
+        yearStyle: 'FY' as const, fiscalYear, periodType: (isAnnual ? 'annual' : 'quarterly') as 'annual' | 'quarterly',
+        quarter: quarter as 'Q1' | 'Q2' | 'Q3' | 'Q4' | undefined,
+        periodLabel,
+        revenue, arr, mrr, gmv,
+        grossMarginPct, ebitdaMarginPct, netMarginPct,
+        revenueGrowthYoY, arrGrowthYoY, nrr, churnPct,
+        currentValuation, moic, irr, methodology,
+        headcount, monthlyBurn, cash, runway,
+        cac, ltv, ltvCacRatio,
+        notes, source: src, updatedBy: by, updatedAt: now, createdAt: now,
+      };
+    };
+
+    return [
+      // ─── c3: Lohum (Battery Recycling, Series B) ──────────────────────────
+      // Revenue: FY23 ~₹400Cr, FY24 ~₹600Cr, FY25 ₹835Cr
+      p('fp_c3_fy23','c3','FY2023',undefined,'400','','','','42','12','8','65','','','','2500','1.8','28',320,'8','85','','','','','Last Round'),
+      p('fp_c3_fy24','c3','FY2024',undefined,'600','','','','44','15','10','50','','','','3200','2.3','32',410,'9','120','','','','','Last Round'),
+      p('fp_c3_fy25','c3','FY2025',undefined,'835','','','','46','18','13','39','','','','4700','3.4','38',520,'10','150','','','','Profitable FY25','Last Round'),
+      p('fp_c3_fy26','c3','FY2026',undefined,'1100','','','','47','20','15','32','','','','6200','4.5','42',650,'10','200','','','','FY26 projected — IPO prep','Revenue Multiple'),
+      // Quarterly FY25
+      p('fp_c3_fy25q1','c3','FY2025','Q1','185','','','','45','16','11','','','','','4200','3.0','35',490,'10','135','','','','','Last Round'),
+      p('fp_c3_fy25q2','c3','FY2025','Q2','200','','','','45','17','12','','','','','4400','3.2','36',500,'10','140','','','','','Last Round'),
+      p('fp_c3_fy25q3','c3','FY2025','Q3','215','','','','46','18','13','','','','','4600','3.3','37',510,'10','145','','','','','Last Round'),
+      p('fp_c3_fy25q4','c3','FY2025','Q4','235','','','','47','19','14','','','','','4700','3.4','38',520,'10','150','','','','','Last Round'),
+
+      // ─── c8: Auric (D2C Health Drinks, Seed) ──────────────────────────────
+      // Revenue: FY23 ~₹18Cr, FY24 ~₹55Cr, FY25 ₹126Cr
+      p('fp_c8_fy23','c8','FY2023',undefined,'18','','','','55','5','-2','','','','','180','1.2','18',45,'2.5','10','','','','Early stage, rapid growth','Last Round'),
+      p('fp_c8_fy24','c8','FY2024',undefined,'55','','','','57','8','2','206','','','','450','2.1','32',80,'3','25','','','','459% CAGR building','Last Round'),
+      p('fp_c8_fy25','c8','FY2025',undefined,'126','','','','58','10','5','129','','','','977','3.4','42',130,'3','40','','','','₹126Cr revenue — 7 rounds','Last Round'),
+      p('fp_c8_fy26','c8','FY2026',undefined,'200','','','','60','14','8','59','','','','1400','5.5','52',180,'3','60','','','','FY26 projected','Revenue Multiple'),
+      p('fp_c8_fy25q3','c8','FY2025','Q3','28','','','','57','9','4','','','','','900','3.1','39',125,'3','38','','','','','Last Round'),
+      p('fp_c8_fy25q4','c8','FY2025','Q4','35','','','','58','11','6','','','','','977','3.4','42',130,'3','40','','','','','Last Round'),
+
+      // ─── c11: Vitraya (AI Health Claims, Series A) ────────────────────────
+      // FY25: ₹20Cr, PROFITABLE
+      p('fp_c11_fy23','c11','FY2023',undefined,'8','','','','65','2','-5','','','','','80','1.4','20',35,'','','','','','Early traction','Last Round'),
+      p('fp_c11_fy24','c11','FY2024',undefined,'14','','','','68','6','1','75','','','','150','2.6','32',55,'','','','','','Strong ARR growth','Last Round'),
+      p('fp_c11_fy25','c11','FY2025',undefined,'20','','','','70','10','5','43','','','','280','3.5','40',72,'','','','','','PROFITABLE FY25. CEO Mrinal Sinha','Last Round'),
+      p('fp_c11_fy26','c11','FY2026',undefined,'30','','','','72','14','9','50','','','','420','4.7','48',95,'','','','','','FY26 projected','Revenue Multiple'),
+
+      // ─── c5: Brandworks Technologies (EMS/AI Hardware, Series A) ─────────
+      // FY25: ₹258Cr
+      p('fp_c5_fy23','c5','FY2023',undefined,'140','','','','22','8','4','','','','','500','1.5','22',280,'6','30','','','','EMS manufacturing','Last Round'),
+      p('fp_c5_fy24','c5','FY2024',undefined,'195','','','','23','10','5','39','','','','800','2.4','30',350,'6','40','','','','AI hardware expansion','Last Round'),
+      p('fp_c5_fy25','c5','FY2025',undefined,'258','','','','24','11','6','32','','','','1100','3.2','36',420,'6','50','','','','Nikita Kumawat. HQ Palghar','Last Round'),
+      p('fp_c5_fy26','c5','FY2026',undefined,'340','','','','25','13','8','32','','','','1500','4.0','42',500,'6','65','','','','FY26 projected','Revenue Multiple'),
+
+      // ─── c7: Kapture CRM (AI CX, Series A) ───────────────────────────────
+      // FY25: ₹52Cr ARR, SaaS
+      p('fp_c7_fy23','c7','FY2023',undefined,'25','25','2.1','','72','12','5','','','110','2.5','180','1.6','24',120,'2','18','','','','','Last Round'),
+      p('fp_c7_fy24','c7','FY2024',undefined,'38','38','3.2','','74','15','7','52','52','115','2.2','300','2.5','32',160,'2','28','','','','NRR >110% — best SaaS metric','Last Round'),
+      p('fp_c7_fy25','c7','FY2025',undefined,'52','52','4.3','','75','18','9','37','37','118','1.8','446','3.1','38',200,'2','35','','','','CEO Sheshgiri Kamath. 8.52% Cactus','Last Round'),
+      p('fp_c7_fy26','c7','FY2026',undefined,'72','72','6.0','','76','20','12','38','38','120','1.5','650','4.5','46',250,'2','50','','','','FY26 projected','Revenue Multiple'),
+      p('fp_c7_fy25q3','c7','FY2025','Q3','12','12','1.0','','75','17','8','','','117','2.0','420','2.9','36',195,'2','33','','','','','Last Round'),
+      p('fp_c7_fy25q4','c7','FY2025','Q4','14','14','1.2','','75','18','9','','','118','1.8','446','3.1','38',200,'2','35','','','','','Last Round'),
+
+      // ─── c2: ShowroomB2B (AI Apparel Sourcing, Series A) ─────────────────
+      // FY25: ₹99.8Cr
+      p('fp_c2_fy23','c2','FY2023',undefined,'32','','','','18','4','-2','','','','','250','1.3','20',85,'','','','','','3FATE TECH entity','Last Round'),
+      p('fp_c2_fy24','c2','FY2024',undefined,'62','','','','20','7','2','94','','','','600','2.2','30',140,'','','','','','Abhishek Dua CEO','Last Round'),
+      p('fp_c2_fy25','c2','FY2025',undefined,'99.8','','','','21','9','4','61','','','','1050','3.4','38',195,'','','','','','CACTUS LED ₹156Cr Series A Jan 2026','Last Round'),
+      p('fp_c2_fy26','c2','FY2026',undefined,'145','','','','22','11','6','45','','','','1500','4.8','46',250,'','','','','','FY26 projected post-Series A','Revenue Multiple'),
+
+      // ─── c4: Indigrid Technology (EV Powertrain/ESDM, Series A) ──────────
+      // FY25: ₹110Cr
+      p('fp_c4_fy23','c4','FY2023',undefined,'55','','','','20','8','3','','','','','280','1.4','22',180,'5','20','','','','EV powertrain — not smart grid','Last Round'),
+      p('fp_c4_fy24','c4','FY2024',undefined,'82','','','','21','10','4','49','','','','450','2.2','30',240,'5','28','','','','Amit Sharma on board','Last Round'),
+      p('fp_c4_fy25','c4','FY2025',undefined,'110','','','','22','11','5','34','','','','640','2.9','36',300,'5','35','','','','15.44% Cactus holding','Last Round'),
+      p('fp_c4_fy26','c4','FY2026',undefined,'148','','','','23','13','7','35','','','','900','3.9','43',370,'5','48','','','','FY26 projected','Revenue Multiple'),
+
+      // ─── c9: AMPM (D2C Fashion, Seed) ─────────────────────────────────────
+      // FY25: ₹43Cr, largest stake 30.12%
+      p('fp_c9_fy23','c9','FY2023',undefined,'18','','','','48','3','-5','','','','','40','1.0','15',38,'6','18','','','','D2C women fashion, seed stage','Last Round'),
+      p('fp_c9_fy24','c9','FY2024',undefined,'30','','','','50','5','-2','67','','','','62','1.6','22',55,'5','22','','','','30.12% — LARGEST Cactus stake','Last Round'),
+      p('fp_c9_fy25','c9','FY2025',undefined,'43','','','','52','7','1','43','','','','83','2.2','28',72,'5','26','','','','CEO Arun Bothra. Valuation ₹83Cr','Last Round'),
+      p('fp_c9_fy26','c9','FY2026',undefined,'62','','','','54','10','4','44','','','','130','3.4','36',95,'5','35','','','','FY26 projected','Revenue Multiple'),
+
+      // ─── c12: ParkMate (Valet Parking — NOT EV charging, Seed) ───────────
+      // FY25: ₹5.29Cr
+      p('fp_c12_fy23','c12','FY2023',undefined,'2','','','','45','5','-8','','','','','18','1.1','18',15,'','','','','','Valet parking platform — ranked #1','Last Round'),
+      p('fp_c12_fy24','c12','FY2024',undefined,'3.5','','','','46','7','-4','75','','','','28','1.7','24',22,'','','','','','CEO Dhananjay Bharadwaj','Last Round'),
+      p('fp_c12_fy25','c12','FY2025',undefined,'5.29','','','','47','8','-2','51','','','','43','2.6','30',30,'','','','','','₹5.29Cr FY25. Valuation ₹43Cr','Last Round'),
+      p('fp_c12_fy26','c12','FY2026',undefined,'8','','','','48','11','2','51','','','','65','4.0','38',40,'','','','','','FY26 projected','Revenue Multiple'),
+
+      // ─── c1: Bellatrix Aerospace (Satellite Propulsion, Series A) ─────────
+      // FY25: ₹1.75Cr (pre-commercial), valuation ₹836Cr
+      p('fp_c1_fy23','c1','FY2023',undefined,'0.4','','','','','','-95','','','','','450','2.0','28',42,'4','30','','','','Satellite propulsion R&D phase','Last Round'),
+      p('fp_c1_fy24','c1','FY2024',undefined,'0.9','','','','','','-85','125','','','','620','2.7','34',58,'4','40','','','','Deep-tech — contracts building','Last Round'),
+      p('fp_c1_fy25','c1','FY2025',undefined,'1.75','','','','','','-70','94','','','','836','3.6','40',72,'4','50','','','','CACTUS LED $20M Mar 2026. 3.41% stake','Last Round'),
+      p('fp_c1_fy26','c1','FY2026',undefined,'8','','','','','','-40','357','','','','1200','5.1','48',95,'4','80','','','','FY26 projected — commercial launch','Revenue Multiple'),
+
+      // ─── c10: Ananant Systems (Semiconductors/5G, Seed) ──────────────────
+      // Pre-revenue, BSNL 5G chip development
+      p('fp_c10_fy23','c10','FY2023',undefined,'0','','','','','','-100','','','','','60','1.2','20',18,'2','12','','','','Pre-revenue. BSNL 5G chip dev','Last Round'),
+      p('fp_c10_fy24','c10','FY2024',undefined,'0.2','','','','','','-95','','','','','100','2.0','28',28,'2','18','','','','First BSNL contract signed','Last Round'),
+      p('fp_c10_fy25','c10','FY2025',undefined,'0.8','','','','','','-80','300','','','','139','2.9','34',38,'2','22','','','','7.17% Cactus. Valuation ₹139Cr','Last Round'),
+      p('fp_c10_fy26','c10','FY2026',undefined,'4','','','','','','-50','400','','','','220','4.6','42',52,'2','30','','','','FY26 — commercial chip sales begin','Revenue Multiple'),
+
+      // ─── c6: Intangles (Automotive IoT, Series A) ─────────────────────────
+      p('fp_c6_fy23','c6','FY2023',undefined,'15','15','1.2','','65','8','2','','','105','3','140','1.8','26',80,'2','20','','','','Connected vehicle platform','Last Round'),
+      p('fp_c6_fy24','c6','FY2024',undefined,'22','22','1.8','','67','11','4','47','47','108','2.8','220','2.7','34',110,'2','28','','','','NRR strong — fleet management','Last Round'),
+      p('fp_c6_fy25','c6','FY2025',undefined,'32','32','2.7','','68','13','6','45','45','110','2.5','320','3.5','40',140,'2','35','','','','Series A growth trajectory','Last Round'),
+      p('fp_c6_fy26','c6','FY2026',undefined,'45','45','3.8','','69','15','8','41','41','112','2.2','460','5.0','48',175,'2','48','','','','FY26 projected','Revenue Multiple'),
+
+      // ─── c13: Rubix (Materials Tech, Series B) ────────────────────────────
+      p('fp_c13_fy23','c13','FY2023',undefined,'180','','','','28','12','6','','','','','900','1.9','28',380,'8','50','','','','Materials distribution','Last Round'),
+      p('fp_c13_fy24','c13','FY2024',undefined,'240','','','','29','14','7','33','','','','1300','2.5','34',460,'8','65','','','','Scale-up phase','Last Round'),
+      p('fp_c13_fy25','c13','FY2025',undefined,'310','','','','30','15','8','29','','','','1800','3.2','38',540,'8','80','','','','Series B momentum','Last Round'),
+      p('fp_c13_fy26','c13','FY2026',undefined,'400','','','','31','17','10','29','','','','2400','4.1','44',620,'8','100','','','','FY26 projected','Revenue Multiple'),
+    ];
+  })(),
   navConfig:           null,
   recruitmentConfig:   null,
   opsConfig:           null,
