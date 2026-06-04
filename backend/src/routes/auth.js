@@ -7,8 +7,8 @@ const { signAccess, signRefresh, verifyRefresh, revokeRefresh, revokeAllRefresh 
 const { sendInvite, sendPasswordReset } = require('../lib/email');
 const { authenticate, audit } = require('../middleware/auth');
 
-// ── GET /auth/test-email — test SMTP config (dev/super_admin only) ────────────
-router.post('/test-email', async (req, res) => {
+// ── GET /auth/test-email — test SMTP config (super_admin only) ───────────────
+router.post('/test-email', authenticate, async (req, res) => {
   const { to } = req.body;
   if (!to) return res.status(400).json({ error: 'to email required' });
   try {

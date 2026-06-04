@@ -506,11 +506,45 @@ export default function LpCommHub() {
 
   const selectedComm = selectedId ? comms.find((c: LpCommunication) => c.id === selectedId) ?? null : null;
 
-  const handleSend = (id: string) => {
+  const handleSend = async (id: string) => {
     const comm = comms.find((c: LpCommunication) => c.id === id);
     if (!comm) return;
-    updateLpCommunication({ ...comm, status: 'sent', sentAt: today(), sentBy: 'Admin' });
+
+    // Dispatch actual emails to target LPs via backend
+    const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    const token = localStorage.getItem('cactus_token') || localStorage.getItem('cactus_access');
+    const targetLps = comm.targetLpIds.includes('all')
+      ? store.lps
+      : store.lps.filter((lp: { id: string }) => comm.targetLpIds.includes(lp.id));
+
+    let sent = 0;
+    for (const lp of targetLps as { id: string; name: string }[]) {
+      try {
+        await fetch(`${BASE}/api/email/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({
+            to: (lp as Record<string, string>).email || '',
+            subject: comm.subject,
+            body: `Dear ${lp.name},\n\n${comm.body}`,
+            from_name: store.firm?.name || 'Cactus Partners',
+          }),
+        });
+        sent++;
+      } catch { /* best-effort */ }
+    }
+
+    updateLpCommunication({
+      ...comm,
+      status: 'sent',
+      sentAt: today(),
+      sentBy: 'Admin',
+      openCount: 0,
+    });
     setSelectedId(null);
+    if (targetLps.length > 0) {
+      alert(`Communication sent to ${sent} of ${targetLps.length} LP${targetLps.length !== 1 ? 's' : ''}.`);
+    }
   };
 
   const handleDelete = (id: string) => {

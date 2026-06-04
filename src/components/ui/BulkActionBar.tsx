@@ -39,7 +39,7 @@ export default function BulkActionBar({ count, total, actions, onClear, onSelect
           display: 'flex',
           alignItems: 'center',
           gap: 12,
-          padding: '12px 24px',
+          padding: '12px 24px env(safe-area-inset-bottom, 12px)',
           flexWrap: 'wrap',
         }}
       >
