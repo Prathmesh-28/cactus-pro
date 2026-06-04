@@ -5,6 +5,7 @@ import { generateId } from '../../lib/utils';
 import type { LP } from '../../data/types';
 import { useBulkSelect } from '../../hooks/useBulkSelect';
 import BulkActionBar from '../../components/ui/BulkActionBar';
+import TableActions from '../../components/ui/TableActions';
 
 // ─── Blank form shape ─────────────────────────────────────────────────────────
 type LpForm = Omit<LP, 'id'>;
@@ -422,6 +423,14 @@ export default function LpManager() {
 
       {/* ── CSV Upload ──────────────────────────────────────────────────────── */}
       <CsvUploadSection primaryColor={firm.primaryColor} onImport={handleCsvImport} />
+
+      {/* ── Export / Import via TableActions ───────────────────────────────── */}
+      <TableActions
+        label="LP Investors"
+        headers={['LP Name', 'Commitment', 'Called', 'Distributed', 'NAV']}
+        rows={lps.map(lp => [lp.name, lp.commitment, lp.called, lp.distributed, lp.nav])}
+        onImport={rows => rows.forEach(r => addLP({ id: generateId(), name: r['LP Name'] ?? '', commitment: r['Commitment'] ?? '', called: r['Called'] ?? '', distributed: r['Distributed'] ?? '', nav: r['NAV'] ?? '' }))}
+      />
 
       {/* ── Bulk Action Bar ─────────────────────────────────────────────────── */}
       {bulk.count > 0 && (
