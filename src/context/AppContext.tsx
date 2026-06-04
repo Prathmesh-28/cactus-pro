@@ -14,6 +14,7 @@ import type {
   IntroRequest, LpCommunication, LpCommitment, FirmEvent,
   ResearchDocument, FounderPortalAccess,
   JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
+  CompanyFinancialPeriod,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -97,6 +98,11 @@ interface AppContextValue {
   addInterview: (x: Interview) => void; updateInterview: (x: Interview) => void; deleteInterview: (id: string) => void;
   addOfferLetter: (x: OfferLetter) => void; updateOfferLetter: (x: OfferLetter) => void; deleteOfferLetter: (id: string) => void;
   addOnboardingTask: (x: OnboardingTask) => void; updateOnboardingTask: (x: OnboardingTask) => void; deleteOnboardingTask: (id: string) => void;
+  // Financial time series
+  addFinancialPeriod: (x: CompanyFinancialPeriod) => void;
+  updateFinancialPeriod: (x: CompanyFinancialPeriod) => void;
+  deleteFinancialPeriod: (id: string) => void;
+  upsertFinancialPeriod: (x: CompanyFinancialPeriod) => void; // add or update by composite key
 
   // Config sections
   updateDealStages: (stages: DealStageConfig[]) => void;
@@ -293,6 +299,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateOnboardingTask = (x: OnboardingTask) => setStore(s => ({ ...s, onboardingTasks: (s.onboardingTasks??[]).map((i:any)=>i.id===x.id?x:i) }));
   const deleteOnboardingTask = (id: string) => setStore(s => ({ ...s, onboardingTasks: (s.onboardingTasks??[]).filter((i:any)=>i.id!==id) }));
 
+  // ── Financial Time Series ─────────────────────────────────────────────────
+  const addFinancialPeriod    = (x: CompanyFinancialPeriod) => setStore(s => ({ ...s, financialPeriods: [...(s.financialPeriods??[]), x] }));
+  const updateFinancialPeriod = (x: CompanyFinancialPeriod) => setStore(s => ({ ...s, financialPeriods: (s.financialPeriods??[]).map((i:any) => i.id===x.id ? x : i) }));
+  const deleteFinancialPeriod = (id: string) => setStore(s => ({ ...s, financialPeriods: (s.financialPeriods??[]).filter((i:any) => i.id!==id) }));
+  // Upsert by composite key: companyId + yearStyle + fiscalYear + quarter + periodType
+  const upsertFinancialPeriod = (x: CompanyFinancialPeriod) => setStore(s => {
+    const key = (p: CompanyFinancialPeriod) =>
+      `${p.companyId}__${p.yearStyle}__${p.fiscalYear}__${p.periodType}__${p.quarter ?? 'annual'}`;
+    const existing = (s.financialPeriods??[]).find((p: any) => key(p) === key(x));
+    if (existing) {
+      return { ...s, financialPeriods: (s.financialPeriods??[]).map((p: any) => key(p) === key(x) ? { ...p, ...x, id: p.id } : p) };
+    }
+    return { ...s, financialPeriods: [...(s.financialPeriods??[]), x] };
+  });
+
   // ── New config sections ──────────────────────────────────────────────────
   const updateDealStages       = (stages: DealStageConfig[])      => setStore(s => ({ ...s, dealStages: stages }));
   const updateKpiThresholds    = (t: KpiThresholds)               => setStore(s => ({ ...s, kpiThresholds: t }));
@@ -350,6 +371,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addInterview, updateInterview, deleteInterview,
     addOfferLetter, updateOfferLetter, deleteOfferLetter,
     addOnboardingTask, updateOnboardingTask, deleteOnboardingTask,
+    addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,

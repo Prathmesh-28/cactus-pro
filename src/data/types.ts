@@ -389,6 +389,74 @@ export interface AppStore {
   interviews:          Interview[];
   offerLetters:        OfferLetter[];
   onboardingTasks:     OnboardingTask[];
+  // ── Financial Time Series ─────────────────────────────────────────────────
+  financialPeriods:    CompanyFinancialPeriod[];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FINANCIAL TIME-SERIES TYPES
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type YearStyle  = 'FY' | 'CY';          // FY = Indian Apr-Mar, CY = Jan-Dec
+export type PeriodType = 'quarterly' | 'annual';
+export type FYQuarter  = 'Q1' | 'Q2' | 'Q3' | 'Q4';
+
+// Indian FY quarter months: Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar
+// Calendar year quarters:   Q1=Jan-Mar, Q2=Apr-Jun, Q3=Jul-Sep, Q4=Oct-Dec
+
+export interface CompanyFinancialPeriod {
+  id: string;
+  companyId: string;
+
+  // Period identity — composite key: companyId + yearStyle + fiscalYear + quarter
+  yearStyle:   YearStyle;    // 'FY' | 'CY'
+  fiscalYear:  string;       // 'FY2024' or '2024'
+  periodType:  PeriodType;
+  quarter?:    FYQuarter;    // undefined for annual rows
+
+  // Derived label e.g. "FY2024-Q1", "FY2024-Annual", "2024-Q3", "2024-Annual"
+  periodLabel: string;
+
+  // ── Revenue metrics (₹ Cr) ────────────────────────────────────────────────
+  revenue:        string;   // Total revenue
+  arr:            string;   // Annual Recurring Revenue (SaaS/subscription)
+  mrr:            string;   // Monthly Recurring Revenue
+  gmv:            string;   // Gross Merchandise Value (marketplace)
+
+  // ── Profitability (%) ─────────────────────────────────────────────────────
+  grossMarginPct: string;
+  ebitdaMarginPct: string;
+  netMarginPct:   string;
+
+  // ── Growth (%) ───────────────────────────────────────────────────────────
+  revenueGrowthYoY: string;  // vs same quarter prior year
+  arrGrowthYoY:     string;
+  nrr:              string;  // Net Revenue Retention %
+  churnPct:         string;  // Monthly churn %
+
+  // ── Returns (calculated / marked) ────────────────────────────────────────
+  currentValuation: string;  // ₹Cr FMV at end of period
+  moic:             string;  // x
+  irr:              string;  // % (cumulative IRR to end of period)
+  methodology:      string;  // How valuation was determined
+
+  // ── Operations ───────────────────────────────────────────────────────────
+  headcount:        number;
+  monthlyBurn:      string;  // ₹Cr
+  cash:             string;  // ₹Cr
+  runway:           string;  // months
+
+  // ── Unit economics ────────────────────────────────────────────────────────
+  cac:              string;  // Customer Acquisition Cost ₹
+  ltv:              string;  // Lifetime Value ₹
+  ltvCacRatio:      string;  // calculated
+
+  // ── Metadata ─────────────────────────────────────────────────────────────
+  notes:            string;
+  source:           string;  // 'Manual' | 'Excel Sync' | 'GNews'
+  updatedBy:        string;
+  updatedAt:        string;
+  createdAt:        string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -465,6 +465,231 @@ export default function MasterSheetDownloader() {
     summaryWs['!cols'] = [{ wch: 35 }, { wch: 25 }, { wch: 40 }];
     XLSX.utils.book_append_sheet(wb, summaryWs, 'Fund Summary');
 
+    // ════════════════════════════════════════════════════════════════════════
+    // TIME-SERIES SHEETS (long-format — rows accumulate, never restructure)
+    // ════════════════════════════════════════════════════════════════════════
+
+    // Generate all FY and CY periods from FY2021 to FY2027
+    const FY_YEARS  = ['FY2021','FY2022','FY2023','FY2024','FY2025','FY2026','FY2027'];
+    const CY_YEARS  = ['2021','2022','2023','2024','2025','2026','2027'];
+    const QUARTERS  = ['Q1','Q2','Q3','Q4'];
+
+    // Build all period labels (annual + quarterly) for FY
+    const fyPeriods: string[] = [];
+    FY_YEARS.forEach(fy => {
+      fyPeriods.push(`${fy}-Annual`);
+      QUARTERS.forEach(q => fyPeriods.push(`${fy}-${q}`));
+    });
+    const cyPeriods: string[] = [];
+    CY_YEARS.forEach(cy => {
+      cyPeriods.push(`${cy}-Annual`);
+      QUARTERS.forEach(q => cyPeriods.push(`${cy}-${q}`));
+    });
+
+    const tsColHeaders = [
+      'Company Name',           // A — KEY (do not change)
+      'Company ID',             // B — KEY (do not change)
+      'Year Style',             // C — FY or CY (KEY)
+      'Period',                 // D — e.g. FY2024-Q1 (KEY)
+      'Period Type',            // E — quarterly / annual
+      'Fiscal Year',            // F — FY2024 / 2024
+      'Quarter',                // G — Q1/Q2/Q3/Q4 / blank for annual
+      // Revenue
+      'Revenue (₹Cr)',          // H
+      'ARR (₹Cr)',              // I  — Annual Recurring Revenue
+      'MRR (₹Cr)',              // J  — Monthly Recurring Revenue
+      'GMV (₹Cr)',              // K  — Gross Merchandise Value
+      // Growth
+      'Revenue Growth YoY %',   // L
+      'ARR Growth YoY %',       // M
+      'NRR %',                  // N  — Net Revenue Retention
+      'Churn % (monthly)',      // O
+      // Margins
+      'Gross Margin %',         // P
+      'EBITDA Margin %',        // Q
+      'Net Margin %',           // R
+      // Returns
+      'Valuation FMV (₹Cr)',    // S  — Fair Market Value at period end
+      'MOIC',                   // T
+      'IRR %',                  // U  — cumulative IRR to this period
+      'Valuation Methodology',  // V
+      // Operations
+      'Headcount',              // W
+      'Monthly Burn (₹Cr)',     // X
+      'Cash Balance (₹Cr)',     // Y
+      'Runway (months)',        // Z
+      // Unit Economics
+      'CAC (₹)',                // AA
+      'LTV (₹)',                // AB
+      'LTV:CAC',                // AC
+      // Meta
+      'Notes',                  // AD
+      'Source',                 // AE — Manual / Excel Sync
+      'Updated By',             // AF
+      'Updated At',             // AG
+    ];
+
+    // ── SHEET: FY Revenue & Operations (Indian Financial Year Apr-Mar) ────────
+    // FY Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar
+    const fyNote = [
+      ['INDIAN FINANCIAL YEAR TIME SERIES — FY Revenue & Operations'],
+      [''],
+      ['HOW TO USE:'],
+      ['• Year Style = FY (Indian Financial Year: April to March)'],
+      ['• FY Quarter: Q1=Apr-Jun | Q2=Jul-Sep | Q3=Oct-Dec | Q4=Jan-Mar'],
+      ['• Each row = one company + one period. ADD new rows at the bottom — never delete old ones.'],
+      ['• Composite KEY = Company ID + Year Style + Period (columns B+C+D). Do not change these.'],
+      ['• SYNC: Save this file to SharePoint → Admin → Data Sync → Sync Now'],
+      ['• CONFLICT RULE: Only one person edits this sheet at a time. Use CY sheet for calendar year.'],
+      [''],
+    ];
+    const fyTsRows: (string | number)[][] = [...fyNote, tsColHeaders];
+    // Pre-fill one row per company per pre-built period (blank values, keys filled)
+    const existingFyPeriods = store.financialPeriods?.filter(p => p.yearStyle === 'FY') ?? [];
+    companies.forEach(c => {
+      // Only pre-fill periods that have data OR the last 4 quarters + current annual
+      const recentPeriods = ['FY2024-Q3','FY2024-Q4','FY2025-Q1','FY2025-Q2','FY2025-Q3','FY2025-Q4','FY2025-Annual','FY2026-Q1'];
+      recentPeriods.forEach(period => {
+        const [fy, qOrAnn] = period.split('-');
+        const isAnnual = qOrAnn === 'Annual';
+        const existing = existingFyPeriods.find(p => p.companyId === c.id && p.periodLabel === period);
+        fyTsRows.push([
+          c.name, c.id, 'FY', period,
+          isAnnual ? 'annual' : 'quarterly',
+          fy, isAnnual ? '' : qOrAnn,
+          existing?.revenue ?? '',
+          existing?.arr ?? '',
+          existing?.mrr ?? '',
+          existing?.gmv ?? '',
+          existing?.revenueGrowthYoY ?? '',
+          existing?.arrGrowthYoY ?? '',
+          existing?.nrr ?? '',
+          existing?.churnPct ?? '',
+          existing?.grossMarginPct ?? '',
+          existing?.ebitdaMarginPct ?? '',
+          existing?.netMarginPct ?? '',
+          existing?.currentValuation ?? '',
+          existing?.moic ?? '',
+          existing?.irr ?? '',
+          existing?.methodology ?? 'Last Round',
+          existing?.headcount ?? '',
+          existing?.monthlyBurn ?? '',
+          existing?.cash ?? '',
+          existing?.runway ?? '',
+          existing?.cac ?? '',
+          existing?.ltv ?? '',
+          existing?.ltvCacRatio ?? '',
+          existing?.notes ?? '',
+          existing?.source ?? 'Manual',
+          existing?.updatedBy ?? '',
+          existing?.updatedAt ?? '',
+        ]);
+      });
+    });
+    // Add blank rows for future data entry
+    for (let i = 0; i < 50; i++) fyTsRows.push(Array(tsColHeaders.length).fill(''));
+
+    const fyTsWs = XLSX.utils.aoa_to_sheet(fyTsRows);
+    fyTsWs['!cols'] = w(tsColHeaders.length);
+    XLSX.utils.book_append_sheet(wb, fyTsWs, 'FY Revenue & Ops');
+
+    // ── SHEET: FY Returns (Valuation / MOIC / IRR quarterly marks) ───────────
+    const fyRetNote = [
+      ['INDIAN FINANCIAL YEAR — Quarterly Valuation Marks (MOIC / IRR)'],
+      [''],
+      ['HOW TO USE:'],
+      ['• Mark fair market value at the END of each quarter for each company.'],
+      ['• Portfolio team owns this sheet — finance team owns FY Revenue & Ops.'],
+      ['• Add rows at the bottom for new periods. Never delete historical marks.'],
+      [''],
+    ];
+    const fyRetHeaders = [
+      'Company Name', 'Company ID', 'Year Style', 'Period', 'Period Type',
+      'Fiscal Year', 'Quarter',
+      'Pre-Money Val at Entry (₹Cr)', 'Investment Amount (₹Cr)', 'Cactus Ownership %',
+      'FMV at Period End (₹Cr)', 'MOIC', 'IRR %',
+      'Valuation Methodology', 'Lead Round', 'New Round Size (₹Cr)',
+      'Notes', 'Marked By', 'Marked At',
+    ];
+    const fyRetRows: (string | number)[][] = [...fyRetNote, fyRetHeaders];
+    companies.forEach(c => {
+      ['FY2023-Annual','FY2024-Q1','FY2024-Q2','FY2024-Q3','FY2024-Q4','FY2024-Annual','FY2025-Q1','FY2025-Q2'].forEach(period => {
+        const [fy, qOrAnn] = period.split('-');
+        const isAnnual = qOrAnn === 'Annual';
+        const existing = existingFyPeriods.find(p => p.companyId === c.id && p.periodLabel === period);
+        fyRetRows.push([
+          c.name, c.id, 'FY', period,
+          isAnnual ? 'annual' : 'quarterly', fy, isAnnual ? '' : qOrAnn,
+          '',
+          c.cactusInvestment || '',
+          existing?.moic ? '' : (c.ownershipPct || ''),
+          existing?.currentValuation ?? (c.currentValuation || ''),
+          existing?.moic ?? (c.moic || ''),
+          existing?.irr  ?? (c.irr  || ''),
+          existing?.methodology ?? 'Last Round',
+          '', '',
+          existing?.notes ?? '', existing?.updatedBy ?? '', existing?.updatedAt ?? '',
+        ]);
+      });
+    });
+    for (let i = 0; i < 30; i++) fyRetRows.push(Array(fyRetHeaders.length).fill(''));
+
+    const fyRetWs = XLSX.utils.aoa_to_sheet(fyRetRows);
+    fyRetWs['!cols'] = w(fyRetHeaders.length);
+    XLSX.utils.book_append_sheet(wb, fyRetWs, 'FY Returns (MOIC-IRR)');
+
+    // ── SHEET: CY Revenue (Calendar Year Jan-Dec) ─────────────────────────────
+    const cyNote = [
+      ['CALENDAR YEAR TIME SERIES — CY Revenue & Operations (Jan-Dec)'],
+      [''],
+      ['HOW TO USE:'],
+      ['• Year Style = CY (Calendar Year: January to December)'],
+      ['• CY Quarter: Q1=Jan-Mar | Q2=Apr-Jun | Q3=Jul-Sep | Q4=Oct-Dec'],
+      ['• Use this sheet if your company reports in calendar year instead of Indian FY.'],
+      ['• Same composite KEY rule: Company ID + CY + Period.'],
+      [''],
+    ];
+    const cyTsRows: (string | number)[][] = [...cyNote, tsColHeaders];
+    const existingCyPeriods = store.financialPeriods?.filter(p => p.yearStyle === 'CY') ?? [];
+    companies.forEach(c => {
+      ['2023-Annual','2024-Q1','2024-Q2','2024-Q3','2024-Q4','2024-Annual','2025-Q1','2025-Q2'].forEach(period => {
+        const [cy, qOrAnn] = period.split('-');
+        const isAnnual = qOrAnn === 'Annual';
+        const existing = existingCyPeriods.find(p => p.companyId === c.id && p.periodLabel === period);
+        cyTsRows.push([
+          c.name, c.id, 'CY', period,
+          isAnnual ? 'annual' : 'quarterly', cy, isAnnual ? '' : qOrAnn,
+          existing?.revenue ?? '', existing?.arr ?? '', existing?.mrr ?? '',
+          existing?.gmv ?? '', existing?.revenueGrowthYoY ?? '', existing?.arrGrowthYoY ?? '',
+          existing?.nrr ?? '', existing?.churnPct ?? '',
+          existing?.grossMarginPct ?? '', existing?.ebitdaMarginPct ?? '', existing?.netMarginPct ?? '',
+          existing?.currentValuation ?? '', existing?.moic ?? '', existing?.irr ?? '',
+          existing?.methodology ?? 'Last Round',
+          existing?.headcount ?? '', existing?.monthlyBurn ?? '',
+          existing?.cash ?? '', existing?.runway ?? '',
+          existing?.cac ?? '', existing?.ltv ?? '', existing?.ltvCacRatio ?? '',
+          existing?.notes ?? '', existing?.source ?? 'Manual',
+          existing?.updatedBy ?? '', existing?.updatedAt ?? '',
+        ]);
+      });
+    });
+    for (let i = 0; i < 30; i++) cyTsRows.push(Array(tsColHeaders.length).fill(''));
+
+    const cyTsWs = XLSX.utils.aoa_to_sheet(cyTsRows);
+    cyTsWs['!cols'] = w(tsColHeaders.length);
+    XLSX.utils.book_append_sheet(wb, cyTsWs, 'CY Revenue & Ops');
+
+    // ── SHEET: Periods Reference (all valid period labels) ────────────────────
+    const refRows: string[][] = [
+      ['VALID PERIOD LABELS — Copy from this sheet into Period column'],
+      [''],
+      ['FY Periods (Indian Apr-Mar)', '', 'CY Periods (Calendar Jan-Dec)'],
+      ...fyPeriods.map((fy, i) => [fy, '', cyPeriods[i] ?? '']),
+    ];
+    const refWs = XLSX.utils.aoa_to_sheet(refRows);
+    refWs['!cols'] = [{ wch: 25 }, { wch: 5 }, { wch: 25 }];
+    XLSX.utils.book_append_sheet(wb, refWs, 'Period Reference');
+
     // ── Download ──────────────────────────────────────────────────────────────
     const today = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(wb, `Cactus_MasterSheet_${today}.xlsx`);
