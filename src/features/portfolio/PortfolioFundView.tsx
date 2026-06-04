@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   Plus, Edit2, Trash2, ChevronDown, ChevronUp, X, TrendingUp,
   DollarSign, BarChart2, CheckCircle, ArrowRight, Info,
-  Building2, Save, AlertTriangle, Check,
+  Save, AlertTriangle, Check,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -729,16 +729,32 @@ export default function PortfolioFundView() {
     });
   }, [investments, selectedFund]);
 
-  // Top-level stats (all funds)
+  // ── Fund Overview calculations (from portfolioFundView) ──────────────────
   const totalAUM       = investments.reduce((s, i) => s + n(i.currentFMV), 0);
   const totalInvested  = investments.reduce((s, i) => s + n(i.totalInvested), 0);
   const blendedMoic    = totalInvested > 0 ? totalAUM / totalInvested : 0;
   const blendedIrr     = investments.length
     ? investments.reduce((s, i) => s + n(i.irr) * n(i.totalInvested), 0) / (totalInvested || 1)
     : 0;
-  const activeCount    = investments.filter(i => i.status === 'Active').length;
-  const exitedCount    = investments.filter(i => i.status === 'Exited').length;
+  void investments; // const _activeCount = investments.filter(i => i.status === 'Active').length;
+  
   const distributions  = investments.reduce((s, i) => s + n(i.realizedValue), 0);
+
+  // ── Fund Overview metrics (mirrors Finance tab Fund Overview) ──────────────
+  const calledCapital  = totalInvested;               // Total capital deployed
+  const nav            = totalAUM;                    // Unrealized fair market value
+  const tvpi           = totalInvested > 0 ? (nav + distributions) / totalInvested : 0;
+  const grossIrr       = blendedIrr;
+  const netIrr         = Math.max(0, blendedIrr - 2); // Gross IRR - 2% mgmt fee (approx)
+  const dpi            = totalInvested > 0 ? distributions / totalInvested : 0;
+  const moic           = blendedMoic;
+  const totalLpCommitment = (store.lps ?? []).reduce((s, lp) => {
+    const v = parseFloat(lp.commitment?.replace(/[^0-9.]/g, '') ?? '0');
+    return s + v;
+  }, 0);
+  const uncalledCapital = Math.max(0, totalLpCommitment - calledCapital);
+  // Cash flow from store.cashFlow
+  const latestCF = store.cashFlow?.slice(-1)[0];
 
   // Chart data
   const chartData = useMemo(() => {
@@ -798,14 +814,92 @@ export default function PortfolioFundView() {
           </button>
         </div>
 
+        {/* ── Fund Overview — mirrors Finance tab ──────────────────────────── */}
+        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden" style={{ borderColor: '#D4EDAA' }}>
+          <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: '#D4EDAA', backgroundColor: '#F0F7E6' }}>
+            <div>
+              <h2 className="text-base font-bold" style={{ color: PRIMARY }}>Fund Overview</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Amounts in INR Cr · Calculated from Portfolio team's fund view data</p>
+            </div>
+          </div>
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Fund Metrics */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Fund Metrics</p>
+              <div className="space-y-2">
+                {[
+                  { label: 'Called Capital',  value: fmtCr(calledCapital),      note: 'Total capital deployed across all investments' },
+                  { label: 'NAV',             value: fmtCr(nav),               note: 'Net Asset Value — current FMV of all holdings', hi: true },
+                  { label: 'TVPI',            value: tvpi.toFixed(2) + 'x',    note: '(NAV + Distributions) / Called Capital', hi: true },
+                  { label: 'Gross IRR',       value: fmtPct(grossIrr),         note: 'Weighted average IRR (before fees)' },
+                  { label: 'Net IRR',         value: fmtPct(netIrr),           note: 'Gross IRR less estimated 2% management fee' },
+                  { label: 'DPI',             value: dpi.toFixed(2) + 'x',     note: 'Distributions / Paid-In (cash returned to LPs)' },
+                  { label: 'MOIC',            value: fmtMoic(moic),            note: 'NAV / Called Capital', hi: true },
+                ].map(row => (
+                  <div key={row.label} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{row.label}</p>
+                      <p className="text-[10px] text-gray-400">{row.note}</p>
+                    </div>
+                    <p className="text-sm font-bold" style={{ color: row.hi ? PRIMARY : '#374151' }}>{row.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Cash Flows */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Cash Flows</p>
+              <div className="space-y-2">
+                {[
+                  { label: 'Called Capital (Receivable)', value: fmtCr(calledCapital) },
+                  { label: 'Bank Balance',                value: latestCF ? `₹${latestCF.nav} Cr` : '—' },
+                  { label: 'Expenses for Next 6 Months',  value: '—', note: 'Update via Finance → Expenses' },
+                  { label: 'Committed Investments',       value: fmtCr(totalInvested) },
+                  { label: 'Current Investible Funds',    value: fmtCr(Math.max(0, uncalledCapital - totalInvested)) },
+                  { label: 'Uncalled Capital',            value: fmtCr(uncalledCapital) },
+                  { label: 'Total Distributions',         value: fmtCr(distributions) },
+                ].map(row => (
+                  <div key={row.label} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{row.label}</p>
+                      {row.note && <p className="text-[10px] text-gray-400">{row.note}</p>}
+                    </div>
+                    <p className="text-sm font-semibold text-gray-800">{row.value}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Fund breakdown by fund */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">By Fund</p>
+                {FUNDS.map(fund => {
+                  const fundInvs = investments.filter(i => i.fund === fund);
+                  if (!fundInvs.length) return null;
+                  const fi = fundInvs.reduce((s, i) => s + n(i.totalInvested), 0);
+                  const fv = fundInvs.reduce((s, i) => s + n(i.currentFMV), 0);
+                  return (
+                    <div key={fund} className="flex items-center justify-between py-1.5">
+                      <span className="text-xs font-medium text-gray-600">{fund}</span>
+                      <div className="flex items-center gap-4 text-xs">
+                        <span className="text-gray-500">Invested: <strong>{fmtCr(fi)}</strong></span>
+                        <span className="text-gray-500">FMV: <strong style={{ color: PRIMARY }}>{fmtCr(fv)}</strong></span>
+                        <span className="text-gray-500">MOIC: <strong style={{ color: ACCENT }}>{fi > 0 ? (fv/fi).toFixed(2) + 'x' : '—'}</strong></span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Top Stats Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
           <StatCard label="Total AUM" value={fmtCr(totalAUM)} icon={<DollarSign size={18} />} />
-          <StatCard label="Total Invested" value={fmtCr(totalInvested)} icon={<TrendingUp size={18} />} />
-          <StatCard label="Blended MOIC" value={fmtMoic(blendedMoic)} icon={<BarChart2 size={18} />} color={ACCENT} />
-          <StatCard label="Blended IRR" value={fmtPct(blendedIrr)} icon={<TrendingUp size={18} />} color={ACCENT} />
-          <StatCard label="Active Companies" value={String(activeCount)} icon={<Building2 size={18} />} />
-          <StatCard label="Exited" value={String(exitedCount)} icon={<CheckCircle size={18} />} />
+          <StatCard label="Called Capital" value={fmtCr(calledCapital)} icon={<TrendingUp size={18} />} />
+          <StatCard label="MOIC" value={fmtMoic(moic)} icon={<BarChart2 size={18} />} color={ACCENT} />
+          <StatCard label="Gross IRR" value={fmtPct(grossIrr)} icon={<TrendingUp size={18} />} color={ACCENT} />
+          <StatCard label="TVPI" value={tvpi.toFixed(2) + 'x'} icon={<BarChart2 size={18} />} />
+          <StatCard label="DPI" value={dpi.toFixed(2) + 'x'} icon={<CheckCircle size={18} />} />
           <StatCard label="Distributions" value={fmtCr(distributions)} icon={<ArrowRight size={18} />} />
         </div>
 

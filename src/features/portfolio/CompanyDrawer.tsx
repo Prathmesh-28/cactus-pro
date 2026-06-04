@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   X, ExternalLink, Building2, Quote, TrendingUp, ChevronDown, ChevronUp,
   Users, BarChart2, Layers, Award, FileText, GitBranch, Target, Search,
@@ -534,46 +534,338 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   );
 
   // ── Tab: Funding ───────────────────────────────────────────────────────────
-  const FundingTab = () => (
-    <div className="space-y-3">
-      {company.fundingRounds.length > 0 ? company.fundingRounds.map((r, i) => (
-        <div key={i} className="border border-gray-100 rounded-xl p-4 hover:bg-gray-50">
-          <div className="flex items-start gap-3 flex-wrap">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: lightColor, color: primaryColor }}>{r.roundName}</span>
-                <span className="text-xs text-gray-400">{r.date}</span>
-              </div>
-              <p className="text-lg font-heading font-bold text-gray-900">{r.amount}</p>
-              {r.postMoneyValuation && r.postMoneyValuation !== '—' && (
-                <p className="text-xs text-gray-500 mt-0.5">Post-money: {r.postMoneyValuation}</p>
-              )}
-            </div>
-          </div>
-          <div className="mt-3">
-            <p className="text-xs text-gray-400 mb-1.5">Lead Investors</p>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {r.leadInvestors.map(inv => (
-                <span key={inv} className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ backgroundColor: lightColor, color: primaryColor }}>{inv}</span>
-              ))}
-            </div>
-            {r.allInvestors.length > r.leadInvestors.length && (
-              <>
-                <p className="text-xs text-gray-400 mb-1.5">All Investors</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {r.allInvestors.map(inv => (
-                    <span key={inv} className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{inv}</span>
+  // ── Funding Tab — comprehensive: Cactus investment + FY/CY quarterly metrics ──
+  const FundingTab = () => {
+    const [yearStyle, setYearStyle]     = useState<'FY' | 'CY'>('FY');
+    const [selectedYear, setSelectedYear] = useState<string>('all');
+
+    // All Cactus investment entries for this company (can appear in Fund 1 AND Fund 2)
+    const invEntries = useMemo(() =>
+      (store.portfolioFundView ?? []).filter(i => i.companyId === company.id),
+    [store.portfolioFundView, company.id]);
+
+    // All financial periods for this company, filtered by yearStyle
+    const allPeriods = useMemo(() =>
+      (store.financialPeriods ?? [])
+        .filter(p => p.companyId === company.id && p.yearStyle === yearStyle)
+        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
+    [store.financialPeriods, company.id, yearStyle]);
+
+    // Unique fiscal years available
+    const availableYears = useMemo(() => {
+      const yrs = [...new Set(allPeriods.map(p => p.fiscalYear))].sort();
+      return ['all', ...yrs];
+    }, [allPeriods]);
+
+    // Filter by selected year
+    const periods = useMemo(() =>
+      selectedYear === 'all' ? allPeriods : allPeriods.filter(p => p.fiscalYear === selectedYear),
+    [allPeriods, selectedYear]);
+
+    // Annual rows only (for YoY growth)
+    const annuals = useMemo(() => periods.filter(p => p.periodType === 'annual'), [periods]);
+
+    // YoY calc helper
+    const yoy = useCallback((curr: string, prev: string): string => {
+      const c = parseFloat(curr), p = parseFloat(prev);
+      if (!p || !c) return '—';
+      return `${((c - p) / Math.abs(p) * 100).toFixed(1)}%`;
+    }, []);
+
+    const fmt = (v: string | number, suffix = '') =>
+      v && v !== '' && v !== '0' ? `${v}${suffix}` : '—';
+
+
+    return (
+      <div className="space-y-6">
+
+        {/* ── Cactus Investment Summary ─────────────────────────────────── */}
+        {invEntries.length > 0 ? (
+          <div className="space-y-4">
+            {/* Combined total if invested across multiple funds */}
+            {invEntries.length > 1 && (
+              <div className="rounded-xl p-4 border" style={{ backgroundColor: lightColor + '80', borderColor: primaryColor + '40' }}>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Combined Across All Funds</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  {[
+                    { label: 'Total Invested', value: `₹${invEntries.reduce((s, i) => s + parseFloat(i.totalInvested || '0'), 0).toFixed(2)} Cr` },
+                    { label: 'Total FMV', value: `₹${invEntries.reduce((s, i) => s + parseFloat(i.currentFMV || '0'), 0).toFixed(2)} Cr`, hi: true },
+                    { label: 'Blended MOIC', value: (() => {
+                      const tot = invEntries.reduce((s, i) => s + parseFloat(i.totalInvested || '0'), 0);
+                      const fmv = invEntries.reduce((s, i) => s + parseFloat(i.currentFMV || '0'), 0);
+                      return tot > 0 ? `${(fmv / tot).toFixed(2)}x` : '—';
+                    })(), hi: true },
+                    { label: 'Funds', value: invEntries.map(i => i.fund).join(' + ') },
+                  ].map(s => (
+                    <div key={s.label} className="bg-white rounded-lg p-2 shadow-sm">
+                      <p className="text-[10px] text-gray-400 uppercase">{s.label}</p>
+                      <p className="text-sm font-bold mt-0.5" style={{ color: s.hi ? primaryColor : '#111' }}>{s.value}</p>
+                    </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Each fund entry */}
+            {invEntries.map((inv, entryIdx) => (
+              <div key={inv.id} className="rounded-xl border-2 p-5 space-y-4" style={{ borderColor: primaryColor + '30', backgroundColor: entryIdx === 0 ? lightColor + '60' : '#FFF7ED' }}>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Cactus Investment</p>
+                    <h3 className="text-lg font-bold text-gray-900 mt-0.5">{inv.fund}</h3>
+                  </div>
+                  <span className="text-xs px-2.5 py-1 rounded-full font-semibold text-white" style={{ backgroundColor: entryIdx === 0 ? primaryColor : '#D97706' }}>
+                    {inv.leadOrFollow}
+                  </span>
+                </div>
+
+                {/* Investment journey timeline */}
+                <div className="relative pl-4">
+                  <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-gray-200 rounded" />
+                  {/* First cheque */}
+                  <div className="relative mb-4">
+                    <div className="absolute -left-4 w-2 h-2 rounded-full mt-1.5" style={{ backgroundColor: primaryColor }} />
+                    <div className="bg-white rounded-lg border border-gray-100 p-3 shadow-sm">
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div>
+                          <p className="text-xs text-gray-400">{inv.investmentDate}</p>
+                          <p className="text-sm font-semibold text-gray-900">{inv.stageAtEntry} — First Cheque</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Pre-money: ₹{inv.preMoneyAtEntry} Cr · Post: ₹{inv.postMoneyAtEntry} Cr · {inv.instrument}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold" style={{ color: primaryColor }}>₹{inv.firstCheque} Cr</p>
+                          <p className="text-xs text-gray-400">{inv.ownershipAtEntry} at entry</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Follow-ons */}
+                  {inv.followOns.map((fo, i) => (
+                    <div key={fo.id} className="relative mb-4">
+                      <div className="absolute -left-4 w-2 h-2 rounded-full mt-1.5" style={{ backgroundColor: accentColor }} />
+                      <div className="bg-white rounded-lg border border-gray-100 p-3 shadow-sm">
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div>
+                            <p className="text-xs text-gray-400">{fo.date}</p>
+                            <p className="text-sm font-semibold text-gray-900">{fo.round} — Follow-on #{i + 1}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Pre: ₹{fo.preMoneyVal} Cr · Post: ₹{fo.postMoneyVal} Cr · Lead: {fo.leadInvestor}</p>
+                            {fo.notes && <p className="text-xs text-gray-400 italic mt-0.5">{fo.notes}</p>}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-amber-600">₹{fo.amount} Cr</p>
+                            <p className="text-xs text-gray-400">{fo.ownershipPost} post-round</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Current position */}
+                  <div className="relative">
+                    <div className="absolute -left-4 w-2 h-2 rounded-full mt-1.5 bg-emerald-500" />
+                    <div className="bg-emerald-50 rounded-lg border border-emerald-100 p-3">
+                      <p className="text-xs text-emerald-600 font-semibold mb-2">Current Position — {inv.fund}</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                        {[
+                          { label: 'Total Invested', value: `₹${inv.totalInvested} Cr` },
+                          { label: 'Current FMV', value: `₹${inv.currentFMV} Cr`, hi: true },
+                          { label: 'MOIC', value: `${inv.moic}x`, hi: true },
+                          { label: 'IRR', value: `${inv.irr}%` },
+                          { label: 'Ownership', value: inv.currentOwnership },
+                          { label: 'Company Val', value: `₹${inv.currentValuation} Cr` },
+                          { label: 'DPI', value: inv.dpi },
+                          { label: 'Board Seat', value: inv.boardSeat ? '✓ Yes' : '— No' },
+                        ].map(s => (
+                          <div key={s.label} className="bg-white rounded-lg p-2 shadow-sm">
+                            <p className="text-[10px] text-gray-400 uppercase">{s.label}</p>
+                            <p className="text-xs font-bold mt-0.5" style={{ color: s.hi ? primaryColor : '#111' }}>{s.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Fallback: show raw funding rounds if no portfolioFundView entry */
+          company.fundingRounds.length > 0 ? (
+            <div className="space-y-3">
+              {company.fundingRounds.map((r, i) => (
+                <div key={i} className="border border-gray-100 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: lightColor, color: primaryColor }}>{r.roundName}</span>
+                    <span className="text-xs text-gray-400">{r.date}</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-900">{r.amount}</p>
+                  {r.postMoneyValuation && <p className="text-xs text-gray-500">Post-money: {r.postMoneyValuation}</p>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-6">No Cactus investment data found for this company.</p>
+          )
+        )}
+
+        {/* ── FY / CY Financial Metrics ─────────────────────────────────── */}
+        <div>
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <h4 className="text-sm font-bold text-gray-900">Financial Metrics — Quarter by Quarter</h4>
+            <div className="flex items-center gap-2">
+              {/* FY / CY toggle */}
+              <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+                {(['FY','CY'] as const).map(ys => (
+                  <button key={ys} onClick={() => { setYearStyle(ys); setSelectedYear('all'); }}
+                    className="px-3 py-1.5 font-medium transition-colors"
+                    style={yearStyle === ys ? { backgroundColor: primaryColor, color: '#fff' } : { color: '#6b7280' }}>
+                    {ys === 'FY' ? 'Indian FY (Apr-Mar)' : 'Calendar Year (Jan-Dec)'}
+                  </button>
+                ))}
+              </div>
+              {/* Year filter */}
+              <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)}
+                className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none">
+                {availableYears.map(y => (
+                  <option key={y} value={y}>{y === 'all' ? 'All Years' : y}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {periods.length === 0 ? (
+            <div className="text-center py-8 rounded-xl border-2 border-dashed border-gray-100">
+              <p className="text-sm text-gray-400">No {yearStyle} data for {company.name}.</p>
+              <p className="text-xs text-gray-300 mt-1">Add data via Portfolio → Fund View or through Master Sheet sync.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+              <table className="w-full text-xs whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-gray-100" style={{ backgroundColor: primaryColor }}>
+                    <th className="px-3 py-2.5 text-left text-white font-semibold sticky left-0 z-10" style={{ backgroundColor: primaryColor }}>Period</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Type</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Revenue (₹Cr)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Rev Growth YoY</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">ARR (₹Cr)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">MRR (₹Cr)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">NRR %</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Gross Margin %</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">EBITDA %</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Burn (₹Cr/mo)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Cash (₹Cr)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Runway (mo)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Headcount</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">FMV (₹Cr)</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">MOIC</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">IRR %</th>
+                    <th className="px-3 py-2.5 text-center text-white font-semibold">Valuation (₹Cr)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {periods.map((p, idx) => {
+                    const isAnnual = p.periodType === 'annual';
+                    const prevAnnual = annuals[annuals.indexOf(p) - 1];
+                    const revYoY  = isAnnual && prevAnnual ? yoy(p.revenue, prevAnnual.revenue) : p.revenueGrowthYoY || '—';
+                    return (
+                      <tr key={p.id}
+                        className={`${isAnnual ? 'font-semibold' : ''} ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/30 transition-colors`}>
+                        <td className="px-3 py-2 sticky left-0 bg-inherit border-r border-gray-100 font-mono text-xs" style={{ color: primaryColor }}>
+                          {p.periodLabel}
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${isAnnual ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                            {isAnnual ? 'Annual' : p.quarter}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-center font-medium text-gray-800">{fmt(p.revenue)}</td>
+                        <td className="px-3 py-2 text-center">
+                          {revYoY !== '—' ? (
+                            <span className={`text-xs font-medium ${parseFloat(revYoY) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                              {parseFloat(revYoY) >= 0 ? '▲' : '▼'} {revYoY}
+                            </span>
+                          ) : <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.arr)}</td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.mrr)}</td>
+                        <td className="px-3 py-2 text-center">
+                          {p.nrr ? (
+                            <span className={`text-xs font-medium ${parseFloat(p.nrr) >= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{p.nrr}%</span>
+                          ) : <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.grossMarginPct, '%')}</td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.ebitdaMarginPct, '%')}</td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.monthlyBurn)}</td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.cash)}</td>
+                        <td className="px-3 py-2 text-center">
+                          {p.runway ? (
+                            <span className={`text-xs font-medium ${parseFloat(p.runway) < 6 ? 'text-red-500 font-bold' : 'text-gray-700'}`}>{p.runway}</span>
+                          ) : <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center text-gray-700">{p.headcount || '—'}</td>
+                        <td className="px-3 py-2 text-center font-medium" style={{ color: primaryColor }}>{fmt(p.currentValuation)}</td>
+                        <td className="px-3 py-2 text-center">
+                          {p.moic ? (
+                            <span className={`text-xs font-bold ${parseFloat(p.moic) >= 3 ? 'text-emerald-600' : parseFloat(p.moic) >= 2 ? 'text-amber-600' : 'text-red-500'}`}>
+                              {p.moic}x
+                            </span>
+                          ) : <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center font-medium text-blue-600">{fmt(p.irr, '%')}</td>
+                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.currentValuation)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+
+                {/* YoY Growth Summary — annual rows only */}
+                {annuals.length >= 2 && (
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-200 bg-gray-50">
+                      <td className="px-3 py-2.5 text-xs font-bold text-gray-600 sticky left-0 bg-gray-50" colSpan={2}>YoY Growth</td>
+                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">
+                        {yoy(annuals[annuals.length-1].revenue, annuals[annuals.length-2].revenue)}
+                      </td>
+                      <td />
+                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">
+                        {yoy(annuals[annuals.length-1].arr, annuals[annuals.length-2].arr)}
+                      </td>
+                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">
+                        {yoy(annuals[annuals.length-1].mrr, annuals[annuals.length-2].mrr)}
+                      </td>
+                      <td colSpan={7} />
+                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-blue-600">
+                        {yoy(annuals[annuals.length-1].moic, annuals[annuals.length-2].moic)}
+                      </td>
+                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-blue-600">
+                        {yoy(annuals[annuals.length-1].irr, annuals[annuals.length-2].irr)}
+                      </td>
+                      <td />
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          )}
+
+          {/* Quarter legend */}
+          <div className="mt-3 flex items-center gap-4 text-[10px] text-gray-400">
+            {yearStyle === 'FY' ? (
+              <>
+                <span>FY Q1 = Apr–Jun</span><span>Q2 = Jul–Sep</span>
+                <span>Q3 = Oct–Dec</span><span>Q4 = Jan–Mar</span>
+              </>
+            ) : (
+              <>
+                <span>CY Q1 = Jan–Mar</span><span>Q2 = Apr–Jun</span>
+                <span>Q3 = Jul–Sep</span><span>Q4 = Oct–Dec</span>
               </>
             )}
+            <span className="ml-auto">Bold rows = Annual. Color: MOIC ≥3x 🟢 ≥2x 🟡 &lt;2x 🔴</span>
           </div>
         </div>
-      )) : (
-        <p className="text-sm text-gray-400 text-center py-8">No funding rounds recorded.</p>
-      )}
-    </div>
-  );
+      </div>
+    );
+  };
 
   // ── Tab: Cap Table ─────────────────────────────────────────────────────────
   const CapTableTab = () => (
