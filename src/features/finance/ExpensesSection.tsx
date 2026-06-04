@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { kvGet, kvSet } from '../../lib/api';
 import { Plus, Trash2, Download } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -11,13 +12,38 @@ interface ExpRow { id: string; [key: string]: string | number }
 
 function genId() { return `r_${Math.random().toString(36).slice(2)}_${Date.now()}`; }
 
-function useLocalTable(storageKey: string, defaultRows: ExpRow[]) {
-  const [rows, setRows] = useState<ExpRow[]>(() => {
-    try { const s = localStorage.getItem(storageKey); return s ? JSON.parse(s) : defaultRows; } catch { return defaultRows; }
-  });
+const expCache = new Map<string, ExpRow[]>();
+const EXP_EVT = 'fin-exp-changed';
+
+function useKvTable(storageKey: string, defaultRows: ExpRow[]) {
+  const [rows, setRows] = useState<ExpRow[]>(expCache.get(storageKey) ?? defaultRows);
+  const writeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const refresh = useCallback(async () => {
+    const v = await kvGet('finance', storageKey);
+    const data = Array.isArray(v) ? (v as ExpRow[]) : defaultRows;
+    expCache.set(storageKey, data);
+    setRows(data);
+  }, [storageKey]); // eslint-disable-line
+
+  useEffect(() => { void refresh(); }, [storageKey]); // eslint-disable-line
+  useEffect(() => {
+    const h = (e: Event) => {
+      const k = (e as CustomEvent).detail?.key as string;
+      if (k === storageKey && expCache.has(k)) setRows(expCache.get(k)!);
+    };
+    window.addEventListener(EXP_EVT, h);
+    return () => window.removeEventListener(EXP_EVT, h);
+  }, [storageKey]);
+
   const save = (next: ExpRow[]) => {
+    expCache.set(storageKey, next);
     setRows(next);
-    try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+    window.dispatchEvent(new CustomEvent(EXP_EVT, { detail: { key: storageKey } }));
+    if (writeTimer.current) clearTimeout(writeTimer.current);
+    writeTimer.current = setTimeout(() => {
+      kvSet('finance', storageKey, next).catch(() => {});
+    }, 350);
   };
   return [rows, save] as const;
 }
@@ -51,7 +77,7 @@ const DEFAULT_AB: ExpRow[] = [
 
 function ExpTable({ title, storageKey, defaultRows, columns, centerHeaders }:
   { title: string; storageKey: string; defaultRows: ExpRow[]; columns: string[]; centerHeaders?: boolean }) {
-  const [rows, setRows] = useLocalTable(storageKey, defaultRows);
+  const [rows, setRows] = useKvTable(storageKey, defaultRows);
   const [editing, setEditing] = useState<{ id: string; col: string } | null>(null);
   const [draft, setDraft] = useState('');
 
@@ -164,8 +190,8 @@ function ExpTable({ title, storageKey, defaultRows, columns, centerHeaders }:
 // ─── Fund Chart ───────────────────────────────────────────────────────────────
 
 function FundExpChart() {
-  const [fundRows] = useLocalTable('fin_fund_exp', DEFAULT_FUND_EXP);
-  const [imRows]   = useLocalTable('fin_im_exp',   DEFAULT_IM_EXP);
+  const [fundRows] = useKvTable('fin_fund_exp', DEFAULT_FUND_EXP);
+  const [imRows]   = useKvTable('fin_im_exp',   DEFAULT_IM_EXP);
 
   const chartData = FY_COLS.map(fy => {
     const fund = fundRows.filter(r => r.category !== '').reduce((s, r) => s + (Number(r[fy]) || 0), 0);
@@ -195,17 +221,17 @@ function FundExpChart() {
 // ─── Expenses page ────────────────────────────────────────────────────────────
 
 export default function ExpensesSection() {
-  // Aggregate fund life + 6-month expenses into localStorage for FundOverview to read
-  const [fundRows] = useLocalTable('fin_fund_exp', DEFAULT_FUND_EXP);
-  const [imRows]   = useLocalTable('fin_im_exp',   DEFAULT_IM_EXP);
+  const [fundRows] = useKvTable('fin_fund_exp', DEFAULT_FUND_EXP);
+  const [imRows]   = useKvTable('fin_im_exp',   DEFAULT_IM_EXP);
 
+  // Push aggregated expense totals to KV so FundOverview can read them
   useEffect(() => {
     const fundLife = [...fundRows, ...imRows].reduce((s, r) => {
       return s + FY_COLS.reduce((rs, fy) => rs + (Number(r[fy]) || 0), 0) * 100000;
     }, 0);
     const currentFY = 'FY26';
     const sixMonths = [...fundRows, ...imRows].reduce((s, r) => s + (Number(r[currentFY]) || 0) * 100000 * 0.5, 0);
-    try { localStorage.setItem('fin_expenses_agg', JSON.stringify({ fundLife, sixMonths })); } catch {}
+    kvSet('finance', 'fin_expenses_agg', { fundLife, sixMonths }).catch(() => {});
   }, [fundRows, imRows]);
 
   return (

@@ -1,13 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Pencil, Check, X, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { kvGet, kvSet } from '../../lib/api';
 
-// ─── Persistence helpers ──────────────────────────────────────────────────────
+// ─── KV-backed state hook ─────────────────────────────────────────────────────
 
-function useLocalState<T>(key: string, initial: T): [T, (v: T) => void] {
-  const stored = (() => { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch { return null; } })();
-  const [val, setVal] = useState<T>(stored ?? initial);
-  const save = (v: T) => { setVal(v); try { localStorage.setItem(key, JSON.stringify(v)); } catch {} };
+const kvCache = new Map<string, unknown>();
+const KV_EVT = 'fin-kv-state-changed';
+
+function useKvState<T>(key: string, initial: T): [T, (v: T) => void] {
+  const [val, setVal] = useState<T>((kvCache.get(key) as T) ?? initial);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const refresh = useCallback(async () => {
+    const v = await kvGet('finance', key);
+    if (v !== null && v !== undefined) {
+      kvCache.set(key, v);
+      setVal(v as T);
+    }
+  }, [key]);
+
+  useEffect(() => { void refresh(); }, [key]); // eslint-disable-line
+  useEffect(() => {
+    const h = (e: Event) => {
+      const k = (e as CustomEvent).detail?.key as string;
+      if (k === key && kvCache.has(key)) setVal(kvCache.get(key) as T);
+    };
+    window.addEventListener(KV_EVT, h);
+    return () => window.removeEventListener(KV_EVT, h);
+  }, [key]);
+
+  const save = (v: T) => {
+    kvCache.set(key, v);
+    setVal(v);
+    window.dispatchEvent(new CustomEvent(KV_EVT, { detail: { key } }));
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      kvSet('finance', key, v).catch(() => {});
+    }, 350);
+  };
   return [val, save];
 }
 
@@ -121,18 +152,17 @@ function Op({ children, compact = false }: { children: string; compact?: boolean
 
 export default function FundOverview() {
   const { store } = useApp();
-  const [metrics, setMetrics] = useLocalState<MetricValues>('fin_metrics', DEFAULT_METRICS);
-  const [cash,    setCash]    = useLocalState<CashValues>('fin_cash', DEFAULT_CASH);
+  const [metrics, setMetrics] = useKvState<MetricValues>('fin_metrics', DEFAULT_METRICS);
+  const [cash,    setCash]    = useKvState<CashValues>('fin_cash', DEFAULT_CASH);
+  const [expAgg,  setExpAgg]  = useKvState<{ fundLife: number; sixMonths: number } | null>('fin_expenses_agg', null);
   const [fund, setFund]       = useState<'fund_1' | 'fund_2'>('fund_1');
 
   const setMetric = (k: MetricKey, v: number | null) => setMetrics({ ...metrics, [k]: v });
   const setCashVal = (k: CashKey, v: number | null) => setCash({ ...cash, [k]: v });
 
-  // Derived investible values
-  const expensesNextSixMonths = 1200000;  // placeholder — wired from ExpensesSection via localStorage below
-  const storedExpenses = (() => { try { return JSON.parse(localStorage.getItem('fin_expenses_agg') || 'null'); } catch { return null; } })();
-  const sixMonthsExp = storedExpenses?.sixMonths ?? expensesNextSixMonths;
-  const fundLifeExp  = storedExpenses?.fundLife  ?? 8500000;
+  // Derived investible values — expenses come from ExpensesSection via KV
+  const sixMonthsExp = expAgg?.sixMonths ?? 1200000;
+  const fundLifeExp  = expAgg?.fundLife  ?? 8500000;
 
   const currentInvestible = (cash.called_capital ?? 0) + (cash.bank_balance ?? 0) - sixMonthsExp;
   const fundLevelInvestible = (cash.called_capital ?? 0) + (cash.bank_balance ?? 0) + (cash.uncalled_capital ?? 0) - fundLifeExp;

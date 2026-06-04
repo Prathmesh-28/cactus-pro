@@ -255,29 +255,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // ── Bridge: finance tab writes → AppContext → PostgreSQL ─────────────────────
+  // ── Real-time cross-user polling — re-fetch KV every 30 s ───────────────────
   useEffect(() => {
-    const FIN_EVT = 'fin-store-changed';
-    const finTimer: Record<string, ReturnType<typeof setTimeout>> = {};
-    const handler = (e: Event) => {
-      const key = (e as CustomEvent).detail?.key as string;
-      if (!key || !key.startsWith('fin_')) return;
-      if (finTimer[key]) clearTimeout(finTimer[key]);
-      finTimer[key] = setTimeout(() => {
-        try {
-          const val = localStorage.getItem(key);
-          if (val !== null) {
-            setStore(s => ({
-              ...s,
-              financeData: { ...(s.financeData ?? {}), [key]: JSON.parse(val) },
-            }));
-          }
-        } catch {}
-      }, 300);
+    const poll = async () => {
+      try {
+        const role = (localStorage.getItem(ROLE_KEY) as string) ?? 'super_admin';
+        const namespaces = accessibleNamespaces(role);
+        const results = await Promise.all(
+          namespaces.map(ns => kvGet(ns, KV_KEY).then(v => ({ ns, v })).catch(() => ({ ns, v: null })))
+        );
+        let merged: Partial<AppStore> = {};
+        for (const { v } of results) {
+          if (v && typeof v === 'object') merged = { ...merged, ...(v as Partial<AppStore>) };
+        }
+        if (Object.keys(merged).length > 0) {
+          setStoreRaw(prev => ({ ...prev, ...merged } as AppStore));
+        }
+      } catch {}
     };
-    window.addEventListener(FIN_EVT, handler);
-    return () => window.removeEventListener(FIN_EVT, handler);
-  }, []);
+    const id = setInterval(poll, 30_000);
+    return () => clearInterval(id);
+  }, []); // eslint-disable-line
 
   // ── Save to localStorage immediately + PostgreSQL debounced (team-namespaced)
   const setStore = useCallback((updater: AppStore | ((prev: AppStore) => AppStore)) => {

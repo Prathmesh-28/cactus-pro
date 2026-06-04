@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval,
   startOfWeek, endOfWeek, format, isSameDay, isSameMonth, isToday, parseISO,
 } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { kvGet, kvSet } from '../../lib/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,19 +19,36 @@ interface ComplianceEvent {
 
 function genId() { return `e_${Math.random().toString(36).slice(2)}_${Date.now()}`; }
 
+const EVT = 'fin-compliance-changed';
+const memCache = { current: null as ComplianceEvent[] | null };
+
 function useEvents() {
-  const KEY = 'fin_compliance_events';
-  const [events, setEvents] = useState<ComplianceEvent[]>(() => {
-    try {
-      const s = localStorage.getItem(KEY);
-      return s ? JSON.parse(s) : DEFAULT_EVENTS;
-    } catch { return DEFAULT_EVENTS; }
-  });
+  const [events, setEvents] = useState<ComplianceEvent[]>(memCache.current ?? []);
+  const [loaded, setLoaded] = useState(memCache.current !== null);
+
+  const refresh = useCallback(async () => {
+    const v = await kvGet('finance', 'fin_compliance_events');
+    const data = Array.isArray(v) ? (v as ComplianceEvent[]) : DEFAULT_EVENTS;
+    memCache.current = data;
+    setEvents(data);
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => { void refresh(); }, []); // eslint-disable-line
+  useEffect(() => {
+    const h = () => { if (memCache.current) setEvents([...memCache.current]); };
+    window.addEventListener(EVT, h);
+    return () => window.removeEventListener(EVT, h);
+  }, []);
+
   const save = (next: ComplianceEvent[]) => {
+    memCache.current = next;
     setEvents(next);
-    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {}
+    window.dispatchEvent(new CustomEvent(EVT));
+    kvSet('finance', 'fin_compliance_events', next).catch(() => {});
   };
-  return [events, save] as const;
+
+  return [events, save, loaded] as const;
 }
 
 const DEFAULT_EVENTS: ComplianceEvent[] = [
@@ -85,7 +103,7 @@ function EventForm({ initial, onSave, onCancel }:
 // ─── Calendar ────────────────────────────────────────────────────────────────
 
 export default function CompliancesSection() {
-  const [events, setEvents] = useEvents();
+  const [events, setEvents, loaded] = useEvents();
   const [current, setCurrent] = useState(new Date());
   const [selected, setSelected] = useState<Date | null>(null);
   const [creating, setCreating] = useState(false);
@@ -120,6 +138,8 @@ export default function CompliancesSection() {
     .filter(e => { try { return parseISO(e.due_date) >= new Date(); } catch { return false; } })
     .sort((a, b) => a.due_date.localeCompare(b.due_date))
     .slice(0, 8);
+
+  if (!loaded) return <div className="flex items-center justify-center min-h-[200px] text-sm text-gray-400">Loading…</div>;
 
   return (
     <div className="flex flex-col min-h-full">
