@@ -499,8 +499,126 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   );
 
   // ── Tab: Financials ────────────────────────────────────────────────────────
-  const FinancialsTab = () => (
-    <div className="space-y-4">
+  const FinancialsTab = () => {
+    // Fund 1 + Fund 2 investments for this company
+    const fundEntries = useMemo(() =>
+      (store.portfolioFundView ?? []).filter(i => i.companyId === company.id),
+    [store.portfolioFundView, company.id]);
+
+    return (
+    <div className="space-y-6">
+
+      {/* ── Cactus Fund Investment Summary ──────────────────────────────── */}
+      {fundEntries.length > 0 && (
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Cactus Fund Investment Performance</h4>
+          <div className="grid grid-cols-1 gap-3">
+            {fundEntries.map((inv, idx) => (
+              <div key={inv.id} className="rounded-xl border p-4 space-y-3" style={{ borderColor: idx === 0 ? primaryColor + '40' : '#F59E0B40', backgroundColor: idx === 0 ? lightColor + '60' : '#FFFBEB' }}>
+                {/* Fund header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: idx === 0 ? primaryColor : '#D97706' }}>{inv.fund}</span>
+                    <span className="text-xs text-gray-500">{inv.investmentDate} · {inv.stageAtEntry}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{inv.leadOrFollow}</span>
+                  </div>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${inv.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : inv.status === 'Watch' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>{inv.status}</span>
+                </div>
+
+                {/* Key metrics grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { label: 'First Cheque', value: `₹${inv.firstCheque} Cr`, sub: inv.ownershipAtEntry + ' entry' },
+                    { label: 'Total Invested', value: `₹${inv.totalInvested} Cr`, sub: `${inv.followOns?.length ?? 0} follow-ons` },
+                    { label: 'Current FMV', value: `₹${inv.currentFMV} Cr`, sub: inv.currentOwnership + ' stake', hi: true },
+                    { label: 'Company Valuation', value: `₹${inv.currentValuation} Cr`, sub: 'Current' },
+                    { label: 'MOIC', value: `${inv.moic}x`, sub: 'Multiple on invested', hi: true },
+                    { label: 'IRR', value: `${inv.irr}%`, sub: 'Annualized return' },
+                    { label: 'DPI', value: inv.dpi || '0x', sub: 'Distributions/Paid-in' },
+                    { label: 'Board Seat', value: inv.boardSeat ? '✓ Yes' : '— No', sub: inv.leadOrFollow },
+                  ].map(s => (
+                    <div key={s.label} className="bg-white rounded-lg p-2.5 shadow-sm">
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wide">{s.label}</p>
+                      <p className="text-sm font-bold mt-0.5" style={{ color: s.hi ? primaryColor : '#111827' }}>{s.value}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">{s.sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Follow-on timeline */}
+                {inv.followOns?.length > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">Investment Rounds</p>
+                    <div className="space-y-1.5">
+                      {/* Initial */}
+                      <div className="flex items-center justify-between text-xs py-1 border-b border-gray-50">
+                        <span className="text-gray-500">{inv.investmentDate}</span>
+                        <span className="font-medium text-gray-700">{inv.stageAtEntry} — First Cheque</span>
+                        <span className="font-bold" style={{ color: primaryColor }}>₹{inv.firstCheque} Cr</span>
+                        <span className="text-gray-400">{inv.ownershipAtEntry}</span>
+                      </div>
+                      {/* Follow-ons */}
+                      {inv.followOns.map(fo => (
+                        <div key={fo.id} className="flex items-center justify-between text-xs py-1 border-b border-gray-50">
+                          <span className="text-gray-500">{fo.date}</span>
+                          <span className="font-medium text-gray-700">{fo.round}</span>
+                          <span className="font-bold text-amber-600">₹{fo.amount} Cr</span>
+                          <span className="text-gray-400">{fo.ownershipPost}</span>
+                        </div>
+                      ))}
+                      {/* Total */}
+                      <div className="flex items-center justify-between text-xs py-1 font-semibold">
+                        <span className="text-gray-600">Total</span>
+                        <span className="text-gray-600">All Rounds</span>
+                        <span style={{ color: primaryColor }}>₹{inv.totalInvested} Cr</span>
+                        <span className="text-gray-600">{inv.currentOwnership} today</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Latest operating metrics */}
+                {(inv.revenue || inv.arr || inv.irr) && (
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {[
+                      { label: 'Revenue', value: inv.revenue ? `₹${inv.revenue} Cr` : '—' },
+                      { label: 'ARR', value: inv.arr ? `₹${inv.arr} Cr` : '—' },
+                      { label: 'MRR', value: inv.mrr ? `₹${inv.mrr} Cr` : '—' },
+                      { label: 'Rev Growth', value: inv.revenueGrowthYoY ? `${inv.revenueGrowthYoY}%` : '—' },
+                      { label: 'Gross Margin', value: inv.grossMargin ? `${inv.grossMargin}%` : '—' },
+                    ].map(s => (
+                      <div key={s.label} className="bg-white rounded-lg p-2 shadow-sm text-center">
+                        <p className="text-[10px] text-gray-400">{s.label}</p>
+                        <p className="text-xs font-bold text-gray-800 mt-0.5">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {inv.notes && <p className="text-xs text-gray-500 italic border-l-2 pl-2" style={{ borderColor: primaryColor }}>{inv.notes}</p>}
+              </div>
+            ))}
+          </div>
+
+          {/* Combined if multiple funds */}
+          {fundEntries.length > 1 && (() => {
+            const tot = fundEntries.reduce((s, i) => s + parseFloat(i.totalInvested || '0'), 0);
+            const fmv = fundEntries.reduce((s, i) => s + parseFloat(i.currentFMV || '0'), 0);
+            return (
+              <div className="mt-3 rounded-xl border border-gray-200 p-3 bg-gray-50 flex items-center justify-between text-sm">
+                <span className="text-gray-500 font-medium">Combined (Fund 1 + Fund 2)</span>
+                <div className="flex items-center gap-6">
+                  <span>Total Invested: <strong>₹{tot.toFixed(2)} Cr</strong></span>
+                  <span>Total FMV: <strong style={{ color: primaryColor }}>₹{fmv.toFixed(2)} Cr</strong></span>
+                  <span>Blended MOIC: <strong style={{ color: primaryColor }}>{tot > 0 ? (fmv/tot).toFixed(2) + 'x' : '—'}</strong></span>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* ── Financial History (Tracxn data) ──────────────────────────────── */}
       {company.financialHistory.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -531,7 +649,8 @@ export default function CompanyDrawer({ company, onClose }: Props) {
         <p className="text-sm text-gray-400 text-center py-8">No financial history available.</p>
       )}
     </div>
-  );
+    );
+  };
 
   // ── Tab: Funding ───────────────────────────────────────────────────────────
   // ── Funding Tab — comprehensive: Cactus investment + FY/CY quarterly metrics ──

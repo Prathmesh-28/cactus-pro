@@ -22,10 +22,10 @@ import HealthDashboard from './HealthDashboard';
 import NewsFeed from './NewsFeed';
 import ResearchLibrary from './ResearchLibrary';
 import FounderPortalManager from './FounderPortalManager';
-import TeamSyncPanel from '../../components/ui/TeamSyncPanel';
 import PortfolioFundView from './PortfolioFundView';
+import PortfolioAdmin from './PortfolioAdmin';
 
-type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'fund_view' | 'team_sync';
+type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'fund_view' | 'admin';
 const PORTFOLIO_TABS: { key: PortfolioTab; label: string; Icon: React.ElementType }[] = [
   { key: 'companies',  label: 'Companies',          Icon: Building2 },
   { key: 'founders',   label: 'Founder Directory',  Icon: Users },
@@ -34,7 +34,7 @@ const PORTFOLIO_TABS: { key: PortfolioTab; label: string; Icon: React.ElementTyp
   { key: 'research',   label: 'Research Library',   Icon: BookOpen },
   { key: 'portal',     label: 'Founder Portal',     Icon: Globe },
   { key: 'fund_view',  label: 'Fund View',           Icon: TrendingUp },
-  { key: 'team_sync',  label: 'My Data Sync',       Icon: Users },
+  { key: 'admin',      label: 'Portfolio Admin',    Icon: Globe },
 ];
 
 type SortKey = keyof Pick<PortfolioCompany, 'name' | 'stage' | 'cactusInvestment' | 'currentValuation' | 'moic' | 'irr' | 'status'>;
@@ -163,7 +163,7 @@ export default function PortfolioPage() {
       {activePortfolioTab === 'research'  && <ResearchLibrary />}
       {activePortfolioTab === 'portal'     && <FounderPortalManager />}
       {activePortfolioTab === 'fund_view'  && <PortfolioFundView />}
-      {activePortfolioTab === 'team_sync'  && <div className="py-2"><TeamSyncPanel team="portfolio" /></div>}
+      {activePortfolioTab === 'admin'      && <PortfolioAdmin />}
 
       {/* Companies tab — existing content */}
       {activePortfolioTab === 'companies' && <div className="space-y-8">
