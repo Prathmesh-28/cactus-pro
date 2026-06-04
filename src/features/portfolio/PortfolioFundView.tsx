@@ -4,6 +4,8 @@ import {
   DollarSign, BarChart2, CheckCircle, ArrowRight, Info,
   Save, AlertTriangle, Check,
 } from 'lucide-react';
+import ExportMenu from '../../components/ui/ExportMenu';
+import { exportFundLedgerPDF, exportFundLedgerExcel } from '../../lib/export';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
@@ -800,18 +802,56 @@ export default function PortfolioFundView() {
       <div className="max-w-screen-2xl mx-auto px-4 py-6 space-y-6">
 
         {/* Page Title */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: PRIMARY }}>Portfolio Investment View</h1>
             <p className="text-sm text-gray-500 mt-0.5">Complete record of all Cactus fund investments, follow-ons, and performance</p>
           </div>
-          <button
-            onClick={() => setModalData(blankInvestment())}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-white rounded-lg shadow"
-            style={{ background: PRIMARY }}
-          >
-            <Plus size={16} /> Add Investment
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Export — PDF & Excel with fund filter */}
+            <ExportMenu
+              label="Export"
+              options={[
+                {
+                  label: 'All Funds — PDF',
+                  format: 'pdf',
+                  onExport: () => exportFundLedgerPDF(investments, companies, store.firm?.name ?? 'Cactus Partners', 'All Funds'),
+                },
+                {
+                  label: 'Fund 1 — PDF',
+                  format: 'pdf',
+                  onExport: () => exportFundLedgerPDF(investments, companies, store.firm?.name ?? 'Cactus Partners', 'Fund 1'),
+                },
+                {
+                  label: 'Fund 2 — PDF',
+                  format: 'pdf',
+                  onExport: () => exportFundLedgerPDF(investments, companies, store.firm?.name ?? 'Cactus Partners', 'Fund 2'),
+                },
+                {
+                  label: 'All Funds — Excel',
+                  format: 'excel',
+                  onExport: () => exportFundLedgerExcel(investments, companies, store.firm?.name ?? 'Cactus Partners', 'All Funds'),
+                },
+                {
+                  label: 'Fund 1 — Excel',
+                  format: 'excel',
+                  onExport: () => exportFundLedgerExcel(investments, companies, store.firm?.name ?? 'Cactus Partners', 'Fund 1'),
+                },
+                {
+                  label: 'Fund 2 — Excel',
+                  format: 'excel',
+                  onExport: () => exportFundLedgerExcel(investments, companies, store.firm?.name ?? 'Cactus Partners', 'Fund 2'),
+                },
+              ]}
+            />
+            <button
+              onClick={() => setModalData(blankInvestment())}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-white rounded-lg shadow"
+              style={{ background: PRIMARY }}
+            >
+              <Plus size={16} /> Add Investment
+            </button>
+          </div>
         </div>
 
         {/* ── Fund Overview — mirrors Finance tab ──────────────────────────── */}

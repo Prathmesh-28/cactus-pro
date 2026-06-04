@@ -28,7 +28,7 @@ export default function PermissionsManager() {
     updateRole({ ...role, [field]: next });
   };
 
-  const toggleBool = (role: RolePermissions, field: 'canExport' | 'canAddNotes') => {
+  const toggleBool = (role: RolePermissions, field: 'canExport' | 'canAddNotes' | 'canEditPortfolio') => {
     updateRole({ ...role, [field]: !role[field] });
   };
 
@@ -49,6 +49,7 @@ export default function PermissionsManager() {
             ))}
             <th className="text-center px-3 py-3 font-medium text-gray-600">Export</th>
             <th className="text-center px-3 py-3 font-medium text-gray-600">Notes</th>
+            <th className="text-center px-3 py-3 font-medium text-purple-600" title="Portfolio Admin">Portfolio Admin</th>
           </tr>
           <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-400">
             <th />
@@ -105,10 +106,25 @@ export default function PermissionsManager() {
                   className="rounded cursor-pointer"
                 />
               </td>
+              <td className="text-center px-3 py-3">
+                <input
+                  type="checkbox"
+                  checked={!!role.canEditPortfolio}
+                  onChange={() => toggleBool(role, 'canEditPortfolio')}
+                  className="rounded cursor-pointer accent-purple-600"
+                  title="Portfolio Admin — can edit company data, financial periods, fund view, health dashboard"
+                />
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <div className="bg-purple-50 border border-purple-100 rounded-xl p-3 text-xs text-purple-700 space-y-1">
+        <p className="font-semibold">Portfolio Admin permission explained:</p>
+        <p>When enabled, the role can: edit company valuations / MOIC / IRR, add/edit financial periods (quarterly data), edit the fund view investment ledger, update health dashboard signals, manage founder contacts, and access Portfolio Admin tab.</p>
+        <p>Super Admin always has full access regardless of this toggle.</p>
+      </div>
 
       <p className="text-xs text-gray-400">
         Changes take effect immediately. Switch roles in the header to preview.

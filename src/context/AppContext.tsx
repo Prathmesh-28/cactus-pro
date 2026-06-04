@@ -93,6 +93,7 @@ interface AppContextValue {
   canAccess: (tab: TabName) => boolean;
   canExport: () => boolean;
   canAddNotes: () => boolean;
+  canEditPortfolio: () => boolean;  // portfolio team admin — edit company data, financial periods, fund view
   updateFirm: (f: FirmConfig) => void;
   addSector: (s: Sector) => void;
   updateSector: (s: Sector) => void;
@@ -306,6 +307,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const canAccess  = (tab: TabName) => getRoleConfig().accessibleTabs.includes(tab);
   const canExport  = () => getRoleConfig().canExport;
   const canAddNotes = () => getRoleConfig().canAddNotes;
+  const canEditPortfolio = () => !!(getRoleConfig().canEditPortfolio) || currentRole === 'super_admin';
 
   // ── Firm ──────────────────────────────────────────────────────────────────
   const updateFirm = (firm: FirmConfig) => setStore(s => ({ ...s, firm }));
@@ -490,7 +492,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value: AppContextValue = {
     store, loading, currentRole, setCurrentRole,
-    canAccess, canExport, canAddNotes,
+    canAccess, canExport, canAddNotes, canEditPortfolio,
     updateFirm,
     addSector, updateSector, deleteSector,
     addPerson, updatePerson, deletePerson,

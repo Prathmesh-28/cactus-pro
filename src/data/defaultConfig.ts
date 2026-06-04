@@ -1083,6 +1083,7 @@ export const defaultConfig: AppStore = {
       accessibleTabs: ['portfolio', 'operations', 'toolkit', 'workspace'],
       canExport: true,
       canAddNotes: true,
+      canEditPortfolio: true,  // Full edit access to Portfolio Admin, company metrics, financial periods, fund view, health dashboard, founder directory
     },
     {
       role: 'finance_team',

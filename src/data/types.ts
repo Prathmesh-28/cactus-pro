@@ -180,6 +180,7 @@ export interface RolePermissions {
   accessibleTabs: TabName[];
   canExport: boolean;
   canAddNotes: boolean;
+  canEditPortfolio?: boolean;  // Portfolio admin — can edit company data, financial periods, fund view
 }
 
 // ─── Announcements ────────────────────────────────────────────────────────────

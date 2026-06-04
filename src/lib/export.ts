@@ -616,3 +616,212 @@ export function exportPipelinePDF(store: AppStore) {
 
 // ─── Shared dropdown component helper ────────────────────────────────────────
 export type ExportFormat = 'pdf' | 'excel';
+
+// ─── Fund Investment Ledger — PDF ─────────────────────────────────────────────
+
+export function exportFundLedgerPDF(
+  investments: import('../data/types').FundInvestment[],
+  companies: import('../data/types').PortfolioCompany[],
+  firmName: string,
+  fundFilter: string = 'All Funds',
+) {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  void doc.internal.pageSize.getWidth();
+
+  addHeader(doc, 'Fund Investment Ledger', `${fundFilter} · ${today()}`, firmName);
+
+  const cMap = Object.fromEntries(companies.map(c => [c.id, c.name]));
+  const list = fundFilter === 'All Funds'
+    ? investments
+    : investments.filter(i => i.fund === fundFilter);
+
+  // ── Summary strip ────────────────────────────────────────────────────────────
+  const totalInv = list.reduce((s, i) => s + parseFloat(i.totalInvested || '0'), 0);
+  const totalFMV = list.reduce((s, i) => s + parseFloat(i.currentFMV || '0'), 0);
+  const blendedMOIC = totalInv > 0 ? totalFMV / totalInv : 0;
+  const weightedIRR = list.length
+    ? list.reduce((s, i) => s + parseFloat(i.irr || '0') * parseFloat(i.totalInvested || '0'), 0) / (totalInv || 1)
+    : 0;
+  const distributions = list.reduce((s, i) => s + parseFloat(i.realizedValue || '0'), 0);
+
+  let y = 34;
+  y = kpiRow(doc, [
+    { label: 'Total Invested',   value: `₹${totalInv.toFixed(2)} Cr` },
+    { label: 'Total FMV (NAV)',  value: `₹${totalFMV.toFixed(2)} Cr` },
+    { label: 'Blended MOIC',     value: `${blendedMOIC.toFixed(2)}x` },
+    { label: 'Weighted Avg IRR', value: `${weightedIRR.toFixed(1)}%` },
+    { label: 'Distributions',    value: `₹${distributions.toFixed(2)} Cr` },
+    { label: 'Companies',        value: String(list.length) },
+  ], y);
+
+  y += 6;
+
+  // ── Fund 1 section ──────────────────────────────────────────────────────────
+  const funds = fundFilter === 'All Funds'
+    ? ['Fund 1', 'Fund 2']
+    : [fundFilter];
+
+  for (const fund of funds) {
+    const fundList = list.filter(i => i.fund === fund);
+    if (!fundList.length) continue;
+
+    y = addSectionTitle(doc, `${fund} — ${fundList.length} Investment${fundList.length !== 1 ? 's' : ''}`, y);
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: 10, right: 10 },
+      styles: { fontSize: 7, cellPadding: 2.5, font: 'helvetica', overflow: 'linebreak' },
+      headStyles: { fillColor: C.primary, textColor: C.white, fontStyle: 'bold', fontSize: 7 },
+      alternateRowStyles: { fillColor: [246, 250, 247] },
+      head: [[
+        '#', 'Company', 'Stage at Entry', 'Inv. Date', '1st Cheque (₹Cr)',
+        'Follow-ons', 'Total (₹Cr)', 'Ownership %',
+        'FMV (₹Cr)', 'Val (₹Cr)', 'MOIC', 'IRR %',
+        'Revenue (₹Cr)', 'Rev Growth', 'Burn (₹Cr/mo)', 'Runway',
+        'Status', 'Lead/Follow', 'Board',
+      ]],
+      body: fundList.map((inv, idx) => [
+        idx + 1,
+        cMap[inv.companyId] ?? inv.companyId,
+        inv.stageAtEntry,
+        inv.investmentDate,
+        inv.firstCheque,
+        inv.followOns?.length ?? 0,
+        inv.totalInvested,
+        inv.currentOwnership,
+        inv.currentFMV,
+        inv.currentValuation,
+        `${inv.moic}x`,
+        `${inv.irr}%`,
+        inv.revenue || '—',
+        inv.revenueGrowthYoY ? `${inv.revenueGrowthYoY}%` : '—',
+        inv.monthlyBurn || '—',
+        inv.runway ? `${inv.runway}mo` : '—',
+        inv.status,
+        inv.leadOrFollow,
+        inv.boardSeat ? '✓' : '—',
+      ]),
+      didParseCell(data) {
+        if (data.section === 'body' && data.column.index === 10) {
+          const moic = parseFloat(String(data.cell.raw));
+          if (moic >= 3) data.cell.styles.textColor = [6, 95, 70];
+          else if (moic >= 2) data.cell.styles.textColor = [180, 83, 9];
+          else if (moic < 1) data.cell.styles.textColor = [150, 50, 50];
+        }
+        if (data.section === 'body' && data.column.index === 16) {
+          if (String(data.cell.raw) === 'Watch') data.cell.styles.textColor = [180, 83, 9];
+          if (String(data.cell.raw) === 'Exited') data.cell.styles.textColor = [28, 75, 66];
+        }
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    y = (doc as any).lastAutoTable.finalY + 8;
+
+    // Follow-on detail per company
+    const withFollowOns = fundList.filter(i => (i.followOns?.length ?? 0) > 0);
+    if (withFollowOns.length > 0) {
+      y = addSectionTitle(doc, `${fund} — Follow-on Round Detail`, y);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: 10, right: 10 },
+        styles: { fontSize: 7, cellPadding: 2.5 },
+        headStyles: { fillColor: C.dark, textColor: C.white, fontStyle: 'bold', fontSize: 7 },
+        head: [['Company', 'Round', 'Date', 'Amount (₹Cr)', 'Pre-Money (₹Cr)', 'Post-Money (₹Cr)', 'Ownership Post', 'Lead Investor', 'Notes']],
+        body: withFollowOns.flatMap(inv =>
+          (inv.followOns ?? []).map(fo => [
+            cMap[inv.companyId] ?? inv.companyId,
+            fo.round, fo.date, fo.amount, fo.preMoneyVal, fo.postMoneyVal,
+            fo.ownershipPost, fo.leadInvestor, fo.notes,
+          ])
+        ),
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      y = (doc as any).lastAutoTable.finalY + 10;
+    }
+  }
+
+  addFooter(doc);
+  doc.save(`${firmName}_Fund_Ledger_${fundFilter.replace(/\s+/g,'_')}_${new Date().getFullYear()}.pdf`);
+}
+
+// ─── Fund Investment Ledger — Excel ───────────────────────────────────────────
+
+export function exportFundLedgerExcel(
+  investments: import('../data/types').FundInvestment[],
+  companies: import('../data/types').PortfolioCompany[],
+  firmName: string,
+  fundFilter: string = 'All Funds',
+) {
+  const wb = XLSX.utils.book_new();
+  const cMap = Object.fromEntries(companies.map(c => [c.id, c.name]));
+  const list = fundFilter === 'All Funds'
+    ? investments
+    : investments.filter(i => i.fund === fundFilter);
+
+  const mainHeaders = [
+    'Fund', 'Company', 'Stage at Entry', 'Investment Date', '1st Cheque (₹Cr)',
+    'Follow-on Count', 'Total Invested (₹Cr)', 'Ownership at Entry', 'Current Ownership %',
+    'Current FMV (₹Cr)', 'Current Valuation (₹Cr)', 'MOIC', 'IRR %', 'DPI',
+    'Unrealized Value (₹Cr)', 'Realized Value (₹Cr)',
+    'Revenue FY25 (₹Cr)', 'Revenue Growth YoY %', 'ARR (₹Cr)', 'MRR (₹Cr)',
+    'Gross Margin %', 'EBITDA Margin %', 'Monthly Burn (₹Cr)', 'Cash (₹Cr)',
+    'Runway (months)', 'Headcount', 'NRR %',
+    'Status', 'Lead/Follow', 'Board Seat', 'Next Round Expected', 'Next Round Size',
+    'Notes',
+  ];
+
+  const mainRows = list.map(inv => [
+    inv.fund, cMap[inv.companyId] ?? inv.companyId, inv.stageAtEntry, inv.investmentDate,
+    inv.firstCheque, inv.followOns?.length ?? 0, inv.totalInvested,
+    inv.ownershipAtEntry, inv.currentOwnership, inv.currentFMV, inv.currentValuation,
+    inv.moic, inv.irr, inv.dpi, inv.unrealizedValue, inv.realizedValue,
+    inv.revenue, inv.revenueGrowthYoY, inv.arr, inv.mrr,
+    inv.grossMargin, inv.ebitdaMargin, inv.monthlyBurn, inv.cash,
+    inv.runway, inv.headcount, inv.nrr,
+    inv.status, inv.leadOrFollow, inv.boardSeat ? 'Yes' : 'No',
+    inv.nextRoundExpected, inv.nextRoundSize, inv.notes,
+  ]);
+
+  const ws = XLSX.utils.aoa_to_sheet([mainHeaders, ...mainRows]);
+  ws['!cols'] = Array(mainHeaders.length).fill({ wch: 18 });
+  ws['!cols'][1] = { wch: 24 }; // Company name wider
+  ws['!cols'][32] = { wch: 40 }; // Notes wider
+  XLSX.utils.book_append_sheet(wb, ws, 'Fund Ledger');
+
+  // Follow-on rounds sheet
+  const foHeaders = ['Fund', 'Company', 'Round', 'Date', 'Amount (₹Cr)', 'Pre-Money (₹Cr)', 'Post-Money (₹Cr)', 'Ownership Post', 'Lead Investor', 'Notes'];
+  const foRows = list.flatMap(inv =>
+    (inv.followOns ?? []).map(fo => [
+      inv.fund, cMap[inv.companyId] ?? inv.companyId,
+      fo.round, fo.date, fo.amount, fo.preMoneyVal, fo.postMoneyVal,
+      fo.ownershipPost, fo.leadInvestor, fo.notes,
+    ])
+  );
+  const ws2 = XLSX.utils.aoa_to_sheet([foHeaders, ...foRows]);
+  ws2['!cols'] = Array(foHeaders.length).fill({ wch: 20 });
+  XLSX.utils.book_append_sheet(wb, ws2, 'Follow-on Rounds');
+
+  // Summary by fund sheet
+  const funds = ['Fund 1', 'Fund 2'];
+  const summaryRows = funds.map(f => {
+    const fi = list.filter(i => i.fund === f);
+    const ti = fi.reduce((s, i) => s + parseFloat(i.totalInvested || '0'), 0);
+    const fmv = fi.reduce((s, i) => s + parseFloat(i.currentFMV || '0'), 0);
+    const dist = fi.reduce((s, i) => s + parseFloat(i.realizedValue || '0'), 0);
+    return [
+      f, fi.length, ti.toFixed(2), fmv.toFixed(2),
+      ti > 0 ? (fmv / ti).toFixed(2) : '—',
+      fi.length ? (fi.reduce((s, i) => s + parseFloat(i.irr || '0') * parseFloat(i.totalInvested || '0'), 0) / (ti || 1)).toFixed(1) : '—',
+      dist.toFixed(2),
+      ti > 0 ? ((fmv + dist) / ti).toFixed(2) : '—',
+    ];
+  });
+  const ws3 = XLSX.utils.aoa_to_sheet([
+    ['Fund', 'Companies', 'Total Invested (₹Cr)', 'Total FMV (₹Cr)', 'Fund MOIC', 'Avg IRR %', 'Distributions (₹Cr)', 'TVPI'],
+    ...summaryRows,
+  ]);
+  ws3['!cols'] = Array(8).fill({ wch: 22 });
+  XLSX.utils.book_append_sheet(wb, ws3, 'Fund Summary');
+
+  XLSX.writeFile(wb, `${firmName}_Fund_Ledger_${fundFilter.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
