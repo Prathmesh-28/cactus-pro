@@ -391,6 +391,38 @@ export interface AppStore {
   onboardingTasks:     OnboardingTask[];
   // ── Financial Time Series ─────────────────────────────────────────────────
   financialPeriods:    CompanyFinancialPeriod[];
+  // ── Shared admin configs (synced to PostgreSQL, shared across all users) ───
+  navConfig:           NavTabConfig[] | null;
+  recruitmentConfig:   RecruitmentAppConfig | null;
+  opsConfig:           OpsAppConfig | null;
+  financeData:         Record<string, unknown>; // finance tab KV data
+}
+
+// ── Shared config types ───────────────────────────────────────────────────────
+
+export interface NavTabConfig {
+  key: string;
+  label: string;
+  customLabel: string;
+  visible: boolean;
+}
+
+export interface RecruitmentAppConfig {
+  departments: string[];
+  candidateSources: string[];
+  onboardingTasks: Array<{
+    id: string;
+    task: string;
+    category: string;
+    dueDays: number;
+  }>;
+  offerLetterTemplate: string;
+}
+
+export interface OpsAppConfig {
+  meetingTypes: Array<{ key: string; label: string; icon: string }>;
+  taskPriorities: Array<{ key: string; label: string; color: string }>;
+  introStatuses: Array<{ key: string; label: string; color: string }>;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useApp } from '../../context/AppContext';
 import { Plus, Trash2, Check, AlertTriangle } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -55,8 +56,6 @@ const DEFAULT_INTRO_STATUSES: IntroStatus[] = [
   { key: 'closed_lost', label: 'Closed Lost', color: '#6B7280' },
 ];
 
-const LS_KEY = 'cactus_ops_config';
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ic = 'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white';
@@ -69,13 +68,7 @@ function genId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function loadConfig(): OpsConfig {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) return JSON.parse(raw) as OpsConfig;
-  } catch {
-    // ignore parse errors — fall through to defaults
-  }
+function defaultOpsConfig(): OpsConfig {
   return {
     meetingNoteTypes: DEFAULT_MEETING_NOTE_TYPES,
     priorityLevels: DEFAULT_PRIORITY_LEVELS,
@@ -141,7 +134,14 @@ function Section({ title, subtitle, children, onSave, saved }: SectionProps) {
 type SectionKey = 'A' | 'B' | 'C' | 'global';
 
 export default function OperationsConfigManager() {
-  const [cfg, setCfg] = useState<OpsConfig>(loadConfig);
+  const { store, setOpsConfig } = useApp();
+  const [cfg, setCfg] = useState<OpsConfig>(() =>
+    (store.opsConfig as unknown as OpsConfig) ?? defaultOpsConfig()
+  );
+
+  useEffect(() => {
+    if (store.opsConfig) setCfg(store.opsConfig as unknown as OpsConfig);
+  }, [store.opsConfig]);
   const [savedSection, setSavedSection] = useState<SectionKey | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -157,17 +157,16 @@ export default function OperationsConfigManager() {
   }, []);
 
   const persist = useCallback((updated: OpsConfig, section: SectionKey, msg: string) => {
-    localStorage.setItem(LS_KEY, JSON.stringify(updated));
+    setOpsConfig(updated as unknown as import('../../data/types').OpsAppConfig);
     setSavedSection(section);
     showToast(msg);
     setTimeout(() => setSavedSection(null), 2000);
-  }, [showToast]);
+  }, [showToast, setOpsConfig]);
 
   const saveSection = (section: SectionKey, msg: string) => persist(cfg, section, msg);
 
   const saveAll = () => {
-    const updated = cfg;
-    localStorage.setItem(LS_KEY, JSON.stringify(updated));
+    setOpsConfig(cfg as unknown as import('../../data/types').OpsAppConfig);
     setSavedSection('global');
     showToast('All sections saved successfully.');
     setTimeout(() => setSavedSection(null), 2000);

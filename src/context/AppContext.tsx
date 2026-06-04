@@ -15,6 +15,7 @@ import type {
   ResearchDocument, FounderPortalAccess,
   JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
   CompanyFinancialPeriod,
+  NavTabConfig, RecruitmentAppConfig, OpsAppConfig,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -103,6 +104,12 @@ interface AppContextValue {
   updateFinancialPeriod: (x: CompanyFinancialPeriod) => void;
   deleteFinancialPeriod: (id: string) => void;
   upsertFinancialPeriod: (x: CompanyFinancialPeriod) => void; // add or update by composite key
+  // Shared config setters (synced to PostgreSQL for all users)
+  setNavConfig: (cfg: NavTabConfig[]) => void;
+  setRecruitmentConfig: (cfg: RecruitmentAppConfig) => void;
+  setOpsConfig: (cfg: OpsAppConfig) => void;
+  setFinanceData: (key: string, val: unknown) => void;
+  getFinanceData: <T>(key: string) => T | null;
 
   // Config sections
   updateDealStages: (stages: DealStageConfig[]) => void;
@@ -134,9 +141,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const remoteStore = remote as AppStore;
         setStoreRaw(remoteStore);
         localStorage.setItem(LS_KEY, JSON.stringify(remoteStore));
+
+        // Push finance data keys back into localStorage so finance hooks read synced data
+        if (remoteStore.financeData) {
+          Object.entries(remoteStore.financeData).forEach(([k, v]) => {
+            try { localStorage.setItem(k, JSON.stringify(v)); } catch {}
+          });
+        }
       }
       setLoading(false);
     }).catch(() => setLoading(false));
+  }, []);
+
+  // ── Bridge: finance tab writes → AppContext → PostgreSQL ─────────────────────
+  useEffect(() => {
+    const FIN_EVT = 'fin-store-changed';
+    const finTimer: Record<string, ReturnType<typeof setTimeout>> = {};
+    const handler = (e: Event) => {
+      const key = (e as CustomEvent).detail?.key as string;
+      if (!key || !key.startsWith('fin_')) return;
+      if (finTimer[key]) clearTimeout(finTimer[key]);
+      finTimer[key] = setTimeout(() => {
+        try {
+          const val = localStorage.getItem(key);
+          if (val !== null) {
+            setStore(s => ({
+              ...s,
+              financeData: { ...(s.financeData ?? {}), [key]: JSON.parse(val) },
+            }));
+          }
+        } catch {}
+      }, 300);
+    };
+    window.addEventListener(FIN_EVT, handler);
+    return () => window.removeEventListener(FIN_EVT, handler);
   }, []);
 
   // ── Save to localStorage immediately + PostgreSQL debounced ─────────────────
@@ -314,6 +352,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { ...s, financialPeriods: [...(s.financialPeriods??[]), x] };
   });
 
+  // ── Shared config (all users see same values via PostgreSQL) ─────────────
+  const setNavConfig         = (cfg: NavTabConfig[])         => setStore(s => ({ ...s, navConfig: cfg }));
+  const setRecruitmentConfig = (cfg: RecruitmentAppConfig)   => setStore(s => ({ ...s, recruitmentConfig: cfg }));
+  const setOpsConfig         = (cfg: OpsAppConfig)           => setStore(s => ({ ...s, opsConfig: cfg }));
+  const setFinanceData       = (key: string, val: unknown)   => setStore(s => ({ ...s, financeData: { ...(s.financeData??{}), [key]: val } }));
+  const getFinanceData       = <T,>(key: string): T | null   => (store.financeData?.[key] as T) ?? null;
+
   // ── New config sections ──────────────────────────────────────────────────
   const updateDealStages       = (stages: DealStageConfig[])      => setStore(s => ({ ...s, dealStages: stages }));
   const updateKpiThresholds    = (t: KpiThresholds)               => setStore(s => ({ ...s, kpiThresholds: t }));
@@ -372,6 +417,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addOfferLetter, updateOfferLetter, deleteOfferLetter,
     addOnboardingTask, updateOnboardingTask, deleteOnboardingTask,
     addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
+    setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,

@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useApp } from '../../context/AppContext';
 import { Plus, Trash2, Check, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -99,8 +100,6 @@ const CATEGORY_LABELS: Record<OnboardingCategory, string> = {
   other: 'Other',
 };
 
-const LS_KEY = 'cactus_recruitment_config';
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ic = 'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white';
@@ -109,13 +108,7 @@ function genId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function loadConfig(): RecruitmentConfig {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) return JSON.parse(raw) as RecruitmentConfig;
-  } catch {
-    // ignore parse errors — fall through to defaults
-  }
+function defaultConfig(): RecruitmentConfig {
   return {
     departments: DEFAULT_DEPARTMENTS,
     candidateSources: DEFAULT_SOURCES,
@@ -224,7 +217,15 @@ function StringListEditor({ items, onChange, placeholder, addLabel }: StringList
 type Section = 'A' | 'B' | 'C' | 'D';
 
 export default function RecruitmentConfigManager() {
-  const [cfg, setCfg] = useState<RecruitmentConfig>(loadConfig);
+  const { store, setRecruitmentConfig } = useApp();
+  const [cfg, setCfg] = useState<RecruitmentConfig>(() =>
+    (store.recruitmentConfig as RecruitmentConfig | null) ?? defaultConfig()
+  );
+
+  // Sync if another user saved config
+  useEffect(() => {
+    if (store.recruitmentConfig) setCfg(store.recruitmentConfig as unknown as RecruitmentConfig);
+  }, [store.recruitmentConfig]);
   const [openSection, setOpenSection] = useState<Section>('A');
   const [savedSection, setSavedSection] = useState<Section | null>(null);
   const [copiedPh, setCopiedPh] = useState<string | null>(null);
@@ -235,10 +236,10 @@ export default function RecruitmentConfigManager() {
   const [newTaskDueDays, setNewTaskDueDays] = useState(1);
 
   const persist = useCallback((updated: RecruitmentConfig, section: Section) => {
-    localStorage.setItem(LS_KEY, JSON.stringify(updated));
+    setRecruitmentConfig(updated as unknown as import('../../data/types').RecruitmentAppConfig);
     setSavedSection(section);
     setTimeout(() => setSavedSection(null), 2000);
-  }, []);
+  }, [setRecruitmentConfig]);
 
   const saveSection = (section: Section) => persist(cfg, section);
 

@@ -1427,6 +1427,10 @@ export const defaultConfig: AppStore = {
   offerLetters:        [],
   onboardingTasks:     [],
   financialPeriods:    [],
+  navConfig:           null,
+  recruitmentConfig:   null,
+  opsConfig:           null,
+  financeData:         {},
 
   portfolioSnapshot: [
     { companyId: 'c3',  dateOfFirstInvestment: '15.4.21', currentStake: 300000000,  currentEquityValue: 20000000, valueOfInvestment: 10000000, moic: 3, irr: 30 },

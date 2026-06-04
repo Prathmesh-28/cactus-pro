@@ -2,13 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ChevronUp, ChevronDown, Eye, EyeOff, RotateCcw, Save, Info } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface NavTabConfig {
-  key: string;
-  label: string;
-  customLabel: string;
-  visible: boolean;
-}
+import type { NavTabConfig } from '../../data/types';
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 const DEFAULT_TABS: NavTabConfig[] = [
@@ -21,44 +15,28 @@ const DEFAULT_TABS: NavTabConfig[] = [
   { key: 'admin',     label: 'Admin',      customLabel: '', visible: true },
 ];
 
-const LS_KEY = 'cactus_nav_config';
-
-// ─── Persistence helpers ──────────────────────────────────────────────────────
-function loadFromStorage(): NavTabConfig[] {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return DEFAULT_TABS.map((t) => ({ ...t }));
-    const parsed = JSON.parse(raw) as NavTabConfig[];
-    // Merge saved values onto defaults so new tabs are always included
-    return DEFAULT_TABS.map((def) => {
-      const saved = parsed.find((p) => p.key === def.key);
-      return saved ? { ...def, ...saved } : { ...def };
-    });
-  } catch {
-    return DEFAULT_TABS.map((t) => ({ ...t }));
-  }
-}
-
-function saveToStorage(tabs: NavTabConfig[]): void {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(tabs));
-  } catch {
-    // Silently ignore storage errors
-  }
+// ─── Merge helper ─────────────────────────────────────────────────────────────
+function mergeTabs(saved: NavTabConfig[] | null): NavTabConfig[] {
+  if (!saved) return DEFAULT_TABS.map(t => ({ ...t }));
+  return DEFAULT_TABS.map(def => {
+    const s = saved.find(p => p.key === def.key);
+    return s ? { ...def, ...s } : { ...def };
+  });
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function NavigationManager() {
-  const { store } = useApp();
+  const { store, setNavConfig } = useApp();
   const { firm } = store;
 
-  const [tabs, setTabs] = useState<NavTabConfig[]>(loadFromStorage);
+  // Load from AppStore (PostgreSQL-synced) — merge with defaults
+  const [tabs, setTabs] = useState<NavTabConfig[]>(() => mergeTabs(store.navConfig as NavTabConfig[] | null));
   const [saved, setSaved] = useState(false);
 
-  // Re-load from storage when the component mounts (in case it was updated elsewhere)
+  // Re-sync when store.navConfig changes (another user may have updated it)
   useEffect(() => {
-    setTabs(loadFromStorage());
-  }, []);
+    setTabs(mergeTabs(store.navConfig as NavTabConfig[] | null));
+  }, [store.navConfig]);
 
   // ── Reorder ───────────────────────────────────────────────────────────────
   const moveUp = useCallback((index: number) => {
@@ -98,11 +76,10 @@ export default function NavigationManager() {
     setSaved(false);
   }, []);
 
-  // ── Save ──────────────────────────────────────────────────────────────────
+  // ── Save to AppContext → PostgreSQL (shared with all users) ──────────────
   const handleSave = () => {
-    saveToStorage(tabs);
+    setNavConfig(tabs);
     setSaved(true);
-    // Reset the "Saved!" indicator after 2 seconds
     setTimeout(() => setSaved(false), 2000);
   };
 
@@ -110,7 +87,7 @@ export default function NavigationManager() {
   const handleReset = () => {
     const defaults = DEFAULT_TABS.map((t) => ({ ...t }));
     setTabs(defaults);
-    saveToStorage(defaults);
+    setNavConfig(defaults);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
