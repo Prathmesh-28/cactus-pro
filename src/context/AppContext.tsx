@@ -184,9 +184,23 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+function seedPortfolioFundView(s: AppStore): AppStore {
+  if ((!s.portfolioFundView || s.portfolioFundView.length === 0) && s.fundInvestments?.length > 0) {
+    return {
+      ...s,
+      portfolioFundView: s.fundInvestments.map(inv => ({
+        ...inv,
+        id: `pf_${inv.id}`,
+        followOns: (inv.followOns ?? []).map(fo => ({ ...fo, id: `pf_${fo.id}` })),
+      })),
+    };
+  }
+  return s;
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   // Start with localStorage for instant render, then hydrate from PostgreSQL
-  const [store, setStoreRaw] = useState<AppStore>(loadLocal() ?? defaultConfig);
+  const [store, setStoreRaw] = useState<AppStore>(() => seedPortfolioFundView(loadLocal() ?? defaultConfig));
   const [loading, setLoading] = useState(true);
   const [currentRole, setCurrentRoleState] = useState<RoleName>(
     () => (localStorage.getItem(ROLE_KEY) as RoleName) ?? 'super_admin'
@@ -210,7 +224,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       if (Object.keys(merged).length > 0) {
-        const mergedStore = { ...(loadLocal() ?? defaultConfig), ...merged } as AppStore;
+        let mergedStore = { ...(loadLocal() ?? defaultConfig), ...merged } as AppStore;
+
+        // Seed portfolioFundView from fundInvestments if empty (first load)
+        if ((!mergedStore.portfolioFundView || mergedStore.portfolioFundView.length === 0)
+            && mergedStore.fundInvestments?.length > 0) {
+          mergedStore = {
+            ...mergedStore,
+            portfolioFundView: mergedStore.fundInvestments.map(inv => ({
+              ...inv,
+              id: `pf_${inv.id}`,
+              followOns: (inv.followOns ?? []).map(fo => ({ ...fo, id: `pf_${fo.id}` })),
+            })),
+          };
+        }
+
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
 

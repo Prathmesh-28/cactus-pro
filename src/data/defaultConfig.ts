@@ -1802,22 +1802,89 @@ export const defaultConfig: AppStore = {
       p('fp_c13_fy24','c13','FY2024',undefined,'240','','','','29','14','7','33','','','','1300','2.5','34',460,'8','65','','','','Scale-up phase','Last Round'),
       p('fp_c13_fy25','c13','FY2025',undefined,'310','','','','30','15','8','29','','','','1800','3.2','38',540,'8','80','','','','Series B momentum','Last Round'),
       p('fp_c13_fy26','c13','FY2026',undefined,'400','','','','31','17','10','29','','','','2400','4.1','44',620,'8','100','','','','FY26 projected','Revenue Multiple'),
+      p('fp_c13_fy27','c13','FY2027',undefined,'490','','','','32','18','11','22','','','','3000','5.1','48',700,'7','130','','','','FY27 — Pre-IPO filing. Materials tech leader','Revenue Multiple'),
+      p('fp_c13_fy28','c13','FY2028',undefined,'590','','','','33','19','12','20','','','','3700','6.3','51',780,'6','160','','','','FY28 — IPO year. ₹590Cr revenue','DCF'),
+      p('fp_c13_fy29','c13','FY2029',undefined,'680','','','','34','20','13','15','','','','4400','7.5','52',850,'5','200','','','','FY29 — Post-IPO growth. International expansion','DCF'),
+      p('fp_c13_fy30','c13','FY2030',undefined,'780','','','','35','21','14','15','','','','5000','8.6','53',920,'4','240','','','','FY30 — ₹780Cr. Cactus exit at 8.6x','DCF'),
+
+      // ══════════════════════════════════════════════════════════════════════════
+      // FY27–FY30 PROJECTIONS FOR ALL COMPANIES
+      // ══════════════════════════════════════════════════════════════════════════
+
+      // c8: Auric — D2C Health Drinks (Seed→Series A trajectory)
+      p('fp_c8_fy27','c8','FY2027',undefined,'280','','','','60','14','8','40','','','','1800','7.5','58',220,'2','75','','','','FY27 — Series A deployed. 40% growth. Margin expansion.','Revenue Multiple'),
+      p('fp_c8_fy28','c8','FY2028',undefined,'370','','','','62','17','11','32','','','','2500','10.5','62',290,'2','95','','','','FY28 — National retail distribution. Profitability strong.','Revenue Multiple'),
+      p('fp_c8_fy29','c8','FY2029',undefined,'470','','','','64','20','14','27','','','','3200','13.5','65',360,'1','120','','','','FY29 — Pre-IPO. International exports begin.','DCF'),
+      p('fp_c8_fy30','c8','FY2030',undefined,'580','','','','65','22','16','23','','','','4000','17.0','67',440,'1','150','','','','FY30 — IPO. ₹580Cr. Cactus FMV ₹272Cr = 17x MOIC.','DCF'),
+
+      // c11: Vitraya — AI Health Claims (profitable FY25)
+      p('fp_c11_fy27','c11','FY2027',undefined,'45','','','','72','18','13','50','','','','600','9.0','52',130,'','','','','','FY27 — 50% growth. Health insurer expansion.','Revenue Multiple'),
+      p('fp_c11_fy28','c11','FY2028',undefined,'62','','','','74','21','16','38','','','','850','12.8','56',175,'','','','','','FY28 — Series B close. Hospital network onboarding.','Revenue Multiple'),
+      p('fp_c11_fy29','c11','FY2029',undefined,'80','','','','75','23','18','29','','','','1100','16.5','58',220,'','','','','','FY29 — Pre-IPO. Pan-India coverage.','DCF'),
+      p('fp_c11_fy30','c11','FY2030',undefined,'100','','','','76','25','20','25','','','','1400','21.0','60',270,'','','','','','FY30 — ₹100Cr ARR. IPO target.','DCF'),
+
+      // c5: Brandworks Technologies — EMS/AI Hardware
+      p('fp_c5_fy27','c5','FY2027',undefined,'430','','','','26','14','9','27','','','','1800','5.3','46',580,'5','80','','','','FY27 — Domestic EMS leader. Export orders growing.','Revenue Multiple'),
+      p('fp_c5_fy28','c5','FY2028',undefined,'545','','','','27','16','11','27','','','','2300','6.8','50',660,'5','105','','','','FY28 — AI hardware line launched. Margin expansion.','Revenue Multiple'),
+      p('fp_c5_fy29','c5','FY2029',undefined,'670','','','','28','17','12','23','','','','2900','8.6','53',740,'4','135','','','','FY29 — PLI scheme beneficiary. Government contracts.','DCF'),
+      p('fp_c5_fy30','c5','FY2030',undefined,'800','','','','29','18','13','19','','','','3500','10.3','55',820,'4','170','','','','FY30 — ₹800Cr. Cactus FMV ₹201Cr = 10.3x.','DCF'),
+
+      // c7: Kapture CRM — AI CX SaaS (NRR >110%)
+      p('fp_c7_fy27','c7','FY2027',undefined,'95','95','7.9','','77','22','14','32','32','122','1.2','900','5.8','50',300,'1','65','','','','FY27 — ₹95Cr ARR. International expansion US/SEA.','Revenue Multiple'),
+      p('fp_c7_fy28','c7','FY2028',undefined,'128','128','10.7','','78','24','16','35','35','125','1.0','1250','8.0','55',370,'1','88','','','','FY28 — $15M ARR equivalent. Pre-IPO.','Revenue Multiple'),
+      p('fp_c7_fy29','c7','FY2029',undefined,'165','165','13.8','','79','26','18','29','29','128','0.9','1600','10.3','58',440,'1','115','','','','FY29 — Global SaaS. Enterprise tier strong.','DCF'),
+      p('fp_c7_fy30','c7','FY2030',undefined,'205','205','17.1','','80','28','20','24','24','130','0.8','2000','12.9','60',520,'1','150','','','','FY30 — ₹205Cr ARR. Cactus FMV ₹142Cr = 12.9x.','DCF'),
+
+      // c2: ShowroomB2B — AI Apparel Sourcing
+      p('fp_c2_fy27','c2','FY2027',undefined,'200','','','','23','11','7','38','','','','2000','6.8','50',310,'','','','','','FY27 — Post Series A scale. B2B marketplace dominance.','Revenue Multiple'),
+      p('fp_c2_fy28','c2','FY2028',undefined,'270','','','','24','13','9','35','','','','2800','9.5','55',390,'','','','','','FY28 — ₹270Cr. International fashion sourcing.','Revenue Multiple'),
+      p('fp_c2_fy29','c2','FY2029',undefined,'350','','','','25','15','11','30','','','','3600','12.3','58',480,'','','','','','FY29 — Pre-IPO. 35% GMV from exports.','DCF'),
+      p('fp_c2_fy30','c2','FY2030',undefined,'440','','','','26','17','13','26','','','','4500','15.4','60',580,'','','','','','FY30 — ₹440Cr. Listed. Cactus FMV ₹218Cr = 15.4x.','DCF'),
+
+      // c4: Indigrid Technology — EV Powertrain
+      p('fp_c4_fy27','c4','FY2027',undefined,'195','','','','24','14','9','32','','','','1200','5.8','48',440,'4','62','','','','FY27 — EV powertrain supply to 3 OEMs. Export orders.','Revenue Multiple'),
+      p('fp_c4_fy28','c4','FY2028',undefined,'255','','','','25','16','11','31','','','','1600','7.7','52',520,'3','82','','','','FY28 — ESDM PLI beneficiary. Series B close.','Revenue Multiple'),
+      p('fp_c4_fy29','c4','FY2029',undefined,'320','','','','26','17','12','25','','','','2000','9.7','55',600,'3','105','','','','FY29 — ₹320Cr. 4 OEM partnerships.','DCF'),
+      p('fp_c4_fy30','c4','FY2030',undefined,'400','','','','27','18','13','25','','','','2500','12.1','57',680,'3','135','','','','FY30 — ₹400Cr. Cactus FMV ₹148Cr = 12.1x.','DCF'),
+
+      // c9: AMPM — D2C Women Fashion (30.12% Cactus stake)
+      p('fp_c9_fy27','c9','FY2027',undefined,'85','','','','55','12','5','37','','','','200','5.2','42',125,'3','48','','','','FY27 — D2C scale. Offline retail entry.','Revenue Multiple'),
+      p('fp_c9_fy28','c9','FY2028',undefined,'120','','','','57','15','8','41','','','','290','7.5','48',175,'3','65','','','','FY28 — ₹120Cr. Private label margins improving.','Revenue Multiple'),
+      p('fp_c9_fy29','c9','FY2029',undefined,'165','','','','58','17','10','38','','','','400','10.4','52',230,'2','88','','','','FY29 — Pre-Series B. Profitability achieved.','DCF'),
+      p('fp_c9_fy30','c9','FY2030',undefined,'215','','','','60','19','12','30','','','','520','13.5','55',295,'2','115','','','','FY30 — ₹215Cr. Cactus FMV ₹157Cr = 13.5x MOIC (30.12% stake).','DCF'),
+
+      // c12: ParkMate — Valet Parking
+      p('fp_c12_fy27','c12','FY2027',undefined,'12','','','','49','12','4','50','','','','80','5.5','42',50,'','','','','','FY27 — 50% growth. 8 cities. SaaS model pivot.','Revenue Multiple'),
+      p('fp_c12_fy28','c12','FY2028',undefined,'18','','','','50','15','7','50','','','','120','8.3','48',70,'','','','','','FY28 — Airport contracts. ₹18Cr revenue.','Revenue Multiple'),
+      p('fp_c12_fy29','c12','FY2029',undefined,'26','','','','51','17','9','44','','','','170','11.7','52',92,'','','','','','FY29 — 15 cities. B2B SaaS + valet.','DCF'),
+      p('fp_c12_fy30','c12','FY2030',undefined,'36','','','','52','19','11','38','','','','230','16.0','55',120,'','','','','','FY30 — ₹36Cr. Cactus FMV ₹20Cr = 16x MOIC.','DCF'),
+
+      // c1: Bellatrix Aerospace — Satellite Propulsion (deep-tech, long horizon)
+      p('fp_c1_fy27','c1','FY2027',undefined,'22','','','','','','-25','1157','','','','1800','6.8','52',130,'3','115','38', '','','','FY27 — Commercial contracts live. ₹22Cr revenue. ISRO prime.','Revenue Multiple'),
+      p('fp_c1_fy28','c1','FY2028',undefined,'55','','','','','','-5','150','','','','2600','9.8','56',175,'2','160','80','','','','FY28 — EBITDA breakeven. International satellite contracts.','Revenue Multiple'),
+      p('fp_c1_fy29','c1','FY2029',undefined,'110','','','','','','8','100','','','','3500','13.2','60',230,'1','200','200','','','','FY29 — ₹110Cr. EBITDA positive. Series C.','DCF'),
+      p('fp_c1_fy30','c1','FY2030',undefined,'200','','','','','','15','82','','','','4500','17.0','64',300,'1','260','','','','FY30 — ₹200Cr. Pre-IPO. Deep-tech valuation re-rating.','DCF'),
+
+      // c10: Ananant Systems — Semiconductors/5G (pre-revenue early)
+      p('fp_c10_fy27','c10','FY2027',undefined,'12','','','','','','-30','400','','','','350','6.2','50',70,'1','42','','','','FY27 — 5G chip commercial sales. ₹12Cr revenue.','Revenue Multiple'),
+      p('fp_c10_fy28','c10','FY2028',undefined,'28','','','','','','0','133','','','','520','9.2','55',95,'1','58','21','','','','FY28 — EBITDA breakeven. Defense contracts signed.','Revenue Multiple'),
+      p('fp_c10_fy29','c10','FY2029',undefined,'55','','','','','','10','96','','','','750','13.3','60',130,'1','80','','','','FY29 — ₹55Cr. Fab-light model profitable.','DCF'),
+      p('fp_c10_fy30','c10','FY2030',undefined,'100','','','','','','18','82','','','','1100','19.5','65',180,'','110','','','','FY30 — ₹100Cr. Cactus FMV ₹29Cr = 19.5x on ₹8Cr invested.','DCF'),
+
+      // c6: Intangles — Automotive IoT SaaS
+      p('fp_c6_fy27','c6','FY2027',undefined,'42','42','3.5','','70','16','9','32','32','115','1.8','620','6.5','52',210,'1','60','','','','FY27 — Fleet SaaS. EV monitoring vertical added.','Revenue Multiple'),
+      p('fp_c6_fy28','c6','FY2028',undefined,'55','55','4.6','','71','18','11','31','31','118','1.5','850','9.0','56',270,'1','80','','','','FY28 — ₹55Cr ARR. International fleet clients.','Revenue Multiple'),
+      p('fp_c6_fy29','c6','FY2029',undefined,'70','70','5.8','','72','20','13','27','27','120','1.3','1100','11.5','59',330,'1','105','','','','FY29 — Pre-IPO. Connected mobility platform.','DCF'),
+      p('fp_c6_fy30','c6','FY2030',undefined,'88','88','7.3','','73','22','15','26','26','122','1.1','1400','14.7','62',400,'1','135','','','','FY30 — ₹88Cr ARR. Cactus FMV ₹70Cr = 14.7x.','DCF'),
     ];
   })(),
   navConfig:           null,
   recruitmentConfig:   null,
   opsConfig:           null,
   financeData:         {},
-  // Portfolio team's independent copy — same seed data, diverges from finance copy over time
-  // Portfolio team's independent copy of fund investment data
-  // Same seed as fundInvestments but with pf_ id prefix — diverges independently from finance copy
-  get portfolioFundView() {
-    return (this.fundInvestments as import('./types').FundInvestment[]).map(inv => ({
-      ...inv,
-      id: `pf_${inv.id}`,
-      followOns: inv.followOns.map(fo => ({ ...fo, id: `pf_${fo.id}` })),
-    }));
-  },
+  // Portfolio team's independent copy of fund investment data (pf_ prefix IDs)
+  // Static pre-computed so it survives JSON serialization
+  portfolioFundView: [] as import('./types').FundInvestment[], // seeded by AppContext on first load
 
   portfolioSnapshot: [
     { companyId: 'c3',  dateOfFirstInvestment: '15.4.21', currentStake: 300000000,  currentEquityValue: 20000000, valueOfInvestment: 10000000, moic: 3, irr: 30 },
