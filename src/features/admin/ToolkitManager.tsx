@@ -5,7 +5,7 @@
  * Changes saved to PostgreSQL KV and reflected for all users instantly.
  */
 import { useState } from 'react';
-import { ExternalLink, Save, X, Check, Globe, Tag } from 'lucide-react';
+import { ExternalLink, Save, X, Check, Globe } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 // ── Mirror the framework list from VCToolkitPage (source of truth stays there) ─

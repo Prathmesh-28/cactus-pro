@@ -255,7 +255,7 @@ export default function VCToolkitPage() {
   const [launchedId, setLaunchedId] = useState<string | null>(null);
 
   // Merge admin-set URLs over static defaults
-  const FRAMEWORKS_WITH_LINKS = FRAMEWORKS.map(fw => ({
+  const FRAMEWORKS_WITH_LINKS = FW.map((fw: typeof FW[0]) => ({
     ...fw,
     url: adminLinks[fw.id] || fw.url,
   }));
