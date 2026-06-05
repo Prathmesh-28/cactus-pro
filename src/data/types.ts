@@ -404,6 +404,7 @@ export interface AppStore {
   recruitmentConfig:   RecruitmentAppConfig | null;
   opsConfig:           OpsAppConfig | null;
   financeData:         Record<string, unknown>; // finance tab KV data
+  toolkitLinks:        Record<string, string>;  // frameworkId → external URL (admin-managed)
 }
 
 // ── Shared config types ───────────────────────────────────────────────────────

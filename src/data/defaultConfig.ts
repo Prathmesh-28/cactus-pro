@@ -1937,6 +1937,7 @@ export const defaultConfig: AppStore = {
   recruitmentConfig:   null,
   opsConfig:           null,
   financeData:         {},
+  toolkitLinks:        {},
   // Portfolio team's independent copy of fund investment data (pf_ prefix IDs)
   // Static pre-computed so it survives JSON serialization
   portfolioFundView: [] as import('./types').FundInvestment[], // seeded by AppContext on first load

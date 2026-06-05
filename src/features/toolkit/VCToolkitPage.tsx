@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Wrench, Building2, Rocket, BarChart2, TrendingUp, Calculator, Globe, Activity, DoorOpen, ExternalLink, X, Play } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { getToolComponent } from './tools/_registry';
+import { useApp } from '../../context/AppContext';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -245,20 +246,29 @@ function CatIcon({ id }: { id: CatId }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function VCToolkitPage() {
+  const { store } = useApp();
+  const adminLinks: Record<string, string> = store.toolkitLinks ?? {};
+
   const [activeSection, setActiveSection] = useState<string>('suite');
   const [activeCat, setActiveCat] = useState<CatId>('all');
-  const [activeId, setActiveId] = useState<string | null>(null);   // info popup
-  const [launchedId, setLaunchedId] = useState<string | null>(null); // full tool modal
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [launchedId, setLaunchedId] = useState<string | null>(null);
+
+  // Merge admin-set URLs over static defaults
+  const FRAMEWORKS_WITH_LINKS = FRAMEWORKS.map(fw => ({
+    ...fw,
+    url: adminLinks[fw.id] || fw.url,
+  }));
 
   const section = TOOLKIT_SECTIONS.find(s => s.id === activeSection)!;
 
-  const visibleFrameworks = FW.filter(f => {
+  const visibleFrameworks = FRAMEWORKS_WITH_LINKS.filter(f => {
     if (activeCat !== 'all') return f.cat === activeCat;
     if (section.catFilter[0] === 'all') return true;
     return section.catFilter.includes(f.cat);
   });
 
-  const selectedFw = FW.find(f => f.id === activeId) ?? null;
+  const selectedFw = FRAMEWORKS_WITH_LINKS.find(f => f.id === activeId) ?? null;
 
   function handleSectionClick(sId: string) {
     setActiveSection(sId);

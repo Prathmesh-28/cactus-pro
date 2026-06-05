@@ -22,6 +22,7 @@ import RecruitmentConfigManager from './RecruitmentConfigManager';
 import OperationsConfigManager from './OperationsConfigManager';
 import MasterSheetManager from './MasterSheetDownloader';
 import ChangelogView from './ChangelogView';
+import ToolkitManager from './ToolkitManager';
 import {
   Settings,
   Building2,
@@ -45,6 +46,7 @@ import {
   Sliders,
   FileSpreadsheet,
   Activity,
+  Wrench,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -54,7 +56,7 @@ type AdminTab =
   | 'homepage' | 'kpi_thresholds' | 'finance_config' | 'taxonomy'
   | 'portfolio_snapshot' | 'users'
   | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config'
-  | 'master_sheet' | 'changelog';
+  | 'master_sheet' | 'changelog' | 'toolkit_links';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
   // ── Platform ──────────────────────────────────────────────────────────────
@@ -83,6 +85,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: str
   { key: 'operations_config',  label: 'Operations Config',    Icon: Sliders,          group: 'Operations' },
   { key: 'recruitment_config', label: 'Recruitment Config',   Icon: UserCheck,        group: 'Operations' },
   { key: 'changelog',          label: 'Activity Log',          Icon: Activity,         group: 'Platform' },
+  { key: 'toolkit_links',      label: 'VC Toolkit Links',      Icon: Wrench,           group: 'Platform' },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -171,6 +174,7 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
     note: 'Download the pre-populated template, fill in updated numbers in Excel, then re-upload to sync data back into the portal.',
   },
   changelog: { affects: ['Read-only — shows last 200 login/invite/role-change events'] },
+  toolkit_links: { affects: ['VC Toolkit page — external URLs per tool, Built/To build status'] },
 };
 
 export default function AdminPage() {
@@ -202,6 +206,7 @@ export default function AdminPage() {
     operations_config:    <OperationsConfigManager />,
     master_sheet:         <MasterSheetManager />,
     changelog:            <ChangelogView />,
+    toolkit_links:        <ToolkitManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);
