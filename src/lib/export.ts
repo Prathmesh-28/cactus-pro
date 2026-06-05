@@ -459,7 +459,7 @@ export function exportFinancePDF(store: AppStore) {
   const snap = (portfolioSnapshot ?? []).map(row => {
     const co = companies.find(c => c.id === row.companyId);
     const fmt = (n: number | null) => n === null ? '—' : `₹${(n/1e7).toFixed(2)} Cr`;
-    return [co?.name ?? row.companyId, row.dateOfFirstInvestment, fmt(row.currentStake), fmt(row.currentEquityValue), fmt(row.valueOfInvestment), `${row.moic}x`, `${row.irr}%`];
+    return [co?.name ?? row.companyName ?? '', row.dateOfFirstInvestment, fmt(row.currentStake), fmt(row.currentEquityValue), fmt(row.valueOfInvestment), `${row.moic}x`, `${row.irr}%`];
   });
   if (snap.length) {
     if (y > 150) { doc.addPage(); y = 20; }
@@ -523,7 +523,7 @@ export function exportFinanceExcel(store: AppStore) {
       ['Company','Date of First Investment','Current Stake (₹ Cr)','Current Equity Value (₹ Cr)','Value of Investment (₹ Cr)','MOIC (x)','IRR (%)'],
       ...portfolioSnapshot.map(row => {
         const co = companies.find(c => c.id === row.companyId);
-        return [co?.name ?? row.companyId, row.dateOfFirstInvestment, fmt(row.currentStake), fmt(row.currentEquityValue), fmt(row.valueOfInvestment), row.moic, row.irr];
+        return [co?.name ?? row.companyName ?? '', row.dateOfFirstInvestment, fmt(row.currentStake), fmt(row.currentEquityValue), fmt(row.valueOfInvestment), row.moic, row.irr];
       }),
     ]);
     ws2['!cols'] = [{ wch: 26 }, { wch: 22 }, ...Array(5).fill({ wch: 20 })];

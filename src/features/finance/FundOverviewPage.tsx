@@ -6,7 +6,7 @@ import { useFund } from './lib/fund-context';
 import { useApp } from '../../context/AppContext';
 import { TrendingUp, TrendingDown, Minus, Upload, Download, Printer } from 'lucide-react';
 import type { PortfolioSnapshotRow } from '../../data/types';
-import { toastImportSuccess, toastImportWarning, toastImportError } from '../../lib/uploadToast';
+import { toastImportSuccess, toastImportError } from '../../lib/uploadToast';
 
 function fmtCr(n: number | null): string {
   if (n === null || n === undefined) return '—';

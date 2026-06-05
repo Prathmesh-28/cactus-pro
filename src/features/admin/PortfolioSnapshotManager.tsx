@@ -19,7 +19,7 @@ export default function PortfolioSnapshotManager() {
 
   const save = () => { updatePortfolioSnapshot(rows); setSaved(true); setTimeout(() => setSaved(false), 2000); };
 
-  const startEdit = (row: PortfolioSnapshotRow) => { setEditId(row.companyId); setDraft({ ...row }); };
+  const startEdit = (row: PortfolioSnapshotRow) => { setEditId(row.companyId ?? ""); setDraft({ ...row }); };
   const commitEdit = () => {
     setRows(r => r.map(x => x.companyId === editId ? { ...x, ...draft } as PortfolioSnapshotRow : x));
     setEditId(null); setDraft({});
@@ -54,7 +54,7 @@ export default function PortfolioSnapshotManager() {
               {rows.map(row => (
                 editId === row.companyId ? (
                   <tr key={row.companyId} className="bg-emerald-50">
-                    <td className="px-3 py-2 font-medium text-gray-800">{companyName(row.companyId)}</td>
+                    <td className="px-3 py-2 font-medium text-gray-800">{companyName(row.companyId ?? "")}</td>
                     <td className="px-3 py-2"><input className={ic} value={draft.dateOfFirstInvestment ?? ''} onChange={e => setDraft(d => ({ ...d, dateOfFirstInvestment: e.target.value }))} placeholder="DD.MM.YY" /></td>
                     <td className="px-3 py-2"><input type="number" className={ic} value={draft.currentStake ?? ''} onChange={e => setDraft(d => ({ ...d, currentStake: e.target.value ? Number(e.target.value) : null }))} /></td>
                     <td className="px-3 py-2"><input type="number" className={ic} value={draft.currentEquityValue ?? ''} onChange={e => setDraft(d => ({ ...d, currentEquityValue: e.target.value ? Number(e.target.value) : null }))} /></td>
@@ -70,10 +70,10 @@ export default function PortfolioSnapshotManager() {
                   <tr key={row.companyId} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2">
-                        {companyLogo(row.companyId) && (
-                          <img src={companyLogo(row.companyId)} alt="" className="w-6 h-6 object-contain rounded" />
+                        {companyLogo(row.companyId ?? "") && (
+                          <img src={companyLogo(row.companyId ?? "")} alt="" className="w-6 h-6 object-contain rounded" />
                         )}
-                        <span className="font-semibold text-gray-800">{companyName(row.companyId)}</span>
+                        <span className="font-semibold text-gray-800">{companyName(row.companyId ?? "")}</span>
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-gray-600">{row.dateOfFirstInvestment}</td>
