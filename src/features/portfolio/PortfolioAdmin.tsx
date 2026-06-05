@@ -196,27 +196,31 @@ function ViewerSettingsTab({ updateRole }: { updateRole: (r: any) => void }) {
         })}
       </div>
 
-      {/* Live viewer tab preview */}
+      {/* Live viewer navigation preview */}
       <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Viewer Navigation Preview</p>
-        <p className="text-xs text-gray-400">This is exactly what a Portfolio Viewer sees in their top tab bar.</p>
-        <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-gray-50 border border-gray-100">
-          {/* Companies is always visible */}
-          {[{ key: 'companies', label: 'Companies' }, ...PORTFOLIO_SUB_TABS.filter(t => t.key !== 'companies' && visible.includes(t.key))].map((tab, i) => (
-            <span key={tab.key}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium border ${
-                i === 0
-                  ? 'bg-[#1E293B] text-white border-[#1E293B]'
-                  : 'bg-white text-gray-700 border-gray-200'
-              }`}>
-              {tab.label}
-            </span>
-          ))}
-          <span className="px-3 py-1.5 rounded-md text-xs font-medium border bg-gray-100 text-gray-300 border-gray-100 line-through select-none">
-            Portfolio Admin
-          </span>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Viewer Navigation Preview</p>
+          <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live — updates as you toggle</span>
         </div>
-        <p className="text-[10px] text-gray-400 italic">"Portfolio Admin" tab is always hidden from viewers — shown above as strikethrough for reference.</p>
+        <p className="text-xs text-gray-400">Exactly what a Portfolio Viewer sees in their top tab bar.</p>
+        {/* Mock browser chrome */}
+        <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+          <div className="bg-gray-800 px-3 py-2 flex items-center gap-2">
+            <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-400"/><div className="w-2.5 h-2.5 rounded-full bg-amber-400"/><div className="w-2.5 h-2.5 rounded-full bg-green-400"/></div>
+            <div className="flex-1 bg-gray-700 rounded px-2 py-0.5 text-[10px] text-gray-400">cactus-pro.vercel.app/dashboard</div>
+          </div>
+          <div className="bg-white border-b border-gray-100 px-3 py-2 flex gap-1 overflow-x-auto">
+            {[{ key: 'companies', label: 'Companies' }, ...PORTFOLIO_SUB_TABS.filter(t => t.key !== 'companies' && visible.includes(t.key))].map((tab, i) => (
+              <span key={tab.key} className={`px-3 py-1.5 rounded-t-md text-xs font-medium whitespace-nowrap border-b-2 ${
+                i === 0 ? 'border-emerald-600 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600'}`}>
+                {tab.label}
+              </span>
+            ))}
+            <span className="px-3 py-1.5 rounded-t-md text-xs font-medium whitespace-nowrap border-b-2 border-transparent text-gray-200 line-through">Portfolio Admin</span>
+          </div>
+          <div className="bg-gray-50 px-4 py-6 text-center text-xs text-gray-300 italic">— viewer sees portfolio content here —</div>
+        </div>
+        <p className="text-[10px] text-gray-400 italic">The strikethrough "Portfolio Admin" tab is invisible to viewers — shown here for reference only.</p>
       </div>
 
       <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-xs text-gray-500 space-y-1">

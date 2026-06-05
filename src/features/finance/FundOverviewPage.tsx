@@ -1,10 +1,10 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { FundMetricsRows } from './components/fund-metrics-rows';
 import { PerformanceTable } from './components/performance-table';
 import { useFund } from './lib/fund-context';
 import { useApp } from '../../context/AppContext';
-import { TrendingUp, TrendingDown, Minus, Upload, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Upload, Download, Printer } from 'lucide-react';
 import type { PortfolioSnapshotRow } from '../../data/types';
 import { toastImportSuccess, toastImportWarning, toastImportError } from '../../lib/uploadToast';
 
@@ -30,6 +30,11 @@ export default function FundOverviewPage() {
   const { fund, setFund } = useFund();
   const { store, updatePortfolioSnapshot } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [search, setSearch] = useState('');
+  const [unmatched, setUnmatched] = useState<string[]>([]);
+  const [pendingRows, setPendingRows] = useState<PortfolioSnapshotRow[] | null>(null); // for duplicate protection
+  const [editingCell, setEditingCell] = useState<{ companyId: string; field: keyof PortfolioSnapshotRow } | null>(null);
+  const [draft, setDraft] = useState('');
 
   const downloadTemplate = () => {
     const headers = ['Company Name', 'Date of First Investment', 'Current Stake (₹ Cr)', 'Current Equity Value (₹ Cr)', 'Value of Investment (₹ Cr)', 'MOIC', 'IRR (%)'];
@@ -75,23 +80,63 @@ export default function FundOverviewPage() {
             irr:  parseFloat(String(r[6])) || 0,
           });
         }
-        if (parsed.length > 0) {
+        if (parsed.length === 0) {
+          toastImportError(`No companies matched. Check names match exactly: ${unmatched.slice(0,3).join(', ')}`);
+          return;
+        }
+        setUnmatched(unmatched);
+        // #7 Duplicate protection — if data exists, ask replace or append
+        if ((store.portfolioSnapshot ?? []).length > 0) {
+          setPendingRows(parsed);
+        } else {
           updatePortfolioSnapshot(parsed);
           if (unmatched.length > 0) toastImportWarning(parsed.length, unmatched.length, unmatched);
           else toastImportSuccess(parsed.length, 'company');
-        } else {
-          toastImportError(`No companies matched. Check names match exactly: ${unmatched.slice(0,3).join(', ')}`);
         }
       } catch { toastImportError('Could not parse file.'); }
     }).catch(() => toastImportError('Could not read file.'));
     e.target.value = '';
   };
 
+  const confirmReplace = () => {
+    if (!pendingRows) return;
+    updatePortfolioSnapshot(pendingRows);
+    toastImportSuccess(pendingRows.length, 'company');
+    setPendingRows(null);
+  };
+  const confirmAppend = () => {
+    if (!pendingRows) return;
+    const existing = store.portfolioSnapshot ?? [];
+    const merged = [...existing.filter(r => !pendingRows.find(p => p.companyId === r.companyId)), ...pendingRows];
+    updatePortfolioSnapshot(merged);
+    toastImportSuccess(pendingRows.length, 'company');
+    setPendingRows(null);
+  };
+
+  // #5 Inline edit helpers
+  const commitEdit = () => {
+    if (!editingCell) return;
+    const { companyId, field } = editingCell;
+    const updated = (store.portfolioSnapshot ?? []).map(r => {
+      if (r.companyId !== companyId) return r;
+      const numFields: Array<keyof PortfolioSnapshotRow> = ['currentStake','currentEquityValue','valueOfInvestment','moic','irr'];
+      if (numFields.includes(field)) {
+        const n = parseFloat(draft.replace(/[₹,\s]/g, ''));
+        const val = isFinite(n) ? (field === 'moic' || field === 'irr' ? n : n * 1e7) : r[field];
+        return { ...r, [field]: val };
+      }
+      return { ...r, [field]: draft };
+    });
+    updatePortfolioSnapshot(updated);
+    setEditingCell(null);
+  };
+
   const snapshotData = store.portfolioSnapshot ?? [];
   const snapshot = snapshotData.map(row => ({
     company: store.companies.find(c => c.id === row.companyId),
     csv: row,
-  })).filter((x): x is { company: NonNullable<typeof x.company>; csv: typeof x.csv } => x.company !== undefined);
+  })).filter((x): x is { company: NonNullable<typeof x.company>; csv: typeof x.csv } => x.company !== undefined)
+    .filter(({ company }) => !search || company.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="flex flex-col min-h-full" style={{ background: 'var(--background)' }}>
@@ -103,9 +148,19 @@ export default function FundOverviewPage() {
             Fund Overview
           </h1>
           <p className="text-xs italic mt-1" style={{ color: 'var(--muted-foreground)' }}>
-            Last updated: {new Date().toLocaleDateString('en-IN')} · Click any value to edit · Amounts in INR Cr
+            Last updated: {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })} · Click any cell to edit inline · Amounts in INR Cr
           </p>
         </div>
+        {/* Print / PDF */}
+        <div className="flex items-center gap-2 no-print">
+          <button onClick={() => window.print()}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors"
+            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'var(--card)' }}
+            title="Save as PDF / Print">
+            <Printer className="w-3.5 h-3.5" /> PDF
+          </button>
+        </div>
+
         {/* Fund selector */}
         <div className="inline-flex items-center rounded-md border p-0.5"
           style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
@@ -134,13 +189,28 @@ export default function FundOverviewPage() {
               </p>
               <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>(Amounts in INR Cr)</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {snapshotData.length > 0 && (
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search company…"
+                  className="text-xs border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 w-36"
+                  style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }} />
+              )}
               <button onClick={downloadTemplate}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors"
                 style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'var(--card)' }}>
                 <Download className="w-3.5 h-3.5" /> Template
               </button>
-              <button onClick={() => fileRef.current?.click()}
+              <button onClick={() => {
+                  if (snapshotData.length === 0 && !localStorage.getItem('snapshot_uploaded_once')) {
+                    if (!confirm('Tip: Download the Template first — it pre-fills your company names so nothing gets skipped.\n\nContinue to upload directly?')) {
+                      downloadTemplate();
+                      return;
+                    }
+                    localStorage.setItem('snapshot_uploaded_once', '1');
+                  }
+                  fileRef.current?.click();
+                }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors"
                 style={{ backgroundColor: '#1E293B' }}>
                 <Upload className="w-3.5 h-3.5" /> Upload Excel / CSV
@@ -148,6 +218,32 @@ export default function FundOverviewPage() {
               <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden onChange={handleUpload} />
             </div>
           </div>
+
+          {/* #7 Duplicate upload protection dialog */}
+          {pendingRows && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+              <p className="text-sm font-semibold text-amber-800">⚠️ Existing data found — {(store.portfolioSnapshot ?? []).length} companies already in snapshot</p>
+              <p className="text-xs text-amber-700">Do you want to replace all existing data or append/update only the uploaded companies?</p>
+              <div className="flex gap-2">
+                <button onClick={confirmReplace} className="px-4 py-1.5 text-xs font-medium rounded-lg text-white bg-red-600 hover:bg-red-700">Replace all ({pendingRows.length} rows)</button>
+                <button onClick={confirmAppend}  className="px-4 py-1.5 text-xs font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700">Append / update ({pendingRows.length} rows)</button>
+                <button onClick={() => setPendingRows(null)} className="px-4 py-1.5 text-xs font-medium rounded-lg bg-gray-200 text-gray-600">Cancel</button>
+              </div>
+            </div>
+          )}
+
+          {/* #2 Unmatched rows warning */}
+          {unmatched.length > 0 && (
+            <div className="rounded-xl border border-orange-200 bg-orange-50 p-3 flex items-start gap-3">
+              <span className="text-orange-500 text-sm mt-0.5">⚠</span>
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-orange-800">{unmatched.length} company name{unmatched.length !== 1 ? 's' : ''} not matched — skipped</p>
+                <p className="text-xs text-orange-600 mt-1">These names don't match your portfolio exactly: <span className="font-mono">{unmatched.join(', ')}</span></p>
+                <p className="text-xs text-orange-500 mt-0.5">Download the Template — it pre-fills exact names from your portfolio.</p>
+              </div>
+              <button onClick={() => setUnmatched([])} className="text-orange-400 hover:text-orange-600 text-xs">✕</button>
+            </div>
+          )}
 
           <div className="rounded-lg border overflow-hidden shadow-[var(--shadow-card)]"
             style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
@@ -194,49 +290,74 @@ export default function FundOverviewPage() {
                         </div>
                       </td>
 
-                      {/* Date */}
-                      <td className="px-4 py-3 text-sm tabular-nums" style={{ color: 'var(--foreground)' }}>
-                        {csv.dateOfFirstInvestment}
+                      {/* Date — editable */}
+                      <td className="px-4 py-3 text-sm tabular-nums cursor-text" style={{ color: 'var(--foreground)' }}
+                        onClick={() => { setEditingCell({ companyId: company.id, field: 'dateOfFirstInvestment' }); setDraft(csv.dateOfFirstInvestment); }}>
+                        {editingCell?.companyId === company.id && editingCell.field === 'dateOfFirstInvestment'
+                          ? <input autoFocus className="w-24 border rounded px-1 py-0.5 text-xs focus:outline-none" value={draft}
+                              onChange={e => setDraft(e.target.value)}
+                              onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
+                          : <span className="hover:underline decoration-dotted">{csv.dateOfFirstInvestment || '—'}</span>}
                       </td>
 
-                      {/* Current Stake */}
-                      <td className="px-4 py-3 text-right font-medium tabular-nums" style={{ color: 'var(--foreground)' }}>
-                        {fmtCr(csv.currentStake)}
+                      {/* Current Stake — editable */}
+                      <td className="px-4 py-3 text-right font-medium tabular-nums cursor-text" style={{ color: 'var(--foreground)' }}
+                        onClick={() => { setEditingCell({ companyId: company.id, field: 'currentStake' }); setDraft(csv.currentStake != null ? String(csv.currentStake / 1e7) : ''); }}>
+                        {editingCell?.companyId === company.id && editingCell.field === 'currentStake'
+                          ? <input autoFocus className="w-20 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
+                              onChange={e => setDraft(e.target.value)}
+                              onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
+                          : <span className="hover:underline decoration-dotted">{fmtCr(csv.currentStake)}</span>}
                       </td>
 
-                      {/* Equity Value */}
-                      <td className="px-4 py-3 text-right tabular-nums" style={{ color: 'var(--muted-foreground)' }}>
-                        {fmtCr(csv.currentEquityValue)}
+                      {/* Equity Value — editable */}
+                      <td className="px-4 py-3 text-right tabular-nums cursor-text" style={{ color: 'var(--muted-foreground)' }}
+                        onClick={() => { setEditingCell({ companyId: company.id, field: 'currentEquityValue' }); setDraft(csv.currentEquityValue != null ? String(csv.currentEquityValue / 1e7) : ''); }}>
+                        {editingCell?.companyId === company.id && editingCell.field === 'currentEquityValue'
+                          ? <input autoFocus className="w-20 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
+                              onChange={e => setDraft(e.target.value)}
+                              onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
+                          : <span className="hover:underline decoration-dotted">{fmtCr(csv.currentEquityValue)}</span>}
                       </td>
 
-                      {/* Investment Value */}
-                      <td className="px-4 py-3 text-right tabular-nums" style={{ color: 'var(--muted-foreground)' }}>
-                        {fmtCr(csv.valueOfInvestment)}
+                      {/* Investment Value — editable */}
+                      <td className="px-4 py-3 text-right tabular-nums cursor-text" style={{ color: 'var(--muted-foreground)' }}
+                        onClick={() => { setEditingCell({ companyId: company.id, field: 'valueOfInvestment' }); setDraft(csv.valueOfInvestment != null ? String(csv.valueOfInvestment / 1e7) : ''); }}>
+                        {editingCell?.companyId === company.id && editingCell.field === 'valueOfInvestment'
+                          ? <input autoFocus className="w-20 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
+                              onChange={e => setDraft(e.target.value)}
+                              onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
+                          : <span className="hover:underline decoration-dotted">{fmtCr(csv.valueOfInvestment)}</span>}
                       </td>
 
-                      {/* MOIC */}
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {csv.moic >= (store.kpiThresholds?.moic.good ?? 3)
-                            ? <TrendingUp className="w-3.5 h-3.5" style={{ color: '#2D6A4F' }} />
-                            : csv.moic < (store.kpiThresholds?.moic.warning ?? 2)
-                            ? <TrendingDown className="w-3.5 h-3.5 text-red-500" />
-                            : <Minus className="w-3.5 h-3.5 text-gray-400" />}
-                          <span className="font-bold text-sm tabular-nums" style={{ color: 'var(--foreground)' }}>
-                            {csv.moic}x
-                          </span>
-                        </div>
+                      {/* MOIC — editable */}
+                      <td className="px-4 py-3 text-right cursor-text"
+                        onClick={() => { setEditingCell({ companyId: company.id, field: 'moic' }); setDraft(String(csv.moic)); }}>
+                        {editingCell?.companyId === company.id && editingCell.field === 'moic'
+                          ? <input autoFocus className="w-16 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
+                              onChange={e => setDraft(e.target.value)}
+                              onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
+                          : <div className="flex items-center justify-end gap-1.5">
+                              {csv.moic >= (store.kpiThresholds?.moic.good ?? 3)
+                                ? <TrendingUp className="w-3.5 h-3.5" style={{ color: '#2D6A4F' }} />
+                                : csv.moic < (store.kpiThresholds?.moic.warning ?? 2)
+                                ? <TrendingDown className="w-3.5 h-3.5 text-red-500" />
+                                : <Minus className="w-3.5 h-3.5 text-gray-400" />}
+                              <span className="font-bold text-sm tabular-nums hover:underline decoration-dotted" style={{ color: 'var(--foreground)' }}>{csv.moic}x</span>
+                            </div>}
                       </td>
 
-                      {/* IRR */}
-                      <td className="px-4 py-3 text-right">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tabular-nums"
-                          style={{
-                            backgroundColor: csv.irr >= 30 ? '#E2E8F0' : csv.irr >= 20 ? '#FEF9C3' : '#FEE2E2',
-                            color: csv.irr >= 30 ? '#2D6A4F' : csv.irr >= 20 ? '#854D0E' : '#991B1B',
-                          }}>
-                          {csv.irr}%
-                        </span>
+                      {/* IRR — editable */}
+                      <td className="px-4 py-3 text-right cursor-text"
+                        onClick={() => { setEditingCell({ companyId: company.id, field: 'irr' }); setDraft(String(csv.irr)); }}>
+                        {editingCell?.companyId === company.id && editingCell.field === 'irr'
+                          ? <input autoFocus className="w-16 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
+                              onChange={e => setDraft(e.target.value)}
+                              onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
+                          : <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tabular-nums hover:ring-1 hover:ring-gray-300"
+                              style={{ backgroundColor: csv.irr >= 30 ? '#E2E8F0' : csv.irr >= 20 ? '#FEF9C3' : '#FEE2E2', color: csv.irr >= 30 ? '#2D6A4F' : csv.irr >= 20 ? '#854D0E' : '#991B1B' }}>
+                              {csv.irr}%
+                            </span>}
                       </td>
                     </tr>
                   ))}

@@ -16,8 +16,11 @@ function useKvState<T>(key: string, initial: T): [T, (v: T) => void] {
     if (v !== null && v !== undefined) {
       kvCache.set(key, v);
       setVal(v as T);
+    } else {
+      // Seed KV with the default so other users see it too
+      kvSet('finance', key, initial).catch(() => {});
     }
-  }, [key]);
+  }, [key]); // eslint-disable-line
 
   useEffect(() => { void refresh(); }, [key]); // eslint-disable-line
   useEffect(() => {
@@ -117,10 +120,9 @@ function EditableGreenCard({ def, value, onChange }: { def: MetricDef; value: nu
         <div className="mt-2 flex items-center gap-1">
           <input autoFocus type="number" step="any" value={draft}
             onChange={e => setDraft(e.target.value)}
+            onBlur={commit}
             onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false); }}
             className="w-full rounded px-2 py-1 text-sm font-mono text-gray-900 bg-white/90 focus:outline-none" />
-          <button onClick={commit} className="p-1 bg-white/20 rounded"><Check className="w-3 h-3" /></button>
-          <button onClick={() => setEditing(false)} className="p-1 bg-white/20 rounded"><X className="w-3 h-3" /></button>
         </div>
       ) : (
         <div className="mt-2 font-serif font-bold text-2xl md:text-[26px] leading-none tabular-nums cursor-text"

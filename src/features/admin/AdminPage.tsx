@@ -21,6 +21,7 @@ import NavigationManager from './NavigationManager';
 import RecruitmentConfigManager from './RecruitmentConfigManager';
 import OperationsConfigManager from './OperationsConfigManager';
 import MasterSheetManager from './MasterSheetDownloader';
+import ChangelogView from './ChangelogView';
 import {
   Settings,
   Building2,
@@ -43,6 +44,7 @@ import {
   UserCheck,
   Sliders,
   FileSpreadsheet,
+  Activity,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -52,7 +54,7 @@ type AdminTab =
   | 'homepage' | 'kpi_thresholds' | 'finance_config' | 'taxonomy'
   | 'portfolio_snapshot' | 'users'
   | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config'
-  | 'master_sheet';
+  | 'master_sheet' | 'changelog';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
   // ── Platform ──────────────────────────────────────────────────────────────
@@ -80,6 +82,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: str
   // ── Operations ────────────────────────────────────────────────────────────
   { key: 'operations_config',  label: 'Operations Config',    Icon: Sliders,          group: 'Operations' },
   { key: 'recruitment_config', label: 'Recruitment Config',   Icon: UserCheck,        group: 'Operations' },
+  { key: 'changelog',          label: 'Activity Log',          Icon: Activity,         group: 'Platform' },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -167,6 +170,7 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
     ],
     note: 'Download the pre-populated template, fill in updated numbers in Excel, then re-upload to sync data back into the portal.',
   },
+  changelog: { affects: ['Read-only — shows last 200 login/invite/role-change events'] },
 };
 
 export default function AdminPage() {
@@ -197,6 +201,7 @@ export default function AdminPage() {
     recruitment_config:   <RecruitmentConfigManager />,
     operations_config:    <OperationsConfigManager />,
     master_sheet:         <MasterSheetManager />,
+    changelog:            <ChangelogView />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);

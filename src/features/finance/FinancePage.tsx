@@ -122,21 +122,23 @@ export default function FinancePage() {
           <FinanceExportMenu />
         </div>
 
-        {/* Mobile bottom nav */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex border-t"
+        {/* Mobile bottom nav — scrollable so all 9 tabs fit */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t overflow-x-auto"
           style={{ backgroundColor: 'var(--sidebar)', borderColor: 'var(--sidebar-border)' }}>
-          {NAV.map(({ key, label, Icon }) => (
-            <button key={key} onClick={() => setActiveTab(key)}
-              className={cn('flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] transition-colors')}
-              style={{
-                color: 'rgba(255,255,255,' + (activeTab === key ? '1' : '0.7') + ')',
-                backgroundColor: activeTab === key ? 'rgba(255,255,255,0.2)' : 'transparent',
-                fontWeight: activeTab === key ? '600' : '400',
-              }}>
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          ))}
+          <div className="flex min-w-max">
+            {NAV.map(({ key, label, Icon }) => (
+              <button key={key} onClick={() => setActiveTab(key)}
+                className={cn('flex flex-col items-center gap-1 py-2.5 px-3 text-[10px] transition-colors whitespace-nowrap min-w-[68px]')}
+                style={{
+                  color: 'rgba(255,255,255,' + (activeTab === key ? '1' : '0.7') + ')',
+                  backgroundColor: activeTab === key ? 'rgba(255,255,255,0.2)' : 'transparent',
+                  fontWeight: activeTab === key ? '600' : '400',
+                }}>
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Content */}

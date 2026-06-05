@@ -83,6 +83,28 @@ export async function kvGetAll(namespace: string): Promise<Record<string, unknow
   } catch { return {}; }
 }
 
+// ─── Audit log ────────────────────────────────────────────────────────────────
+
+export interface AuditEntry {
+  id: number;
+  user_email: string;
+  action: string;
+  resource: string | null;
+  ip_address: string | null;
+  created_at: string;
+}
+
+export async function fetchAuditLog(): Promise<AuditEntry[]> {
+  try {
+    const token = localStorage.getItem('cactus_access');
+    const res = await fetch(`${BASE}/api/users/audit`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
 // ─── Sync sources ─────────────────────────────────────────────────────────────
 
 export interface SyncSource {

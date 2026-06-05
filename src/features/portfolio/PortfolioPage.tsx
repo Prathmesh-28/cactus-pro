@@ -24,6 +24,7 @@ import ResearchLibrary from './ResearchLibrary';
 import FounderPortalManager from './FounderPortalManager';
 import PortfolioFundView from './PortfolioFundView';
 import PortfolioAdmin from './PortfolioAdmin';
+import OnboardingChecklist from '../../components/ui/OnboardingChecklist';
 
 type PortfolioTab = 'companies' | 'founders' | 'health' | 'news' | 'research' | 'portal' | 'fund_view' | 'admin';
 const PORTFOLIO_TABS: { key: PortfolioTab; label: string; Icon: React.ElementType }[] = [
@@ -173,6 +174,7 @@ export default function PortfolioPage() {
 
       {/* Companies tab — existing content */}
       {activePortfolioTab === 'companies' && <div className="space-y-8">
+      <OnboardingChecklist />
 
       {/* ══════════════════════════════════════════════════════════════════════
           SECTION 1 — PORTFOLIO KEY METRICS

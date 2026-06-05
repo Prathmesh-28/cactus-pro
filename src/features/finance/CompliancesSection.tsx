@@ -109,6 +109,18 @@ export default function CompliancesSection() {
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ComplianceEvent | null>(null);
 
+  // #13 Due-soon reminders
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const in7   = format(addMonths(new Date(), 0), 'yyyy-MM-dd'); // reuse addMonths for +7d
+  const dueSoon = events.filter(e => {
+    try {
+      const d = parseISO(e.due_date);
+      const diff = Math.ceil((d.getTime() - new Date().getTime()) / 86400000);
+      return diff >= 0 && diff <= 7;
+    } catch { return false; }
+  }).sort((a, b) => a.due_date.localeCompare(b.due_date));
+  void today; void in7; // suppress unused
+
   const monthStart = startOfMonth(current);
   const monthEnd   = endOfMonth(current);
   const calStart   = startOfWeek(monthStart, { weekStartsOn: 1 });
@@ -148,6 +160,23 @@ export default function CompliancesSection() {
         <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide text-gray-900">Compliances</h1>
         <p className="text-xs text-gray-400 mt-1 italic">Click a date to add or view events</p>
       </div>
+
+      {/* #13 Due-soon reminder banner */}
+      {dueSoon.length > 0 && (
+        <div className="mx-6 md:mx-10 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+          <span className="text-amber-500 text-base mt-0.5">⏰</span>
+          <div>
+            <p className="text-xs font-bold text-amber-800">{dueSoon.length} deadline{dueSoon.length !== 1 ? 's' : ''} due within 7 days</p>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {dueSoon.map(e => (
+                <span key={e.id} className="text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                  {e.title} — {format(parseISO(e.due_date), 'd MMM')}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="px-6 md:px-10 py-8 space-y-6">
 

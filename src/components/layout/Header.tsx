@@ -1,5 +1,22 @@
+import { useState as _useState, useEffect as _useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink, RefreshCw } from 'lucide-react';
+import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink, RefreshCw, Moon, Sun } from 'lucide-react';
+
+function useDarkMode() {
+  const [dark, setDark] = _useState(() => document.documentElement.classList.contains('dark') || localStorage.getItem('cactus_dark') === '1');
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('cactus_dark', next ? '1' : '0');
+  };
+  _useEffect(() => {
+    const saved = localStorage.getItem('cactus_dark') === '1';
+    document.documentElement.classList.toggle('dark', saved);
+    setDark(saved);
+  }, []);
+  return { dark, toggle };
+}
 import { getSyncSources, runSync } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -24,6 +41,7 @@ const NAV_ITEMS: { tab: TabName; label: string; path: string }[] = [
 export default function Header() {
   const { store, currentRole, canAccess } = useApp();
   const { user: authUser, logout } = useAuth();
+  const { dark, toggle: toggleDark } = useDarkMode();
   const { firm, announcements, roles } = store;
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -150,6 +168,13 @@ export default function Header() {
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
                 {syncing ? 'Syncing…' : syncDone ? '✓ Synced' : 'Sync'}
+              </button>
+
+              {/* Dark mode toggle */}
+              <button onClick={toggleDark}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
+                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
 
               {/* Mail compose button */}
