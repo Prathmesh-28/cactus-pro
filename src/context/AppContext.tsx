@@ -217,14 +217,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user?.role) return;
     const dbRole = user.role as RoleName;
-    // If logged-in user is NOT super_admin, force their actual DB role immediately
     if (dbRole !== 'super_admin') {
+      // Non-super-admin: always force their actual DB role, no switching allowed
       setCurrentRoleState(dbRole);
       localStorage.setItem(ROLE_KEY, dbRole);
-    } else if (!localStorage.getItem(ROLE_KEY)) {
-      // Super admin: default to super_admin if nothing stored
-      setCurrentRoleState('super_admin');
-      localStorage.setItem(ROLE_KEY, 'super_admin');
+    } else {
+      // Super admin: default to super_admin on fresh load or if stuck in a non-super-admin role
+      // (allows them to switch for testing, but resets on every login)
+      const stored = localStorage.getItem(ROLE_KEY) as RoleName | null;
+      const validPreviewRoles: RoleName[] = ['super_admin','portfolio_team','finance_team','investment_team','portfolio_viewer'];
+      if (!stored || !validPreviewRoles.includes(stored)) {
+        setCurrentRoleState('super_admin');
+        localStorage.setItem(ROLE_KEY, 'super_admin');
+      }
+      // If they deliberately switched to a test role, respect it — role switcher lets them change back
     }
   }, [user?.role]);
 
@@ -325,7 +331,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setCurrentRole = (role: RoleName) => {
-    // Only super_admin can switch roles (for preview purposes)
+    // Only users whose DB role is super_admin can switch (preview other roles)
     if (user?.role && user.role !== 'super_admin') return;
     setCurrentRoleState(role);
     localStorage.setItem(ROLE_KEY, role);

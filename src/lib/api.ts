@@ -2,8 +2,13 @@ const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 // ─── Notes ────────────────────────────────────────────────────────────────────
 
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
+  const token = localStorage.getItem('cactus_access');
+  return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extra };
+}
+
 export async function fetchNote(companyId: string): Promise<string> {
-  const res = await fetch(`${BASE}/api/notes/${companyId}`);
+  const res = await fetch(`${BASE}/api/notes/${companyId}`, { headers: authHeaders() });
   if (!res.ok) return '';
   const data = await res.json();
   return data.content ?? '';
@@ -12,7 +17,7 @@ export async function fetchNote(companyId: string): Promise<string> {
 export async function saveNote(companyId: string, content: string): Promise<void> {
   await fetch(`${BASE}/api/notes/${companyId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ content }),
   });
 }
@@ -29,7 +34,7 @@ export interface CompanyFile {
 }
 
 export async function fetchFiles(companyId: string): Promise<CompanyFile[]> {
-  const res = await fetch(`${BASE}/api/files/${companyId}`);
+  const res = await fetch(`${BASE}/api/files/${companyId}`, { headers: authHeaders() });
   if (!res.ok) return [];
   return res.json();
 }
@@ -37,24 +42,30 @@ export async function fetchFiles(companyId: string): Promise<CompanyFile[]> {
 export async function uploadFile(companyId: string, file: File): Promise<CompanyFile | null> {
   const fd = new FormData();
   fd.append('file', file);
-  const res = await fetch(`${BASE}/api/files/${companyId}`, { method: 'POST', body: fd });
+  const res = await fetch(`${BASE}/api/files/${companyId}`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: fd,
+  });
   if (!res.ok) return null;
   return res.json();
 }
 
 export async function deleteFile(fileId: number): Promise<void> {
-  await fetch(`${BASE}/api/files/${fileId}`, { method: 'DELETE' });
+  await fetch(`${BASE}/api/files/${fileId}`, { method: 'DELETE', headers: authHeaders() });
 }
 
 export function fileDownloadUrl(fileId: number): string {
   return `${BASE}/api/files/download/${fileId}`;
 }
 
-// ─── KV Store (replaces localStorage for finance data) ───────────────────────
+// ─── KV Store ────────────────────────────────────────────────────────────────
 
 export async function kvGet(namespace: string, key: string): Promise<unknown> {
   try {
-    const res = await fetch(`${BASE}/api/kv/${namespace}/${encodeURIComponent(key)}`);
+    const res = await fetch(`${BASE}/api/kv/${namespace}/${encodeURIComponent(key)}`, {
+      headers: authHeaders(),
+    });
     if (!res.ok) return null;
     const data = await res.json();
     return data.value ?? null;
@@ -67,7 +78,7 @@ export async function kvSet(namespace: string, key: string, value: unknown): Pro
   try {
     const res = await fetch(`${BASE}/api/kv/${namespace}/${encodeURIComponent(key)}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ value }),
     });
     if (res.ok) markSaved(); else markError();
@@ -76,7 +87,9 @@ export async function kvSet(namespace: string, key: string, value: unknown): Pro
 
 export async function kvGetAll(namespace: string): Promise<Record<string, unknown>> {
   try {
-    const res = await fetch(`${BASE}/api/kv/${namespace}`);
+    const res = await fetch(`${BASE}/api/kv/${namespace}`, {
+      headers: authHeaders(),
+    });
     if (!res.ok) return {};
     const data = await res.json();
     return data.data ?? {};
@@ -119,7 +132,7 @@ export interface SyncSource {
 
 export async function getSyncSources(): Promise<SyncSource[]> {
   try {
-    const res = await fetch(`${BASE}/api/sync/sources`);
+    const res = await fetch(`${BASE}/api/sync/sources`, { headers: authHeaders() });
     if (!res.ok) return [];
     return res.json();
   } catch { return []; }
