@@ -1075,6 +1075,7 @@ export const defaultConfig: AppStore = {
       accessibleTabs: ['portfolio', 'finance', 'investment', 'operations', 'admin', 'toolkit', 'workspace'],
       canExport: true,
       canAddNotes: true,
+      canEditPortfolio: true,
     },
     {
       role: 'portfolio_team',

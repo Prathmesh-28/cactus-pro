@@ -339,8 +339,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const getRoleConfig = () => store.roles.find(r => r.role === currentRole) ?? store.roles[0];
 
-  // Super admin (by DB auth role) always has full access to everything regardless of preview role
-  const isSuperAdmin = user?.role === 'super_admin';
+  // Super admin: check both auth user role (DB) and stored role (localStorage fallback for first render)
+  const isSuperAdmin = user?.role === 'super_admin' || currentRole === 'super_admin';
 
   const canAccess  = (tab: TabName) => isSuperAdmin || getRoleConfig().accessibleTabs.includes(tab);
   const canExport  = () => isSuperAdmin || getRoleConfig().canExport;
