@@ -74,7 +74,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c3',
       name: 'Lohum',
-      logoUrl: '/logos/lohum.webp',
+      logoUrl: 'https://logo.clearbit.com/lohum.in',
       sectorId: 's3',
       stage: 'Series B',
       status: 'Active',
@@ -165,7 +165,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c1',
       name: 'Bellatrix Aerospace',
-      logoUrl: '/logos/bellatrix.png',
+      logoUrl: 'https://logo.clearbit.com/bellatrixaerospace.com',
       sectorId: 's1',
       stage: 'Series A',
       status: 'Active',
@@ -248,7 +248,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c2',
       name: 'Showroom B2B',
-      logoUrl: '/logos/showroomb2b.png',
+      logoUrl: 'https://logo.clearbit.com/showroomb2b.com',
       sectorId: 's2',
       stage: 'Series A',
       status: 'Active',
@@ -322,7 +322,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c4',
       name: 'Indigrid Technology',
-      logoUrl: '/logos/indigrid.svg',
+      logoUrl: 'https://logo.clearbit.com/indigrid.in',
       sectorId: 's5',
       stage: 'Series A',
       status: 'Active',
@@ -400,7 +400,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c5',
       name: 'Brandworks Technologies',
-      logoUrl: '/logos/brandworks.svg',
+      logoUrl: 'https://logo.clearbit.com/brandworkstech.com',
       sectorId: 's4',
       stage: 'Series A',
       status: 'Active',
@@ -470,7 +470,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c6',
       name: 'Intangles',
-      logoUrl: '/logos/intangles.svg',
+      logoUrl: 'https://logo.clearbit.com/intangles.com',
       sectorId: 's5',
       stage: 'Series B',
       status: 'Active',
@@ -554,7 +554,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c7',
       name: 'Kapture CRM',
-      logoUrl: '/logos/kapture.svg',
+      logoUrl: 'https://logo.clearbit.com/kapturecrm.com',
       sectorId: 's6',
       stage: 'Series A',
       status: 'Active',
@@ -630,7 +630,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c8',
       name: 'Auric',
-      logoUrl: '/logos/auric.svg',
+      logoUrl: 'https://logo.clearbit.com/auric.co',
       sectorId: 's7',
       stage: 'Seed',
       status: 'Active',
@@ -711,7 +711,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c9',
       name: 'AMPM',
-      logoUrl: '/logos/ampm.svg',
+      logoUrl: 'https://logo.clearbit.com/ampmfashion.com',
       sectorId: 's8',
       stage: 'Seed',
       status: 'Active',
@@ -782,7 +782,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c10',
       name: 'Ananant Systems',
-      logoUrl: '/logos/ananant.svg',
+      logoUrl: 'https://logo.clearbit.com/ananant.in',
       sectorId: 's9',
       stage: 'Seed',
       status: 'Active',
@@ -855,7 +855,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c11',
       name: 'Vitraya',
-      logoUrl: '/logos/vitraya.png',
+      logoUrl: 'https://logo.clearbit.com/vitraya.in',
       sectorId: 's10',
       stage: 'Series A',
       status: 'Active',
@@ -929,7 +929,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c12',
       name: 'ParkMate',
-      logoUrl: '/logos/parkmate.webp',
+      logoUrl: 'https://logo.clearbit.com/parkmate.in',
       sectorId: 's5',
       stage: 'Seed',
       status: 'Active',
@@ -990,7 +990,7 @@ export const defaultConfig: AppStore = {
     {
       id: 'c13',
       name: 'Rubix',
-      logoUrl: '/logos/rubix.webp',
+      logoUrl: 'https://logo.clearbit.com/rubixdata.io',
       sectorId: 's11',
       stage: 'Exited',
       status: 'Exited',
