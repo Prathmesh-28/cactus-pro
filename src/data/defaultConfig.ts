@@ -1942,18 +1942,18 @@ export const defaultConfig: AppStore = {
 
   // portfolioSnapshot — currentStake = shares held, currentEquityValue = FMV of Cactus stake (₹), valueOfInvestment = amount invested (₹)
   portfolioSnapshot: [
-    { companyId: 'c3',  dateOfFirstInvestment: '15.4.21', currentStake: 300000000,  currentEquityValue: 1372000000, valueOfInvestment: 480000000, moic: 2.92, irr: 38 }, // Lohum: ₹137Cr FMV / ₹48Cr invested
-    { companyId: 'c1',  dateOfFirstInvestment: '16.4.21', currentStake: 240000000,  currentEquityValue: 285000000,  valueOfInvestment: 160000000, moic: 1.78, irr: 28 }, // Bellatrix: ₹28.5Cr FMV / ₹16Cr invested
-    { companyId: 'c2',  dateOfFirstInvestment: '17.4.21', currentStake: 390000000,  currentEquityValue: 508000000,  valueOfInvestment: 1660000000,moic: 0.31, irr: 24 }, // ShowroomB2B: ₹50.8Cr FMV / ₹166Cr invested
-    { companyId: 'c4',  dateOfFirstInvestment: '18.4.21', currentStake: 490000000,  currentEquityValue: 988000000,  valueOfInvestment: 180000000, moic: 5.49, irr: 36 }, // Indigrid: ₹98.8Cr FMV / ₹18Cr invested
-    { companyId: 'c5',  dateOfFirstInvestment: '19.4.21', currentStake: 1250000000, currentEquityValue: 631000000,  valueOfInvestment: 150000000, moic: 4.21, irr: 34 }, // Brandworks: ₹63.1Cr FMV / ₹15Cr invested
-    { companyId: 'c6',  dateOfFirstInvestment: '20.4.21', currentStake: 640000000,  currentEquityValue: 160000000,  valueOfInvestment: 100000000, moic: 1.60, irr: 22 }, // Intangles: ₹16Cr FMV / ₹10Cr invested
-    { companyId: 'c7',  dateOfFirstInvestment: '22.4.21', currentStake: 300000000,  currentEquityValue: 380000000,  valueOfInvestment: 110000000, moic: 3.45, irr: 38 }, // Kapture: ₹38Cr FMV / ₹11Cr invested
-    { companyId: 'c8',  dateOfFirstInvestment: '23.4.21', currentStake: 169500000,  currentEquityValue: 1655000000, valueOfInvestment: 330000000, moic: 5.02, irr: 52 }, // Auric: ₹165.5Cr FMV / ₹33Cr invested
-    { companyId: 'c9',  dateOfFirstInvestment: '24.4.21', currentStake: 301200000,  currentEquityValue: 250000000,  valueOfInvestment: 280000000, moic: 0.89, irr: 15 }, // AMPM: ₹25Cr FMV / ₹28Cr invested
-    { companyId: 'c10', dateOfFirstInvestment: '25.4.21', currentStake: 71700000,   currentEquityValue: 99700000,   valueOfInvestment: 80000000,  moic: 1.25, irr: 20 }, // Ananant: ₹10Cr FMV / ₹8Cr invested
-    { companyId: 'c11', dateOfFirstInvestment: '26.4.21', currentStake: 80700000,   currentEquityValue: 226000000,  valueOfInvestment: 180000000, moic: 1.26, irr: 22 }, // Vitraya: ₹22.6Cr FMV / ₹18Cr invested
-    { companyId: 'c12', dateOfFirstInvestment: '30.4.21', currentStake: 130000000,  currentEquityValue: 56000000,   valueOfInvestment: 50000000,  moic: 1.12, irr: 18 }, // ParkMate: ₹5.6Cr FMV / ₹5Cr invested
-    { companyId: 'c13', dateOfFirstInvestment: '15.4.21', currentStake: 98000000,   currentEquityValue: 1764000000, valueOfInvestment: 800000000, moic: 2.21, irr: 32 }, // Rubix: ₹176Cr FMV / ₹80Cr invested
+    { companyId: 'c3',  companyName: 'Lohum',                   dateOfFirstInvestment: '15.4.21', currentStake: 300000000,  currentEquityValue: 1372000000, valueOfInvestment: 480000000,  moic: 2.92, irr: 38 },
+    { companyId: 'c1',  companyName: 'Bellatrix Aerospace',      dateOfFirstInvestment: '16.4.21', currentStake: 240000000,  currentEquityValue: 285000000,  valueOfInvestment: 160000000,  moic: 1.78, irr: 28 },
+    { companyId: 'c2',  companyName: 'ShowroomB2B',              dateOfFirstInvestment: '17.4.21', currentStake: 390000000,  currentEquityValue: 508000000,  valueOfInvestment: 1660000000, moic: 0.31, irr: 24 },
+    { companyId: 'c4',  companyName: 'Indigrid Technology',      dateOfFirstInvestment: '18.4.21', currentStake: 490000000,  currentEquityValue: 988000000,  valueOfInvestment: 180000000,  moic: 5.49, irr: 36 },
+    { companyId: 'c5',  companyName: 'Brandworks Technologies',  dateOfFirstInvestment: '19.4.21', currentStake: 1250000000, currentEquityValue: 631000000,  valueOfInvestment: 150000000,  moic: 4.21, irr: 34 },
+    { companyId: 'c6',  companyName: 'Intangles',                dateOfFirstInvestment: '20.4.21', currentStake: 640000000,  currentEquityValue: 160000000,  valueOfInvestment: 100000000,  moic: 1.60, irr: 22 },
+    { companyId: 'c7',  companyName: 'Kapture',                  dateOfFirstInvestment: '22.4.21', currentStake: 300000000,  currentEquityValue: 380000000,  valueOfInvestment: 110000000,  moic: 3.45, irr: 38 },
+    { companyId: 'c8',  companyName: 'Auric',                    dateOfFirstInvestment: '23.4.21', currentStake: 169500000,  currentEquityValue: 1655000000, valueOfInvestment: 330000000,  moic: 5.02, irr: 52 },
+    { companyId: 'c9',  companyName: 'AMPM',                     dateOfFirstInvestment: '24.4.21', currentStake: 301200000,  currentEquityValue: 250000000,  valueOfInvestment: 280000000,  moic: 0.89, irr: 15 },
+    { companyId: 'c10', companyName: 'Ananant Systems',          dateOfFirstInvestment: '25.4.21', currentStake: 71700000,   currentEquityValue: 99700000,   valueOfInvestment: 80000000,   moic: 1.25, irr: 20 },
+    { companyId: 'c11', companyName: 'Vitraya',                  dateOfFirstInvestment: '26.4.21', currentStake: 80700000,   currentEquityValue: 226000000,  valueOfInvestment: 180000000,  moic: 1.26, irr: 22 },
+    { companyId: 'c12', companyName: 'ParkMate',                 dateOfFirstInvestment: '30.4.21', currentStake: 130000000,  currentEquityValue: 56000000,   valueOfInvestment: 50000000,   moic: 1.12, irr: 18 },
+    { companyId: 'c13', companyName: 'Rubix',                    dateOfFirstInvestment: '15.4.21', currentStake: 98000000,   currentEquityValue: 1764000000, valueOfInvestment: 800000000,  moic: 2.21, irr: 32 },
   ],
 };

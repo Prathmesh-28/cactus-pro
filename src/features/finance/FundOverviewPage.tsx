@@ -38,8 +38,8 @@ export default function FundOverviewPage() {
 
   const downloadTemplate = () => {
     const headers = ['Company Name', 'Date of First Investment', 'Current Stake (₹ Cr)', 'Current Equity Value (₹ Cr)', 'Value of Investment (₹ Cr)', 'MOIC', 'IRR (%)'];
-    const example = store.companies.slice(0, 3).map(c => [
-      c.name, '15.4.21', '30', '20', '10', '3', '30'
+    const example = store.companies.map(c => [
+      c.name, '', '', '', '', '', ''   // pre-fill names, leave numbers blank to fill in
     ]);
     const ws = XLSX.utils.aoa_to_sheet([headers, ...example]);
     const wb = XLSX.utils.book_new();
@@ -60,18 +60,20 @@ export default function FundOverviewPage() {
         const rows: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
         if (rows.length < 2) { toastImportError('File has no data rows.'); return; }
         const parsed: PortfolioSnapshotRow[] = [];
-        const unmatched: string[] = [];
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i];
           const name = String(r[0] ?? '').trim();
           if (!name) continue;
+          // Try to find matching company (optional — best effort)
           const company = store.companies.find(c =>
-            c.name.toLowerCase() === name.toLowerCase()
+            c.name.toLowerCase() === name.toLowerCase() ||
+            c.name.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(c.name.toLowerCase())
           );
-          if (!company) { unmatched.push(name); continue; }
-          const n = (v: unknown) => { const x = parseFloat(String(v).replace(/[₹,\s]/g, '')); return isFinite(x) ? x * 1e7 : null; };
+          const n = (v: unknown) => { const x = parseFloat(String(v).replace(/[₹,\sCr]/g, '')); return isFinite(x) ? x * 1e7 : null; };
           parsed.push({
-            companyId: company.id,
+            companyId: company?.id,
+            companyName: name,                     // always store name as-is
             dateOfFirstInvestment: String(r[1] ?? '').trim(),
             currentStake:        n(r[2]),
             currentEquityValue:  n(r[3]),
@@ -81,17 +83,15 @@ export default function FundOverviewPage() {
           });
         }
         if (parsed.length === 0) {
-          toastImportError(`No companies matched. Check names match exactly: ${unmatched.slice(0,3).join(', ')}`);
+          toastImportError('File has no valid rows. Make sure Column A has company names.');
           return;
         }
-        setUnmatched(unmatched);
         // #7 Duplicate protection — if data exists, ask replace or append
         if ((store.portfolioSnapshot ?? []).length > 0) {
           setPendingRows(parsed);
         } else {
           updatePortfolioSnapshot(parsed);
-          if (unmatched.length > 0) toastImportWarning(parsed.length, unmatched.length, unmatched);
-          else toastImportSuccess(parsed.length, 'company');
+          toastImportSuccess(parsed.length, 'company');
         }
       } catch { toastImportError('Could not parse file.'); }
     }).catch(() => toastImportError('Could not read file.'));
@@ -107,7 +107,7 @@ export default function FundOverviewPage() {
   const confirmAppend = () => {
     if (!pendingRows) return;
     const existing = store.portfolioSnapshot ?? [];
-    const merged = [...existing.filter(r => !pendingRows.find(p => p.companyId === r.companyId)), ...pendingRows];
+    const merged = [...existing.filter(r => !pendingRows.find(p => p.companyName === r.companyName)), ...pendingRows];
     updatePortfolioSnapshot(merged);
     toastImportSuccess(pendingRows.length, 'company');
     setPendingRows(null);
@@ -118,7 +118,7 @@ export default function FundOverviewPage() {
     if (!editingCell) return;
     const { companyId, field } = editingCell;
     const updated = (store.portfolioSnapshot ?? []).map(r => {
-      if (r.companyId !== companyId) return r;
+      if (r.companyName !== companyId) return r; // companyId field here stores companyName
       const numFields: Array<keyof PortfolioSnapshotRow> = ['currentStake','currentEquityValue','valueOfInvestment','moic','irr'];
       if (numFields.includes(field)) {
         const n = parseFloat(draft.replace(/[₹,\s]/g, ''));
@@ -132,11 +132,12 @@ export default function FundOverviewPage() {
   };
 
   const snapshotData = store.portfolioSnapshot ?? [];
-  const snapshot = snapshotData.map(row => ({
-    company: store.companies.find(c => c.id === row.companyId),
-    csv: row,
-  })).filter((x): x is { company: NonNullable<typeof x.company>; csv: typeof x.csv } => x.company !== undefined)
-    .filter(({ company }) => !search || company.name.toLowerCase().includes(search.toLowerCase()));
+  const snapshot = snapshotData
+    .map(row => ({
+      company: store.companies.find(c => c.id === row.companyId || c.name.toLowerCase() === row.companyName?.toLowerCase()),
+      csv: row,
+    }))
+    .filter(({ csv }) => !search || csv.companyName?.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="flex flex-col min-h-full" style={{ background: 'var(--background)' }}>
@@ -268,23 +269,23 @@ export default function FundOverviewPage() {
                     </td></tr>
                   )}
                   {snapshot.map(({ company, csv }, i) => (
-                    <tr key={company.id}
+                    <tr key={csv.companyName + i}
                       className="transition-colors hover:bg-[var(--muted)]"
                       style={{ backgroundColor: i % 2 === 0 ? 'transparent' : 'rgba(212,237,170,0.15)' }}>
 
-                      {/* Company */}
+                      {/* Company — uses name from file, logo from matched company if found */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden"
                             style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
-                            <CompanyAvatar name={company.name} logoUrl={company.logoUrl} />
+                            <CompanyAvatar name={csv.companyName} logoUrl={company?.logoUrl ?? ''} />
                           </div>
                           <div>
                             <p className="font-semibold text-sm leading-tight" style={{ color: 'var(--foreground)' }}>
-                              {company.name}
+                              {csv.companyName}
                             </p>
                             <p className="text-[11px] mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                              {company.stage}
+                              {company?.stage ?? ''}
                             </p>
                           </div>
                         </div>
@@ -292,8 +293,8 @@ export default function FundOverviewPage() {
 
                       {/* Date — editable */}
                       <td className="px-4 py-3 text-sm tabular-nums cursor-text" style={{ color: 'var(--foreground)' }}
-                        onClick={() => { setEditingCell({ companyId: company.id, field: 'dateOfFirstInvestment' }); setDraft(csv.dateOfFirstInvestment); }}>
-                        {editingCell?.companyId === company.id && editingCell.field === 'dateOfFirstInvestment'
+                        onClick={() => { setEditingCell({ companyId: csv.companyName, field: 'dateOfFirstInvestment' }); setDraft(csv.dateOfFirstInvestment); }}>
+                        {editingCell?.companyId === csv.companyName && editingCell.field === 'dateOfFirstInvestment'
                           ? <input autoFocus className="w-24 border rounded px-1 py-0.5 text-xs focus:outline-none" value={draft}
                               onChange={e => setDraft(e.target.value)}
                               onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
@@ -302,8 +303,8 @@ export default function FundOverviewPage() {
 
                       {/* Current Stake — editable */}
                       <td className="px-4 py-3 text-right font-medium tabular-nums cursor-text" style={{ color: 'var(--foreground)' }}
-                        onClick={() => { setEditingCell({ companyId: company.id, field: 'currentStake' }); setDraft(csv.currentStake != null ? String(csv.currentStake / 1e7) : ''); }}>
-                        {editingCell?.companyId === company.id && editingCell.field === 'currentStake'
+                        onClick={() => { setEditingCell({ companyId: csv.companyName, field: 'currentStake' }); setDraft(csv.currentStake != null ? String(csv.currentStake / 1e7) : ''); }}>
+                        {editingCell?.companyId === csv.companyName && editingCell.field === 'currentStake'
                           ? <input autoFocus className="w-20 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
                               onChange={e => setDraft(e.target.value)}
                               onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
@@ -312,8 +313,8 @@ export default function FundOverviewPage() {
 
                       {/* Equity Value — editable */}
                       <td className="px-4 py-3 text-right tabular-nums cursor-text" style={{ color: 'var(--muted-foreground)' }}
-                        onClick={() => { setEditingCell({ companyId: company.id, field: 'currentEquityValue' }); setDraft(csv.currentEquityValue != null ? String(csv.currentEquityValue / 1e7) : ''); }}>
-                        {editingCell?.companyId === company.id && editingCell.field === 'currentEquityValue'
+                        onClick={() => { setEditingCell({ companyId: csv.companyName, field: 'currentEquityValue' }); setDraft(csv.currentEquityValue != null ? String(csv.currentEquityValue / 1e7) : ''); }}>
+                        {editingCell?.companyId === csv.companyName && editingCell.field === 'currentEquityValue'
                           ? <input autoFocus className="w-20 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
                               onChange={e => setDraft(e.target.value)}
                               onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
@@ -322,8 +323,8 @@ export default function FundOverviewPage() {
 
                       {/* Investment Value — editable */}
                       <td className="px-4 py-3 text-right tabular-nums cursor-text" style={{ color: 'var(--muted-foreground)' }}
-                        onClick={() => { setEditingCell({ companyId: company.id, field: 'valueOfInvestment' }); setDraft(csv.valueOfInvestment != null ? String(csv.valueOfInvestment / 1e7) : ''); }}>
-                        {editingCell?.companyId === company.id && editingCell.field === 'valueOfInvestment'
+                        onClick={() => { setEditingCell({ companyId: csv.companyName, field: 'valueOfInvestment' }); setDraft(csv.valueOfInvestment != null ? String(csv.valueOfInvestment / 1e7) : ''); }}>
+                        {editingCell?.companyId === csv.companyName && editingCell.field === 'valueOfInvestment'
                           ? <input autoFocus className="w-20 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
                               onChange={e => setDraft(e.target.value)}
                               onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
@@ -332,8 +333,8 @@ export default function FundOverviewPage() {
 
                       {/* MOIC — editable */}
                       <td className="px-4 py-3 text-right cursor-text"
-                        onClick={() => { setEditingCell({ companyId: company.id, field: 'moic' }); setDraft(String(csv.moic)); }}>
-                        {editingCell?.companyId === company.id && editingCell.field === 'moic'
+                        onClick={() => { setEditingCell({ companyId: csv.companyName, field: 'moic' }); setDraft(String(csv.moic)); }}>
+                        {editingCell?.companyId === csv.companyName && editingCell.field === 'moic'
                           ? <input autoFocus className="w-16 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
                               onChange={e => setDraft(e.target.value)}
                               onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />
@@ -349,8 +350,8 @@ export default function FundOverviewPage() {
 
                       {/* IRR — editable */}
                       <td className="px-4 py-3 text-right cursor-text"
-                        onClick={() => { setEditingCell({ companyId: company.id, field: 'irr' }); setDraft(String(csv.irr)); }}>
-                        {editingCell?.companyId === company.id && editingCell.field === 'irr'
+                        onClick={() => { setEditingCell({ companyId: csv.companyName, field: 'irr' }); setDraft(String(csv.irr)); }}>
+                        {editingCell?.companyId === csv.companyName && editingCell.field === 'irr'
                           ? <input autoFocus className="w-16 border rounded px-1 py-0.5 text-xs text-right focus:outline-none" value={draft}
                               onChange={e => setDraft(e.target.value)}
                               onBlur={commitEdit} onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingCell(null); }} />

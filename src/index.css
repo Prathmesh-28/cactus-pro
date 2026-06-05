@@ -79,27 +79,17 @@ h4, h5, h6 {
   --accent-foreground:#ffffff;
 }
 
-/* ── Dark mode ───────────────────────────────────────────────────────────────
-   Toggle the .dark class on <html> to switch theme. */
+/* ── Dark mode — CSS invert trick (works across all components without changes)
+   Images and logos are re-inverted so they stay visually correct. */
 html.dark {
-  --background:       #0F172A;
-  --foreground:       #F1F5F9;
-  --card:             #1E293B;
-  --card-foreground:  #F1F5F9;
-  --border:           #334155;
-  --input:            #334155;
-  --muted:            #1E293B;
-  --muted-foreground: #94A3B8;
-  --ring:             #2D6A4F;
-  --primary:          #2D6A4F;
-  --primary-foreground: #ffffff;
-  --accent:           #2D6A4F;
-  --accent-foreground:#ffffff;
+  filter: invert(1) hue-rotate(180deg);
 }
-
-html.dark body {
-  background-color: #0F172A;
-  color: #F1F5F9;
+html.dark img,
+html.dark video,
+html.dark canvas,
+html.dark [style*="background-image"],
+html.dark svg image {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 /* ── Print styles (Fund Overview PDF) ────────────────────────────────────── */

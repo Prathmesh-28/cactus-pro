@@ -336,7 +336,8 @@ export interface CompanyTaxonomy {
 // ─── Portfolio Snapshot ───────────────────────────────────────────────────────
 
 export interface PortfolioSnapshotRow {
-  companyId: string;
+  companyId?: string;        // optional — resolved from name if available
+  companyName: string;       // always stored directly from the file
   dateOfFirstInvestment: string;
   currentStake: number | null;
   currentEquityValue: number | null;

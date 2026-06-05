@@ -279,8 +279,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       } catch {}
     };
-    poll(); // immediate fetch on mount — don't wait 15s for first sync
-    const id = setInterval(poll, 15_000);
+    poll(); // immediate fetch on mount
+    const id = setInterval(poll, 5_000); // poll every 5s — near-instant cross-user sync
     return () => clearInterval(id);
   }, []); // eslint-disable-line
 
