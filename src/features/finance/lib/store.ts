@@ -5,7 +5,7 @@
  *
  * Provides the same hook/function shapes as before so UI components are unchanged.
  */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { kvGet, kvSet, kvGetAll } from '../../../lib/api';
 import { getActiveFund } from './fund-context';
 
@@ -135,28 +135,40 @@ export function useDynamicTable(tableKey: string) {
 
 export function useDynamicTablesByPrefix(prefix: string) {
   const fund = getActiveFund();
+  const fullPrefix = `fin_dyn_${fund}::${prefix}`;
   const [sheets, setSheets] = useState<DynamicShape[]>([]);
-  const isLoading = useRef(false);
+
+  const buildFromCache = useCallback((kvAll: Record<string, unknown>) => {
+    // Merge: memCache wins for keys written this session (guaranteed fresh),
+    // fall back to KV for keys we haven't written locally yet.
+    const seen = new Set<string>();
+    const results: DynamicShape[] = [];
+
+    for (const [k, v] of memCache.entries()) {
+      if (k.startsWith(fullPrefix) && v !== null) {
+        results.push({ ...(v as DynamicShape), table_key: k.replace(`fin_dyn_${fund}::`, '') });
+        seen.add(k);
+      }
+    }
+    for (const [k, v] of Object.entries(kvAll)) {
+      if (k.startsWith(fullPrefix) && !seen.has(k) && v !== null) {
+        results.push({ ...(v as DynamicShape), table_key: k.replace(`fin_dyn_${fund}::`, '') });
+      }
+    }
+    setSheets(results);
+  }, [fund, fullPrefix]); // eslint-disable-line
 
   const refresh = useCallback(async () => {
-    if (isLoading.current) return;
-    isLoading.current = true;
-    try {
-      const all = await kvGetAll(NS);
-      const fullPrefix = `fin_dyn_${fund}::${prefix}`;
-      const results: DynamicShape[] = Object.entries(all)
-        .filter(([k]) => k.startsWith(fullPrefix))
-        .map(([k, v]) => {
-          const d = v as DynamicShape;
-          return { ...d, table_key: k.replace(`fin_dyn_${fund}::`, '') };
-        });
-      setSheets(results);
-    } finally {
-      isLoading.current = false;
-    }
-  }, [fund, prefix]);
+    const all = await kvGetAll(NS);
+    buildFromCache(all);
+  }, [buildFromCache]);
 
-  useListen([`fin_dyn_${fund}::${prefix}`], () => { void refresh(); });
+  // On local write event: rebuild immediately from memCache (no KV round-trip needed)
+  useListen([fullPrefix], () => {
+    buildFromCache({});  // memCache already has fresh data; KV entries will merge on next full refresh
+    void refresh();      // also kick off a KV sync in background
+  });
+
   useEffect(() => { void refresh(); }, [fund, prefix]); // eslint-disable-line
 
   return { data: sheets };
