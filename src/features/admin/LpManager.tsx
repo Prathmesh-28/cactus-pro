@@ -227,7 +227,7 @@ function CsvUploadSection({ primaryColor, onImport }: CsvUploadProps) {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv"
+            accept=".csv,.xlsx,.xls"
             className="hidden"
             onChange={handleFileChange}
           />

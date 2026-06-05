@@ -130,8 +130,10 @@ export function EditableTable({
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
+      const isCSV = file.name.toLowerCase().endsWith('.csv');
+      const wb = isCSV
+        ? XLSX.read(await file.text(), { type: 'string' })
+        : XLSX.read(await file.arrayBuffer(), { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
       if (!ws) throw new Error("Empty workbook");
       const aoa = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, defval: "" });
@@ -169,7 +171,7 @@ export function EditableTable({
         <h2 className="text-lg font-serif uppercase tracking-wide">{title}</h2>
         {canEdit && (
           <div className="flex flex-wrap items-center gap-2">
-            <input ref={fileRef} type="file" accept=".xlsx,.xls" hidden onChange={onImport} />
+            <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden onChange={onImport} />
             <Button variant="outline" size="sm" onClick={exportXlsx} disabled={dynColumns.length === 0}>
               <Download className="size-3.5 mr-1" /> Export
             </Button>

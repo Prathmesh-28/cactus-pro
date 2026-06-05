@@ -6,6 +6,7 @@
  */
 import { useState, useRef } from 'react';
 import { Download, Upload, Check, AlertCircle, X } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface Props {
   label: string;                          // e.g. "Financial Periods"
@@ -65,17 +66,25 @@ export default function TableActions({ label, headers, rows, onImport, className
     URL.revokeObjectURL(url);
   };
 
-  // Parse uploaded CSV into preview
+  // Parse uploaded CSV or XLSX into preview
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setImporting(true);
     setImportMsg(null);
 
+    const isXlsx = /\.(xlsx|xls)$/i.test(file.name);
     const reader = new FileReader();
     reader.onload = ev => {
       try {
-        const text = (ev.target?.result as string) ?? '';
+        let text: string;
+        if (isXlsx) {
+          const wb = XLSX.read(ev.target?.result as ArrayBuffer, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          text = XLSX.utils.sheet_to_csv(ws);
+        } else {
+          text = (ev.target?.result as string) ?? '';
+        }
         const parsed = parseCsv(text);
         if (parsed.length < 2) {
           setImportMsg({ ok: false, text: 'CSV must have a header row and at least one data row.' });
@@ -97,7 +106,7 @@ export default function TableActions({ label, headers, rows, onImport, className
       }
       setImporting(false);
     };
-    reader.readAsText(file);
+    if (isXlsx) reader.readAsArrayBuffer(file); else reader.readAsText(file);
     e.target.value = '';
   };
 
@@ -138,7 +147,7 @@ export default function TableActions({ label, headers, rows, onImport, className
           <Upload size={12} />
           {importing ? 'Parsing…' : 'Import CSV'}
         </button>
-        <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
+        <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleFile} />
 
         {/* Status */}
         {importMsg && (

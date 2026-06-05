@@ -116,8 +116,10 @@ export function PerformanceTable() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
+      const isCSV = file.name.toLowerCase().endsWith('.csv');
+      const wb = isCSV
+        ? XLSX.read(await file.text(), { type: 'string' })
+        : XLSX.read(await file.arrayBuffer(), { type: 'array' });
       // Extract any embedded images keyed by sheet + (row,col).
       let imagesBySheet = new Map<string, Map<string, string>>();
       try {
@@ -213,7 +215,7 @@ export function PerformanceTable() {
         </div>
         {canEdit && (
           <div className="flex flex-wrap items-center gap-2">
-            <input ref={fileRef} type="file" accept=".xlsx,.xls" hidden onChange={onImport} />
+            <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden onChange={onImport} />
             <Button variant="outline" size="sm" onClick={exportXlsx} disabled={!current}>
               <Download className="size-3.5 mr-1" /> Export
             </Button>

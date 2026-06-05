@@ -205,7 +205,7 @@ function BulkUploadPanel({
             className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors">
             <Upload className="w-3.5 h-3.5" /> Choose File
           </button>
-          <input ref={fileRef} type="file" accept=".csv" hidden onChange={onFile} />
+          <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" hidden onChange={onFile} />
         </div>
 
         {/* Errors */}

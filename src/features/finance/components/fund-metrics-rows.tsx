@@ -76,8 +76,11 @@ function MetricsRow({ title, rowType, metrics }: { title: string; rowType: RowTy
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    file.arrayBuffer().then((buf) => {
-      const wb = XLSX.read(buf, { type: "array" });
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    const readPromise = isCSV
+      ? file.text().then(text => XLSX.read(text, { type: 'string' }))
+      : file.arrayBuffer().then(buf => XLSX.read(buf, { type: 'array' }));
+    readPromise.then((wb) => {
       let count = 0;
       const allPeriods: string[] = [];
       for (const sheetName of wb.SheetNames) {
@@ -127,7 +130,7 @@ function MetricsRow({ title, rowType, metrics }: { title: string; rowType: RowTy
           </Select>
           {canEdit && (
             <>
-              <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUpload} />
+              <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleUpload} />
               <Button variant="outline" size="sm" className="h-8" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 <Upload className="size-3.5 mr-1" />
                 {uploading ? "Uploading…" : "Upload Excel"}

@@ -36,23 +36,16 @@ function useListen(keys: string[], cb: () => void) {
 
 // ─── KV helpers ───────────────────────────────────────────────────────────────
 
-// In-memory cache — populated on write so hooks read instantly without waiting
-// for KV round-trip. KV is the durable source; cache is the fast path.
-const memCache = new Map<string, unknown>();
-
+// Always read fresh from KV — no local cache.
 async function kvRead<T>(key: string): Promise<T | null> {
-  if (memCache.has(key)) return memCache.get(key) as T;
   const v = await kvGet(NS, key);
-  if (v !== null && v !== undefined) memCache.set(key, v);
   return (v as T) ?? null;
 }
 
-// Write to KV immediately — no debounce. Debouncing caused data loss when users
-// refreshed the page before the timer fired. memCache gives instant reactivity.
-function kvWrite(key: string, val: unknown) {
-  memCache.set(key, val);
+// Write to KV immediately, then notify same-browser listeners to re-fetch.
+async function kvWrite(key: string, val: unknown) {
+  await kvSet(NS, key, val);
   dispatchLocal(key);
-  kvSet(NS, key, val).catch(() => {});
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -138,36 +131,15 @@ export function useDynamicTablesByPrefix(prefix: string) {
   const fullPrefix = `fin_dyn_${fund}::${prefix}`;
   const [sheets, setSheets] = useState<DynamicShape[]>([]);
 
-  const buildFromCache = useCallback((kvAll: Record<string, unknown>) => {
-    // Merge: memCache wins for keys written this session (guaranteed fresh),
-    // fall back to KV for keys we haven't written locally yet.
-    const seen = new Set<string>();
-    const results: DynamicShape[] = [];
-
-    for (const [k, v] of memCache.entries()) {
-      if (k.startsWith(fullPrefix) && v !== null) {
-        results.push({ ...(v as DynamicShape), table_key: k.replace(`fin_dyn_${fund}::`, '') });
-        seen.add(k);
-      }
-    }
-    for (const [k, v] of Object.entries(kvAll)) {
-      if (k.startsWith(fullPrefix) && !seen.has(k) && v !== null) {
-        results.push({ ...(v as DynamicShape), table_key: k.replace(`fin_dyn_${fund}::`, '') });
-      }
-    }
+  const refresh = useCallback(async () => {
+    const all = await kvGetAll(NS);
+    const results: DynamicShape[] = Object.entries(all)
+      .filter(([k, v]) => k.startsWith(fullPrefix) && v !== null)
+      .map(([k, v]) => ({ ...(v as DynamicShape), table_key: k.replace(`fin_dyn_${fund}::`, '') }));
     setSheets(results);
   }, [fund, fullPrefix]); // eslint-disable-line
 
-  const refresh = useCallback(async () => {
-    const all = await kvGetAll(NS);
-    buildFromCache(all);
-  }, [buildFromCache]);
-
-  // On local write event: rebuild immediately from memCache (no KV round-trip needed)
-  useListen([fullPrefix], () => {
-    buildFromCache({});  // memCache already has fresh data; KV entries will merge on next full refresh
-    void refresh();      // also kick off a KV sync in background
-  });
+  useListen([fullPrefix], () => { void refresh(); });
 
   useEffect(() => { void refresh(); }, [fund, prefix]); // eslint-disable-line
 
@@ -181,7 +153,7 @@ export function useMutateDynamicTable(_section?: SectionKey) {
     mutateAsync: async (v: { tableKey: string; columns: DynColumn[]; rows: DynRow[] }) => {
       const lk = dynKey(fund, v.tableKey);
       const shape: DynamicShape = { table_key: v.tableKey, columns: v.columns, rows: v.rows, updated_at: new Date().toISOString() };
-      kvWrite(lk, shape);
+      await kvWrite(lk, shape);
     },
   };
 }
@@ -193,7 +165,7 @@ export function useReplaceDynamicTable(_section?: SectionKey) {
     mutateAsync: async (v: { tableKey: string; columns: DynColumn[]; rows: DynRow[] }) => {
       const lk = dynKey(fund, v.tableKey);
       const shape: DynamicShape = { table_key: v.tableKey, columns: v.columns, rows: v.rows, updated_at: new Date().toISOString() };
-      kvWrite(lk, shape);
+      await kvWrite(lk, shape);
     },
   };
 }
@@ -204,7 +176,6 @@ export function useDeleteDynamicTable(_section?: SectionKey) {
     isPending: false,
     mutateAsync: async (tableKey: string) => {
       const lk = dynKey(fund, tableKey);
-      memCache.delete(lk);
       await kvSet(NS, lk, null);
       dispatchLocal(lk);
     },
@@ -264,7 +235,7 @@ export async function upsertFundMetricValue(
   const idx = rows.findIndex(r => r.period === period && r.metric_key === metricKey);
   const row: MetricRow = { id: idx >= 0 ? rows[idx].id : genId(), fund, row_type: rowType, period, metric_key: metricKey, value };
   if (idx >= 0) rows[idx] = row; else rows.push(row);
-  kvWrite(lk, rows);
+  await kvWrite(lk, rows);
 }
 
 // ─── Dynamic table builder helpers ───────────────────────────────────────────
@@ -343,7 +314,7 @@ export function useUpsertRow(table: TableName) {
       const rows: Record<string, unknown>[] = (await kvRead<Record<string, unknown>[]>(lk)) ?? [];
       const idx = rows.findIndex(r => r.id === row.id);
       if (idx >= 0) rows[idx] = { ...rows[idx], ...row }; else rows.push({ ...row, fund });
-      kvWrite(lk, rows);
+      await kvWrite(lk, rows);
     },
   };
 }
@@ -356,7 +327,7 @@ export function useInsertRow(table: TableName) {
     mutateAsync: async (row: Record<string, unknown>) => {
       const rows: Record<string, unknown>[] = (await kvRead<Record<string, unknown>[]>(lk)) ?? [];
       rows.push({ id: genId(), ...row, fund });
-      kvWrite(lk, rows);
+      await kvWrite(lk, rows);
     },
   };
 }
@@ -368,7 +339,7 @@ export function useDeleteRow(table: TableName) {
     isPending: false,
     mutateAsync: async (id: string) => {
       const rows: Record<string, unknown>[] = (await kvRead<Record<string, unknown>[]>(lk)) ?? [];
-      kvWrite(lk, rows.filter(r => r.id !== id));
+      await kvWrite(lk, rows.filter(r => r.id !== id));
     },
   };
 }
@@ -379,7 +350,7 @@ export function useReplaceTable(table: TableName) {
   return {
     isPending: false,
     mutateAsync: async (rows: Record<string, unknown>[]) => {
-      kvWrite(lk, rows.map(r => ({ ...r, fund })));
+      await kvWrite(lk, rows.map(r => ({ ...r, fund })));
     },
   };
 }

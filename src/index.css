@@ -59,6 +59,26 @@ h4, h5, h6 {
   font-weight: 600;
 }
 
+/* ── Radix/shadcn CSS variable defaults on :root ─────────────────────────────
+   Radix portals (Select, Dialog, Tooltip etc.) render in document.body,
+   outside any scoped theme container. These fallback values ensure every
+   portal has a visible background, border and text colour. */
+:root {
+  --background:       #F6FAF7;
+  --foreground:       #191c14;
+  --card:             #ffffff;
+  --card-foreground:  #191c14;
+  --border:           #d2dbd9;
+  --input:            #d2dbd9;
+  --muted:            #F2F7F1;
+  --muted-foreground: #555951;
+  --ring:             #1C4B42;
+  --primary:          #1C4B42;
+  --primary-foreground: #ffffff;
+  --accent:           #1C4B42;
+  --accent-foreground:#ffffff;
+}
+
 /* ── Scrollbar — subtle green tint ───────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #F2F7F1; }

@@ -172,7 +172,7 @@ function DealCsvImport({ primaryColor, stages, onImport }: DealCsvImportProps) {
             <Upload className="w-3.5 h-3.5" />
             Choose CSV
           </button>
-          <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
+          <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleFile} />
         </div>
       </div>
 

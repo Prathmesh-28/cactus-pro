@@ -201,8 +201,10 @@ export function ComplianceCalendar() {
     const file = ev.target.files?.[0];
     if (!file) return;
     try {
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array", cellDates: true });
+      const isCSV = file.name.toLowerCase().endsWith('.csv');
+      const wb = isCSV
+        ? XLSX.read(await file.text(), { type: 'string', cellDates: true })
+        : XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: "" });
       const imported: EventRow[] = [];
@@ -251,7 +253,7 @@ export function ComplianceCalendar() {
         </div>
         {canEdit && (
           <div className="flex items-center gap-2">
-            <input ref={fileRef} type="file" accept=".xlsx,.xls" hidden onChange={onImportExcel} />
+            <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden onChange={onImportExcel} />
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
               <Upload className="size-3.5 mr-1" /> Upload Excel
             </Button>
