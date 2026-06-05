@@ -211,16 +211,26 @@ export function ComplianceCalendar() {
       for (const r of rows) {
         const lower: Record<string, unknown> = {};
         for (const k of Object.keys(r)) lower[k.toLowerCase().trim()] = r[k];
-        const title = String(lower["title"] ?? "").trim();
-        const assigned = String(lower["assigned to"] ?? lower["assigned_to"] ?? "").trim();
-        const dueRaw = lower["due date"] ?? lower["due_date"] ?? lower["date"];
-        const notes = String(lower["notes"] ?? "").trim();
+        // Accept any reasonable column name variation
+        const title = String(
+          lower["title"] ?? lower["event"] ?? lower["compliance"] ?? lower["name"] ?? ""
+        ).trim();
+        const assigned = String(
+          lower["assigned to"] ?? lower["assigned_to"] ?? lower["assignedto"] ??
+          lower["owner"] ?? lower["person"] ?? ""
+        ).trim();
+        const dueRaw =
+          lower["due date"] ?? lower["due_date"] ?? lower["duedate"] ??
+          lower["date"] ?? lower["deadline"] ?? lower["due"] ?? "";
+        const notes = String(lower["notes"] ?? lower["note"] ?? lower["description"] ?? "").trim();
         const due = parseDateFlexible(dueRaw);
         if (!title || !due) continue;
         imported.push({ id: genId(), title, assigned_to: assigned, notes, due_date: due });
       }
       if (imported.length === 0) {
-        toast.error("No valid rows. Expect columns: Title, Assigned To, Due Date, Notes.");
+        toast.error(`No valid rows found. Need at least "Title" and "Due Date" columns. Got: ${
+          rows.length > 0 ? Object.keys(rows[0]).join(', ') : 'empty file'
+        }`);
         return;
       }
       if (!confirm(`Import ${imported.length} event(s)? This will be added to existing events.`)) return;
@@ -296,12 +306,9 @@ export function ComplianceCalendar() {
                     <span
                       className={cn(
                         "inline-flex items-center justify-center text-xs font-semibold w-6 h-6 rounded-full",
-                        today
-                          ? "bg-primary text-primary-foreground"
-                          : inMonth
-                            ? "text-foreground"
-                            : "text-muted-foreground",
+                        !today && (inMonth ? "text-foreground" : "text-muted-foreground"),
                       )}
+                      style={today ? { backgroundColor: '#1E293B', color: '#ffffff' } : undefined}
                     >
                       {format(day, "d")}
                     </span>
@@ -365,7 +372,7 @@ export function ComplianceCalendar() {
 
       {/* Create / Edit dialog */}
       <Dialog open={createOpen} onOpenChange={(o) => { setCreateOpen(o); if (!o) setDraft(EMPTY_DRAFT); }}>
-        <DialogContent className="sm:max-w-md bg-card">
+        <DialogContent className="sm:max-w-md" style={{ backgroundColor: "#ffffff", color: "#1a1a1a" }}>
           <DialogHeader>
             <DialogTitle>{draft.id ? "Edit Compliance" : "New Compliance"}</DialogTitle>
           </DialogHeader>
@@ -396,7 +403,7 @@ export function ComplianceCalendar() {
 
       {/* View event dialog */}
       <Dialog open={!!viewEvent} onOpenChange={(o) => { if (!o) { setViewEvent(null);  } }}>
-        <DialogContent className="sm:max-w-md bg-card">
+        <DialogContent className="sm:max-w-md" style={{ backgroundColor: "#ffffff", color: "#1a1a1a" }}>
           {viewEvent && (
             <>
               <DialogHeader>
