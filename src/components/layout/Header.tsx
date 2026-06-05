@@ -75,7 +75,10 @@ export default function Header() {
   }, []);
 
   const roleConfig    = roles.find(r => r.role === currentRole);
-  const visibleTabs   = roleConfig?.visibleTabs ?? [];
+  // Super admin always sees ALL tabs regardless of current preview role
+  const visibleTabs   = authUser?.role === 'super_admin'
+    ? NAV_ITEMS.map(n => n.tab)
+    : (roleConfig?.visibleTabs ?? []);
   const activeAnnouncements = announcements.filter(
     a => a.targetRoles.includes(currentRole) && new Date(a.expiryDate) >= new Date()
   );
