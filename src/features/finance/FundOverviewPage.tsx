@@ -1,10 +1,11 @@
+import { useRef } from 'react';
+import * as XLSX from 'xlsx';
 import { FundMetricsRows } from './components/fund-metrics-rows';
 import { PerformanceTable } from './components/performance-table';
 import { useFund } from './lib/fund-context';
 import { useApp } from '../../context/AppContext';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-
-// Portfolio snapshot data comes from Admin → Portfolio Snapshot
+import { TrendingUp, TrendingDown, Minus, Upload, Download } from 'lucide-react';
+import type { PortfolioSnapshotRow } from '../../data/types';
 
 function fmtCr(n: number | null): string {
   if (n === null || n === undefined) return '—';
@@ -26,7 +27,55 @@ function CompanyAvatar({ name, logoUrl }: { name: string; logoUrl: string }) {
 
 export default function FundOverviewPage() {
   const { fund, setFund } = useFund();
-  const { store } = useApp();
+  const { store, updatePortfolioSnapshot } = useApp();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const downloadTemplate = () => {
+    const headers = ['Company Name', 'Date of First Investment', 'Current Stake (₹ Cr)', 'Current Equity Value (₹ Cr)', 'Value of Investment (₹ Cr)', 'MOIC', 'IRR (%)'];
+    const example = store.companies.slice(0, 3).map(c => [
+      c.name, '15.4.21', '30', '20', '10', '3', '30'
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...example]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Portfolio Snapshot');
+    XLSX.writeFile(wb, 'portfolio_snapshot_template.xlsx');
+  };
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    const read = isCSV
+      ? file.text().then(t => XLSX.read(t, { type: 'string' }))
+      : file.arrayBuffer().then(b => XLSX.read(b, { type: 'array' }));
+    read.then(wb => {
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
+      if (rows.length < 2) return;
+      const parsed: PortfolioSnapshotRow[] = [];
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const name = String(r[0] ?? '').trim();
+        if (!name) continue;
+        const company = store.companies.find(c =>
+          c.name.toLowerCase() === name.toLowerCase()
+        );
+        if (!company) continue;
+        const n = (v: unknown) => { const x = parseFloat(String(v).replace(/[₹,\s]/g, '')); return isFinite(x) ? x * 1e7 : null; };
+        parsed.push({
+          companyId: company.id,
+          dateOfFirstInvestment: String(r[1] ?? '').trim(),
+          currentStake:        n(r[2]),
+          currentEquityValue:  n(r[3]),
+          valueOfInvestment:   n(r[4]),
+          moic: parseFloat(String(r[5])) || 0,
+          irr:  parseFloat(String(r[6])) || 0,
+        });
+      }
+      if (parsed.length > 0) updatePortfolioSnapshot(parsed);
+    });
+    e.target.value = '';
+  };
 
   const snapshotData = store.portfolioSnapshot ?? [];
   const snapshot = snapshotData.map(row => ({
@@ -66,13 +115,28 @@ export default function FundOverviewPage() {
       <div className="px-6 md:px-10 py-8 space-y-10 flex-1">
         <FundMetricsRows />
 
-        {/* Portfolio Snapshot — from CSV */}
+        {/* Portfolio Snapshot */}
         <section className="space-y-3">
-          <div className="flex items-baseline gap-2">
-            <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: 'var(--muted-foreground)' }}>
-              Portfolio Snapshot
-            </p>
-            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>(Amounts in INR Cr)</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-baseline gap-2">
+              <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: 'var(--muted-foreground)' }}>
+                Portfolio Snapshot
+              </p>
+              <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>(Amounts in INR Cr)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={downloadTemplate}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors"
+                style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'var(--card)' }}>
+                <Download className="w-3.5 h-3.5" /> Template
+              </button>
+              <button onClick={() => fileRef.current?.click()}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white transition-colors"
+                style={{ backgroundColor: '#1E293B' }}>
+                <Upload className="w-3.5 h-3.5" /> Upload Excel / CSV
+              </button>
+              <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden onChange={handleUpload} />
+            </div>
           </div>
 
           <div className="rounded-lg border overflow-hidden shadow-[var(--shadow-card)]"
@@ -92,6 +156,11 @@ export default function FundOverviewPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
+                  {snapshot.length === 0 && (
+                    <tr><td colSpan={7} className="px-4 py-10 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                      No data yet — click <strong>Upload Excel / CSV</strong> above to import, or download the Template first.
+                    </td></tr>
+                  )}
                   {snapshot.map(({ company, csv }, i) => (
                     <tr key={company.id}
                       className="transition-colors hover:bg-[var(--muted)]"
