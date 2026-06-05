@@ -32,7 +32,7 @@ async function initDb() {
       CREATE TABLE IF NOT EXISTS kv_store (
         id SERIAL PRIMARY KEY,
         namespace VARCHAR(100) NOT NULL,  -- e.g. 'finance', 'compliance'
-        key VARCHAR(200) NOT NULL,         -- e.g. 'fund_1::fund_metrics'
+        key TEXT NOT NULL,                  -- e.g. 'fund_1::fund_metrics'
         value JSONB NOT NULL DEFAULT '{}',
         updated_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(namespace, key)
@@ -98,6 +98,17 @@ async function initDb() {
       CREATE INDEX IF NOT EXISTS idx_reset_tokens_token   ON password_reset_tokens(token);
       CREATE INDEX IF NOT EXISTS idx_audit_user           ON audit_log(user_id);
       CREATE INDEX IF NOT EXISTS idx_audit_created        ON audit_log(created_at);
+    `);
+    // Migrate key column from VARCHAR(200) to TEXT if needed
+    await client.query(`
+      DO $$ BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name='kv_store' AND column_name='key' AND data_type='character varying'
+        ) THEN
+          ALTER TABLE kv_store ALTER COLUMN key TYPE TEXT;
+        END IF;
+      END $$;
     `);
     console.log('Database tables ready');
   } finally {

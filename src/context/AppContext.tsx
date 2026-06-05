@@ -255,7 +255,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // ── Real-time cross-user polling — re-fetch KV every 30 s ───────────────────
+  // ── Real-time cross-user polling — re-fetch KV every 15 s ───────────────────
+  // Also runs immediately on mount so Finance team always sees latest Portfolio data.
   useEffect(() => {
     const poll = async () => {
       try {
@@ -269,11 +270,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (v && typeof v === 'object') merged = { ...merged, ...(v as Partial<AppStore>) };
         }
         if (Object.keys(merged).length > 0) {
-          setStoreRaw(prev => ({ ...prev, ...merged } as AppStore));
+          setStoreRaw(prev => {
+            const next = { ...prev, ...merged } as AppStore;
+            // Keep localStorage in sync so refresh shows fresh data too
+            try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
+            return next;
+          });
         }
       } catch {}
     };
-    const id = setInterval(poll, 30_000);
+    poll(); // immediate fetch on mount — don't wait 15s for first sync
+    const id = setInterval(poll, 15_000);
     return () => clearInterval(id);
   }, []); // eslint-disable-line
 

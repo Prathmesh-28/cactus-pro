@@ -6,6 +6,7 @@ import { useFund } from './lib/fund-context';
 import { useApp } from '../../context/AppContext';
 import { TrendingUp, TrendingDown, Minus, Upload, Download } from 'lucide-react';
 import type { PortfolioSnapshotRow } from '../../data/types';
+import { toastImportSuccess, toastImportWarning, toastImportError } from '../../lib/uploadToast';
 
 function fmtCr(n: number | null): string {
   if (n === null || n === undefined) return '—';
@@ -49,31 +50,40 @@ export default function FundOverviewPage() {
       ? file.text().then(t => XLSX.read(t, { type: 'string' }))
       : file.arrayBuffer().then(b => XLSX.read(b, { type: 'array' }));
     read.then(wb => {
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
-      if (rows.length < 2) return;
-      const parsed: PortfolioSnapshotRow[] = [];
-      for (let i = 1; i < rows.length; i++) {
-        const r = rows[i];
-        const name = String(r[0] ?? '').trim();
-        if (!name) continue;
-        const company = store.companies.find(c =>
-          c.name.toLowerCase() === name.toLowerCase()
-        );
-        if (!company) continue;
-        const n = (v: unknown) => { const x = parseFloat(String(v).replace(/[₹,\s]/g, '')); return isFinite(x) ? x * 1e7 : null; };
-        parsed.push({
-          companyId: company.id,
-          dateOfFirstInvestment: String(r[1] ?? '').trim(),
-          currentStake:        n(r[2]),
-          currentEquityValue:  n(r[3]),
-          valueOfInvestment:   n(r[4]),
-          moic: parseFloat(String(r[5])) || 0,
-          irr:  parseFloat(String(r[6])) || 0,
-        });
-      }
-      if (parsed.length > 0) updatePortfolioSnapshot(parsed);
-    });
+      try {
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
+        if (rows.length < 2) { toastImportError('File has no data rows.'); return; }
+        const parsed: PortfolioSnapshotRow[] = [];
+        const unmatched: string[] = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          const name = String(r[0] ?? '').trim();
+          if (!name) continue;
+          const company = store.companies.find(c =>
+            c.name.toLowerCase() === name.toLowerCase()
+          );
+          if (!company) { unmatched.push(name); continue; }
+          const n = (v: unknown) => { const x = parseFloat(String(v).replace(/[₹,\s]/g, '')); return isFinite(x) ? x * 1e7 : null; };
+          parsed.push({
+            companyId: company.id,
+            dateOfFirstInvestment: String(r[1] ?? '').trim(),
+            currentStake:        n(r[2]),
+            currentEquityValue:  n(r[3]),
+            valueOfInvestment:   n(r[4]),
+            moic: parseFloat(String(r[5])) || 0,
+            irr:  parseFloat(String(r[6])) || 0,
+          });
+        }
+        if (parsed.length > 0) {
+          updatePortfolioSnapshot(parsed);
+          if (unmatched.length > 0) toastImportWarning(parsed.length, unmatched.length, unmatched);
+          else toastImportSuccess(parsed.length, 'company');
+        } else {
+          toastImportError(`No companies matched. Check names match exactly: ${unmatched.slice(0,3).join(', ')}`);
+        }
+      } catch { toastImportError('Could not parse file.'); }
+    }).catch(() => toastImportError('Could not read file.'));
     e.target.value = '';
   };
 

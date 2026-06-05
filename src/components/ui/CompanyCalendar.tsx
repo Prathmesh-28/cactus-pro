@@ -13,6 +13,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, X, Check, Upload, Download, FileSpreadsheet } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { kvGet, kvSet } from '../../lib/api';
+import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -397,6 +398,7 @@ export default function CompanyCalendar({ companyId, companyName = 'All Companie
       notes: r.notes ?? '',
     }));
     setEvents([...events, ...newEvents]);
+    toast.success(`✓ ${newEvents.length} deadline${newEvents.length !== 1 ? 's' : ''} imported`);
     setBulkOpen(false);
   };
 

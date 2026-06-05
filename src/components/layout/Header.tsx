@@ -128,12 +128,14 @@ export default function Header() {
               {/* Global Search */}
               <GlobalSearch />
 
-              {/* Role switcher */}
-              <div className="hidden sm:flex items-center gap-1 text-xs border rounded-lg px-2 py-1.5"
-                style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>
-                <span className="text-[11px] mr-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Role</span>
-                <RoleSwitcher />
-              </div>
+              {/* Role switcher — only visible to super_admin */}
+              {currentRole === 'super_admin' && (
+                <div className="hidden sm:flex items-center gap-1 text-xs border rounded-lg px-2 py-1.5"
+                  style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>
+                  <span className="text-[11px] mr-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Role</span>
+                  <RoleSwitcher />
+                </div>
+              )}
 
               {/* Sync All button */}
               <button

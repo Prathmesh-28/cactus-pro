@@ -5,6 +5,8 @@ import { AppProvider } from './context/AppContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Chatbot from './components/ui/Chatbot';
+import SaveIndicator from './components/ui/SaveIndicator';
+import ConnectionBanner from './components/ui/ConnectionBanner';
 
 // Eagerly loaded (tiny, needed immediately)
 import LoginPage from './pages/LoginPage';
@@ -83,6 +85,8 @@ function AppShell() {
         <Footer />
       </div>
       <Chatbot />
+      <SaveIndicator />
+      <ConnectionBanner />
     </>
   );
 }

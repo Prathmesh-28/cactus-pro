@@ -199,7 +199,7 @@ export function PerformanceTable() {
     <div className="rounded-lg border border-border bg-card shadow-[var(--shadow-card)]">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-border">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-lg font-serif uppercase tracking-wide">Portfolio Snapshot</h2>
+          <h2 className="text-lg font-serif uppercase tracking-wide">Financial Performance Data</h2>
           {sheetNames.length > 0 && (
             <Select value={sheet} onValueChange={setSheet}>
               <SelectTrigger className="h-8 min-w-32">

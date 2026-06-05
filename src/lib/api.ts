@@ -62,13 +62,16 @@ export async function kvGet(namespace: string, key: string): Promise<unknown> {
 }
 
 export async function kvSet(namespace: string, key: string, value: unknown): Promise<void> {
+  const { markSaving, markSaved, markError } = await import('../hooks/useSaveState');
+  markSaving();
   try {
-    await fetch(`${BASE}/api/kv/${namespace}/${encodeURIComponent(key)}`, {
+    const res = await fetch(`${BASE}/api/kv/${namespace}/${encodeURIComponent(key)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value }),
     });
-  } catch { /* silent — falls back to localStorage */ }
+    if (res.ok) markSaved(); else markError();
+  } catch { markError(); }
 }
 
 export async function kvGetAll(namespace: string): Promise<Record<string, unknown>> {
