@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 import { defaultConfig } from '../data/defaultConfig';
 import { kvGet, kvSet } from '../lib/api';
 import type {
@@ -201,12 +202,31 @@ function seedPortfolioFundView(s: AppStore): AppStore {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+
   // Start with localStorage for instant render, then hydrate from PostgreSQL
   const [store, setStoreRaw] = useState<AppStore>(() => seedPortfolioFundView(loadLocal() ?? defaultConfig));
   const [loading, setLoading] = useState(true);
   const [currentRole, setCurrentRoleState] = useState<RoleName>(
     () => (localStorage.getItem(ROLE_KEY) as RoleName) ?? 'super_admin'
   );
+
+  // ── Sync currentRole from authenticated user's real role ──────────────────
+  // Non-super-admin users always get their DB role — no manual switching.
+  // Super admin keeps the role switcher for demo/preview purposes.
+  useEffect(() => {
+    if (!user?.role) return;
+    const dbRole = user.role as RoleName;
+    // If logged-in user is NOT super_admin, force their actual DB role immediately
+    if (dbRole !== 'super_admin') {
+      setCurrentRoleState(dbRole);
+      localStorage.setItem(ROLE_KEY, dbRole);
+    } else if (!localStorage.getItem(ROLE_KEY)) {
+      // Super admin: default to super_admin if nothing stored
+      setCurrentRoleState('super_admin');
+      localStorage.setItem(ROLE_KEY, 'super_admin');
+    }
+  }, [user?.role]);
 
   // Debounce timer for backend saves
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -305,6 +325,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setCurrentRole = (role: RoleName) => {
+    // Only super_admin can switch roles (for preview purposes)
+    if (user?.role && user.role !== 'super_admin') return;
     setCurrentRoleState(role);
     localStorage.setItem(ROLE_KEY, role);
   };
