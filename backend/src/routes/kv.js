@@ -45,9 +45,9 @@ router.put('/:namespace/:key(*)', async (req, res) => {
   try {
     const { rows } = await pool.query(
       `INSERT INTO kv_store (namespace, key, value, updated_at)
-       VALUES ($1, $2, $3, NOW())
+       VALUES ($1, $2, $3::jsonb, NOW())
        ON CONFLICT (namespace, key) DO UPDATE
-         SET value = $3, updated_at = NOW()
+         SET value = $3::jsonb, updated_at = NOW()
        RETURNING key, updated_at`,
       [req.params.namespace, req.params.key, JSON.stringify(value)]
     );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Pencil, Check, X, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { kvGet, kvSet } from '../../lib/api';
@@ -10,7 +10,6 @@ const KV_EVT = 'fin-kv-state-changed';
 
 function useKvState<T>(key: string, initial: T): [T, (v: T) => void] {
   const [val, setVal] = useState<T>((kvCache.get(key) as T) ?? initial);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async () => {
     const v = await kvGet('finance', key);
@@ -34,10 +33,7 @@ function useKvState<T>(key: string, initial: T): [T, (v: T) => void] {
     kvCache.set(key, v);
     setVal(v);
     window.dispatchEvent(new CustomEvent(KV_EVT, { detail: { key } }));
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      kvSet('finance', key, v).catch(() => {});
-    }, 350);
+    kvSet('finance', key, v).catch(() => {});
   };
   return [val, save];
 }

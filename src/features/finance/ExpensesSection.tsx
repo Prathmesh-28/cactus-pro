@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { kvGet, kvSet } from '../../lib/api';
 import { Plus, Trash2, Download } from 'lucide-react';
 import {
@@ -17,7 +17,6 @@ const EXP_EVT = 'fin-exp-changed';
 
 function useKvTable(storageKey: string, defaultRows: ExpRow[]) {
   const [rows, setRows] = useState<ExpRow[]>(expCache.get(storageKey) ?? defaultRows);
-  const writeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async () => {
     const v = await kvGet('finance', storageKey);
@@ -40,10 +39,7 @@ function useKvTable(storageKey: string, defaultRows: ExpRow[]) {
     expCache.set(storageKey, next);
     setRows(next);
     window.dispatchEvent(new CustomEvent(EXP_EVT, { detail: { key: storageKey } }));
-    if (writeTimer.current) clearTimeout(writeTimer.current);
-    writeTimer.current = setTimeout(() => {
-      kvSet('finance', storageKey, next).catch(() => {});
-    }, 350);
+    kvSet('finance', storageKey, next).catch(() => {});
   };
   return [rows, save] as const;
 }

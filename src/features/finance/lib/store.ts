@@ -47,16 +47,12 @@ async function kvRead<T>(key: string): Promise<T | null> {
   return (v as T) ?? null;
 }
 
-// Debounce KV writes per key; update cache and fire local event immediately.
-const writeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+// Write to KV immediately — no debounce. Debouncing caused data loss when users
+// refreshed the page before the timer fired. memCache gives instant reactivity.
 function kvWrite(key: string, val: unknown) {
-  memCache.set(key, val);   // instant in-memory update
-  dispatchLocal(key);        // notify same-browser listeners — they read from cache
-  if (writeTimers[key]) clearTimeout(writeTimers[key]);
-  writeTimers[key] = setTimeout(() => {
-    kvSet(NS, key, val).catch(() => {});
-    delete writeTimers[key];
-  }, 350);
+  memCache.set(key, val);
+  dispatchLocal(key);
+  kvSet(NS, key, val).catch(() => {});
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
