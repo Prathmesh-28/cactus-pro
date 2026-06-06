@@ -88,6 +88,54 @@ export default function TaxonomyManager() {
           </div>
         </div>
       </div>
+
+      {/* Extended Taxonomy Lists */}
+      {[
+        { field: 'boardRoles',             label: 'Board Member Roles',           desc: 'Titles used when adding board members to companies',        defaults: ['CEO','CTO','CFO','COO','Board Member','Board Observer','Independent Director'] },
+        { field: 'newsCategories',         label: 'News Feed Categories',         desc: 'Tags for news items in the News Feed',                     defaults: ['Product','Funding','Exit','Market','Hiring','Partnership','Award'] },
+        { field: 'healthMetricTypes',      label: 'Health Metric Types',          desc: 'Signal labels in the Health Dashboard',                    defaults: ['Revenue','Burn','Team','Product','Customer','Runway'] },
+        { field: 'researchDocCategories',  label: 'Research Doc Categories',      desc: 'Categories for the Research Library',                      defaults: ['Market Map','Sector Report','Competitive Analysis','Thesis','Due Diligence'] },
+        { field: 'capTableRoles',          label: 'Cap Table Investor Roles',     desc: 'Investor categories in cap table entries',                  defaults: ['Lead Investor','Co-investor','Angel','Fund','ESOP','Promoter'] },
+        { field: 'introRequestCategories', label: 'Intro Request Categories',     desc: 'Reason types when requesting intros',                      defaults: ['Fundraising','Business Development','Hiring','Strategic Partner','Expert Advice'] },
+      ].map(({ field, label, desc, defaults }) => {
+        const arr: string[] = (tax as unknown as Record<string, string[]>)[field] ?? defaults;
+        return (
+          <div key={field} className="border border-gray-200 rounded-xl p-5 space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700">{label}</p>
+              <p className="text-xs text-gray-400">{desc}</p>
+            </div>
+            <div className="space-y-2">
+              {arr.map((v, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input className={ic + ' flex-1'} value={v}
+                    onChange={e => {
+                      const next = arr.map((x, j) => j === i ? e.target.value : x);
+                      setTax(t => ({ ...t, [field]: next }));
+                    }} />
+                  <button onClick={() => setTax(t => ({ ...t, [field]: arr.filter((_, j) => j !== i) }))}
+                    className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 shrink-0">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input className={ic + ' flex-1'}
+                placeholder={`Add ${label.toLowerCase().replace('s','')}…`}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
+                    setTax(t => ({ ...t, [field]: [...arr, (e.target as HTMLInputElement).value.trim()] }));
+                    (e.target as HTMLInputElement).value = '';
+                  }
+                }} />
+              <button className="flex items-center gap-1 px-3 py-2 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -1410,6 +1410,12 @@ export const defaultConfig: AppStore = {
   taxonomy: {
     stages:   ['Seed', 'Series A', 'Series B', 'Series C', 'Growth', 'Late', 'Exited'],
     statuses: ['Active', 'Watch', 'Exited'],
+    boardRoles: ['CEO', 'CTO', 'CFO', 'COO', 'Board Member', 'Board Observer', 'Independent Director', 'Nominee Director'],
+    newsCategories: ['Product', 'Funding', 'Exit', 'Market', 'Hiring', 'Partnership', 'Award'],
+    healthMetricTypes: ['Revenue', 'Burn', 'Team', 'Product', 'Customer', 'Runway'],
+    researchDocCategories: ['Market Map', 'Sector Report', 'Competitive Analysis', 'Investment Thesis', 'Due Diligence'],
+    capTableRoles: ['Lead Investor', 'Co-investor', 'Angel', 'Fund', 'ESOP', 'Promoter'],
+    introRequestCategories: ['Fundraising', 'Business Development', 'Hiring', 'Strategic Partner', 'Expert Advice'],
   },
 
   // ─── Portfolio snapshot rows (Admin → Portfolio Snapshot) ─────────────────────
@@ -1938,6 +1944,8 @@ export const defaultConfig: AppStore = {
   opsConfig:           null,
   financeData:         {},
   toolkitLinks:        {},
+  emailTemplates:      null,
+  contentConfig:       null,
   // Portfolio team's independent copy of fund investment data (pf_ prefix IDs)
   // Static pre-computed so it survives JSON serialization
   portfolioFundView: [] as import('./types').FundInvestment[], // seeded by AppContext on first load

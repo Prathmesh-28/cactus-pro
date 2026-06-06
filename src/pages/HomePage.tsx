@@ -63,6 +63,9 @@ const SECTOR_ICONS: Record<string, React.ElementType> = {
 export default function HomePage() {
   const { store } = useApp();
   const { firm, companies, sectors, people, fundMetrics } = store;
+  const hp = store.homepage;
+  const footerText = firm.footerText;
+  const footerDisclaimer = firm.footerDisclaimer;
 
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [hoveredCompany, setHoveredCompany] = useState<string | null>(null);
@@ -291,18 +294,13 @@ export default function HomePage() {
                 Our Philosophy
               </div>
               <h2 className="font-heading font-black text-4xl md:text-5xl leading-tight text-white mb-6">
-                We don't just write<br />
-                <span style={{ color: firm.accentColor }}>cheques.</span>
+                {hp?.philosophyTitle ?? "We don't just write cheques."}
               </h2>
               <p className="text-white/55 text-lg leading-relaxed mb-6">
-                Cactus Partners is an early and growth-stage venture capital firm headquartered in Mumbai.
-                We invest in exceptional founders building category-defining companies across India's most
-                important sectors.
+                {hp?.aboutText ?? 'Cactus Partners is an early and growth-stage venture capital firm headquartered in Mumbai. We invest in exceptional founders building category-defining companies across India\'s most important sectors.'}
               </p>
               <p className="text-white/40 text-base leading-relaxed mb-8">
-                Our value goes beyond capital. We bring deep operational expertise, a curated network,
-                and the candid mentorship that helps founders navigate the full journey — from first product
-                to public markets.
+                {hp?.aboutSubText ?? 'Our value goes beyond capital. We bring deep operational expertise, a curated network, and the candid mentorship that helps founders navigate the full journey — from first product to public markets.'}
               </p>
               <div className="flex flex-wrap gap-3">
                 {firm.locations.map(loc => (
@@ -665,7 +663,8 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-white/6 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-white/20">© {new Date().getFullYear()} {firm.name}. All rights reserved.</p>
+            <p className="text-xs text-white/20">{footerText ?? `© ${new Date().getFullYear()} ${firm.name}. All rights reserved.`}</p>
+            {footerDisclaimer && <p className="text-xs text-white/10 mt-1">{footerDisclaimer}</p>}
             <p className="text-xs text-white/15">{firm.locations.join(' · ')}</p>
           </div>
         </div>

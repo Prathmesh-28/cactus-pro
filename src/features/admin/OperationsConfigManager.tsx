@@ -26,6 +26,8 @@ interface OpsConfig {
   meetingNoteTypes: MeetingNoteType[];
   priorityLevels: PriorityLevel[];
   introStatuses: IntroStatus[];
+  eventTypes: string[];
+  documentTypes: string[];
 }
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
@@ -73,6 +75,8 @@ function defaultOpsConfig(): OpsConfig {
     meetingNoteTypes: DEFAULT_MEETING_NOTE_TYPES,
     priorityLevels: DEFAULT_PRIORITY_LEVELS,
     introStatuses: DEFAULT_INTRO_STATUSES,
+    eventTypes: ['Board Meeting', 'LP Call', 'Portfolio Review', 'Team Offsite', 'Demo Day', 'Annual Meet'],
+    documentTypes: ['SHA', 'SSA', 'NDA', 'Term Sheet', 'LOI', 'SAFE Note', 'Convertible Note'],
   };
 }
 
@@ -430,6 +434,49 @@ export default function OperationsConfigManager() {
             </div>
           ))}
         </Section>
+      </div>
+
+
+      {/* Event Types */}
+      <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-gray-700">Calendar Event Types</p>
+          <button onClick={() => setCfg(c => ({ ...c, eventTypes: [...(c.eventTypes ?? []), 'New Event Type'] }))}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">
+            <Plus className="w-3.5 h-3.5" /> Add
+          </button>
+        </div>
+        <div className="space-y-2">
+          {(cfg.eventTypes).map((t, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={ic + ' flex-1'} value={t}
+                onChange={e => { const arr = [...cfg.eventTypes]; arr[i] = e.target.value; setCfg(c => ({ ...c, eventTypes: arr })); }} />
+              <button onClick={() => setCfg(c => ({ ...c, eventTypes: cfg.eventTypes.filter((_, j) => j !== i) }))}
+                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Document Types */}
+      <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-gray-700">Signing Document Types</p>
+          <button onClick={() => setCfg(c => ({ ...c, documentTypes: [...(c.documentTypes ?? []), 'New Type'] }))}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">
+            <Plus className="w-3.5 h-3.5" /> Add
+          </button>
+        </div>
+        <div className="space-y-2">
+          {(cfg.documentTypes).map((t, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={ic + ' flex-1'} value={t}
+                onChange={e => { const arr = [...cfg.documentTypes]; arr[i] = e.target.value; setCfg(c => ({ ...c, documentTypes: arr })); }} />
+              <button onClick={() => setCfg(c => ({ ...c, documentTypes: cfg.documentTypes.filter((_, j) => j !== i) }))}
+                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );

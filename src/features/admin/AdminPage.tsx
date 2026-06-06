@@ -23,6 +23,8 @@ import OperationsConfigManager from './OperationsConfigManager';
 import MasterSheetManager from './MasterSheetDownloader';
 import ChangelogView from './ChangelogView';
 import ToolkitManager from './ToolkitManager';
+import EmailTemplatesManager from './EmailTemplatesManager';
+import ContentManager from './ContentManager';
 import {
   Settings,
   Building2,
@@ -56,7 +58,8 @@ type AdminTab =
   | 'homepage' | 'kpi_thresholds' | 'finance_config' | 'taxonomy'
   | 'portfolio_snapshot' | 'users'
   | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config'
-  | 'master_sheet' | 'changelog' | 'toolkit_links';
+  | 'master_sheet' | 'changelog' | 'toolkit_links'
+  | 'email_templates' | 'content_manager';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
   // ── Platform ──────────────────────────────────────────────────────────────
@@ -86,6 +89,8 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: str
   { key: 'recruitment_config', label: 'Recruitment Config',   Icon: UserCheck,        group: 'Operations' },
   { key: 'changelog',          label: 'Activity Log',          Icon: Activity,         group: 'Platform' },
   { key: 'toolkit_links',      label: 'VC Toolkit Links',      Icon: Wrench,           group: 'Platform' },
+  { key: 'email_templates',    label: 'Email Templates',       Icon: Bell,             group: 'Platform' },
+  { key: 'content_manager',    label: 'Content & Pages',       Icon: Globe,            group: 'Platform' },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -175,6 +180,8 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
   },
   changelog: { affects: ['Read-only — shows last 200 login/invite/role-change events'] },
   toolkit_links: { affects: ['VC Toolkit page — external URLs per tool, Built/To build status'] },
+  email_templates: { affects: ['LP Comms emails', 'Capital call notices', 'Founder portal welcome', 'User invite email'] },
+  content_manager: { affects: ['Page headings and subtitles across all tabs'] },
 };
 
 export default function AdminPage() {
@@ -207,6 +214,8 @@ export default function AdminPage() {
     master_sheet:         <MasterSheetManager />,
     changelog:            <ChangelogView />,
     toolkit_links:        <ToolkitManager />,
+    email_templates:      <EmailTemplatesManager />,
+    content_manager:      <ContentManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);

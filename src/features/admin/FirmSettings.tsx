@@ -219,6 +219,29 @@ export default function FirmSettings() {
         </div>
       </div>
 
+      {/* Messaging & Footer */}
+      <div className="space-y-4">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Messaging & Footer</p>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Footer tagline</label>
+          <input className={inputCls} value={form.footerText ?? ''}
+            onChange={e => handleChange('footerText', e.target.value)}
+            placeholder="e.g. Internal use only · All rights reserved" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Footer legal disclaimer</label>
+          <textarea className={inputCls + ' resize-none'} rows={2} value={form.footerDisclaimer ?? ''}
+            onChange={e => handleChange('footerDisclaimer', e.target.value)}
+            placeholder="This portal is for authorised Cactus Partners personnel only…" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Founder portal welcome message</label>
+          <textarea className={inputCls + ' resize-none'} rows={2} value={form.founderPortalMessage ?? ''}
+            onChange={e => handleChange('founderPortalMessage', e.target.value)}
+            placeholder="Welcome to the Cactus Partners Founder Portal…" />
+        </div>
+      </div>
+
       {/* Save */}
       <div className="flex items-center gap-3 pt-2">
         <button

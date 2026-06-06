@@ -171,6 +171,8 @@ interface AppContextValue {
   // Shared config setters (synced to PostgreSQL for all users)
   setNavConfig: (cfg: NavTabConfig[]) => void;
   updateToolkitLinks: (links: Record<string, string>) => void;
+  updateEmailTemplates: (t: import('../data/types').EmailTemplates) => void;
+  updateContentConfig: (c: import('../data/types').ContentConfig) => void;
   setRecruitmentConfig: (cfg: RecruitmentAppConfig) => void;
   setOpsConfig: (cfg: OpsAppConfig) => void;
   setFinanceData: (key: string, val: unknown) => void;
@@ -518,7 +520,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ── Shared config (all users see same values via PostgreSQL) ─────────────
   const setNavConfig         = (cfg: NavTabConfig[])         => setStore(s => ({ ...s, navConfig: cfg }));
-  const updateToolkitLinks   = (links: Record<string, string>) => setStore(s => ({ ...s, toolkitLinks: links }));
+  const updateToolkitLinks    = (links: Record<string, string>) => setStore(s => ({ ...s, toolkitLinks: links }));
+  const updateEmailTemplates  = (t: import('../data/types').EmailTemplates) => setStore(s => ({ ...s, emailTemplates: t }));
+  const updateContentConfig   = (c: import('../data/types').ContentConfig) => setStore(s => ({ ...s, contentConfig: c }));
   const setRecruitmentConfig = (cfg: RecruitmentAppConfig)   => setStore(s => ({ ...s, recruitmentConfig: cfg }));
   const setOpsConfig         = (cfg: OpsAppConfig)           => setStore(s => ({ ...s, opsConfig: cfg }));
   const setFinanceData       = (key: string, val: unknown)   => setStore(s => ({ ...s, financeData: { ...(s.financeData??{}), [key]: val } }));
@@ -584,7 +588,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
     addFundInvestment, updateFundInvestment, deleteFundInvestment,
     addPortfolioFundView, updatePortfolioFundView, deletePortfolioFundView,
-    setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData, updateToolkitLinks,
+    setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData,
+    updateToolkitLinks, updateEmailTemplates, updateContentConfig,
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,

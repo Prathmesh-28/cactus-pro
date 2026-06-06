@@ -10,6 +10,7 @@ export default function HomepageEditor() {
   const { store, updateHomepage } = useApp();
   const [h, setH] = useState<HomepageConfig>(store.homepage ?? {
     badge: '', heroTitle: '', heroSubtitle: '', ctaLabel: '', pillars: [], navLinks: [],
+    aboutText: '', aboutSubText: '', philosophyTitle: '', ctaHeading: '', ctaSubtext: '',
   });
   const [saved, setSaved] = useState(false);
 
@@ -80,6 +81,46 @@ export default function HomepageEditor() {
             </button>
           </div>
         ))}
+      </div>
+
+      {/* About Section */}
+      <div className="border border-gray-200 rounded-xl p-5 space-y-3">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">About Section</p>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">First paragraph</label>
+          <textarea className={ta} rows={3} value={h.aboutText ?? ''}
+            onChange={e => set('aboutText', e.target.value)}
+            placeholder="Cactus Partners is an early and growth-stage venture capital firm…" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Second paragraph</label>
+          <textarea className={ta} rows={3} value={h.aboutSubText ?? ''}
+            onChange={e => set('aboutSubText', e.target.value)}
+            placeholder="Our value goes beyond capital…" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Philosophy section title</label>
+          <input className={ic} value={h.philosophyTitle ?? ''}
+            onChange={e => set('philosophyTitle', e.target.value)}
+            placeholder="We don't just write cheques." />
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="border border-gray-200 rounded-xl p-5 space-y-3">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Bottom CTA Section</p>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">CTA heading</label>
+          <input className={ic} value={h.ctaHeading ?? ''}
+            onChange={e => set('ctaHeading', e.target.value)}
+            placeholder="Building something extraordinary?" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">CTA subtext</label>
+          <textarea className={ta} rows={2} value={h.ctaSubtext ?? ''}
+            onChange={e => set('ctaSubtext', e.target.value)}
+            placeholder="We meet founders at every stage…" />
+        </div>
       </div>
 
       {/* Value Pillars */}

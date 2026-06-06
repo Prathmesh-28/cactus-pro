@@ -24,6 +24,7 @@ interface RecruitmentConfig {
   candidateSources: string[];
   onboardingTasks: OnboardingTask[];
   offerLetterTemplate: string;
+  interviewRounds: string[];
 }
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
@@ -491,6 +492,37 @@ export default function RecruitmentConfigManager() {
           <SaveBtn section="D" />
         </div>
       </Accordion>
+
+      {/* Interview Rounds */}
+      <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-gray-700">🎯 Interview Round Stages</p>
+          <button onClick={() => setCfg(c => ({ ...c, interviewRounds: [...(c.interviewRounds ?? []), 'New Round'] }))}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">
+            <Plus className="w-3.5 h-3.5" /> Add
+          </button>
+        </div>
+        <p className="text-xs text-gray-400">Define the stages candidates go through in your interview process.</p>
+        <div className="space-y-2">
+          {(cfg.interviewRounds ?? ['Screening Call', 'Technical Round', 'Case Study', 'Culture Fit', 'Final Round']).map((r, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={ic + ' flex-1'} value={r}
+                onChange={e => {
+                  const arr = [...((cfg.interviewRounds as string[]) ?? [])];
+                  arr[i] = e.target.value;
+                  setCfg(c => ({ ...c, interviewRounds: arr }));
+                }} />
+              <button onClick={() => setCfg(c => ({ ...c, interviewRounds: (c.interviewRounds ?? []).filter((_, j) => j !== i) }))}
+                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-end">
+          <SaveBtn section="D" />
+        </div>
+      </div>
     </div>
   );
 }

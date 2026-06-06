@@ -120,6 +120,33 @@ export default function FinanceConfigManager() {
           </div>
         ))}
       </div>
+
+      {/* Finance Templates */}
+      <div className="border border-gray-200 rounded-xl p-5 space-y-4">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Finance Templates</p>
+        <p className="text-xs text-gray-400">Default text used in LP Comms and capital call notices.</p>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Capital call notice template</label>
+          <textarea className={ic + ' resize-none'} rows={4}
+            value={cfg.capitalCallTemplate ?? ''}
+            onChange={e => setCfg(c => ({ ...c, capitalCallTemplate: e.target.value }))}
+            placeholder="Dear [LP_NAME], We are writing to notify you of a capital call of [AMOUNT]..." />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">LP quarterly report template</label>
+          <textarea className={ic + ' resize-none'} rows={4}
+            value={cfg.lpReportTemplate ?? ''}
+            onChange={e => setCfg(c => ({ ...c, lpReportTemplate: e.target.value }))}
+            placeholder="Dear [LP_NAME], Please find attached our Q[QUARTER] [YEAR] update..." />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Distribution waterfall description</label>
+          <textarea className={ic + ' resize-none'} rows={3}
+            value={cfg.distributionWaterfallText ?? ''}
+            onChange={e => setCfg(c => ({ ...c, distributionWaterfallText: e.target.value }))}
+            placeholder="Return of capital → Preferred return → Carried interest..." />
+        </div>
+      </div>
     </div>
   );
 }

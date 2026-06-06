@@ -12,6 +12,10 @@ export interface FirmConfig {
   locations: string[];
   websiteUrl: string;
   investorPortalUrl: string;
+  // Admin-editable text fields
+  footerText?: string;           // custom footer tagline/copyright override
+  footerDisclaimer?: string;     // legal disclaimer in footer
+  founderPortalMessage?: string; // welcome message shown to founders in portal
 }
 
 // ─── Sectors ─────────────────────────────────────────────────────────────────
@@ -313,6 +317,12 @@ export interface HomepageConfig {
   ctaLabel: string;
   pillars: ValuePillar[];
   navLinks: Array<{ label: string; href: string }>;
+  // Admin-editable content sections
+  aboutText?: string;          // "About" section first paragraph
+  aboutSubText?: string;       // "About" section second paragraph
+  philosophyTitle?: string;    // Philosophy section heading
+  ctaHeading?: string;         // Bottom CTA heading
+  ctaSubtext?: string;         // Bottom CTA subtext
 }
 
 // ─── Finance Configuration ────────────────────────────────────────────────────
@@ -324,6 +334,9 @@ export interface FinanceConfig {
   fiscalYears: string[];
   fundMetricLabels: Array<{ key: string; label: string; type: 'currency' | 'percent' | 'number' }>;
   cashFlowLabels: Array<{ key: string; label: string }>;
+  capitalCallTemplate?: string;        // Template text for capital call notices
+  distributionWaterfallText?: string;  // Distribution waterfall description
+  lpReportTemplate?: string;           // LP quarterly report email template
 }
 
 // ─── Company Taxonomy ─────────────────────────────────────────────────────────
@@ -331,6 +344,12 @@ export interface FinanceConfig {
 export interface CompanyTaxonomy {
   stages: string[];
   statuses: string[];
+  boardRoles: string[];           // Board member titles (CEO, CTO, Board Observer…)
+  newsCategories: string[];       // News feed categories (Tech, Exit, Market…)
+  healthMetricTypes: string[];    // Health signal labels
+  researchDocCategories: string[]; // Research library doc categories
+  capTableRoles: string[];        // Cap table investor categories
+  introRequestCategories: string[]; // Intro request reason types
 }
 
 // ─── Portfolio Snapshot ───────────────────────────────────────────────────────
@@ -405,6 +424,8 @@ export interface AppStore {
   opsConfig:           OpsAppConfig | null;
   financeData:         Record<string, unknown>; // finance tab KV data
   toolkitLinks:        Record<string, string>;  // frameworkId → external URL (admin-managed)
+  emailTemplates:      EmailTemplates | null;   // admin-managed email templates
+  contentConfig:       ContentConfig | null;    // admin-managed page descriptions/headers
 }
 
 // ── Shared config types ───────────────────────────────────────────────────────
@@ -426,12 +447,29 @@ export interface RecruitmentAppConfig {
     dueDays: number;
   }>;
   offerLetterTemplate: string;
+  interviewRounds: string[]; // e.g. ["Screening", "Technical", "Culture Fit", "Final"]
 }
 
 export interface OpsAppConfig {
   meetingTypes: Array<{ key: string; label: string; icon: string }>;
   taskPriorities: Array<{ key: string; label: string; color: string }>;
   introStatuses: Array<{ key: string; label: string; color: string }>;
+  eventTypes: string[];       // Calendar event categories
+  documentTypes: string[];    // Signing workflow doc types
+  pageDescriptions: Record<string, string>; // tab key → custom description
+}
+
+// ─── Email Templates ──────────────────────────────────────────────────────────
+export interface EmailTemplates {
+  lpReport: string;      // Quarterly LP report email
+  inviteUser: string;    // New user invite override
+  capitalCall: string;   // Capital call notice email
+  founderWelcome: string; // Founder portal welcome
+}
+
+export interface ContentConfig {
+  pageDescriptions: Record<string, string>; // tab → subtitle text
+  sectionHeaders: Record<string, string>;   // section key → heading text
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
