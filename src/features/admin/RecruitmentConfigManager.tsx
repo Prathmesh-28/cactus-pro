@@ -115,6 +115,7 @@ function defaultConfig(): RecruitmentConfig {
     candidateSources: DEFAULT_SOURCES,
     onboardingTasks: DEFAULT_TASKS,
     offerLetterTemplate: DEFAULT_OFFER_TEMPLATE,
+    interviewRounds: ['Screening Call', 'Technical Round', 'Case Study', 'Culture Fit', 'Final Round'],
   };
 }
 
