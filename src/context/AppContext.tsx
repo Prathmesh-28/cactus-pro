@@ -6,7 +6,7 @@ import { kvGet, kvSet } from '../lib/api';
 import type {
   AppStore, FirmConfig, Sector, Person, PortfolioCompany,
   FundMetric, RolePermissions, Announcement, Deal, LP, CashFlowPoint,
-  RoleName, TabName, Resource, Gap, TeamNote,
+  RoleName, TabName, Resource, Gap, TeamNote, WorkspaceActivity, WorkspaceTeam,
   DealStageConfig, KpiThresholds, HomepageConfig, FinanceConfig,
   CompanyTaxonomy, PortfolioSnapshotRow,
   PortfolioUpdate, MeetingNote, Task, IcMemo, DdChecklist,
@@ -129,6 +129,8 @@ interface AppContextValue {
   addTeamNote: (n: TeamNote) => void;
   updateTeamNote: (n: TeamNote) => void;
   deleteTeamNote: (id: string) => void;
+  logWorkspaceActivity: (a: WorkspaceActivity) => void;
+  clearWorkspace: (team?: WorkspaceTeam) => void;  // super-admin governance: wipe all, or one team's items
   // Features 1–20 CRUD helpers
   addPortfolioUpdate: (x: PortfolioUpdate) => void;   updatePortfolioUpdate: (x: PortfolioUpdate) => void;   deletePortfolioUpdate: (id: string) => void;
   addMeetingNote: (x: MeetingNote) => void;           updateMeetingNote: (x: MeetingNote) => void;           deleteMeetingNote: (id: string) => void;
@@ -413,6 +415,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateTeamNote = (n: TeamNote)  => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).map(x => x.id === n.id ? n : x) }));
   const deleteTeamNote = (id: string)   => setStore(s => ({ ...s, teamNotes: (s.teamNotes ?? []).filter(x => x.id !== id) }));
 
+  // Activity log — keep the most recent 200 entries.
+  const logWorkspaceActivity = (a: WorkspaceActivity) =>
+    setStore(s => ({ ...s, workspaceActivity: [a, ...(s.workspaceActivity ?? [])].slice(0, 200) }));
+  const clearWorkspace = (team?: WorkspaceTeam) => setStore(s => {
+    if (!team) return { ...s, resources: [], gaps: [], teamNotes: [] };
+    const keep = <T extends { team?: WorkspaceTeam }>(arr: T[]) => (arr ?? []).filter(x => (x.team ?? 'all') !== team);
+    return { ...s, resources: keep(s.resources ?? []), gaps: keep(s.gaps ?? []), teamNotes: keep(s.teamNotes ?? []) };
+  });
+
 
   // ── Features 1–20 implementations ───────────────────────────────────────
   const addPortfolioUpdate  = (x: PortfolioUpdate) => setStore(s => ({ ...s, portfolioUpdates: [...(s.portfolioUpdates??[]), x] }));
@@ -558,7 +569,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateCashFlow,
     addResource, updateResource, deleteResource,
     addGap, updateGap, deleteGap,
-    addTeamNote, updateTeamNote, deleteTeamNote,
+    addTeamNote, updateTeamNote, deleteTeamNote, logWorkspaceActivity, clearWorkspace,
 
     // Features 1–20
     addPortfolioUpdate, updatePortfolioUpdate, deletePortfolioUpdate,

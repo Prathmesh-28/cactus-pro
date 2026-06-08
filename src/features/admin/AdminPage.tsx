@@ -25,6 +25,7 @@ import ChangelogView from './ChangelogView';
 import ToolkitManager from './ToolkitManager';
 import EmailTemplatesManager from './EmailTemplatesManager';
 import ContentManager from './ContentManager';
+import WorkspaceManager from './WorkspaceManager';
 import {
   Settings,
   Building2,
@@ -49,6 +50,7 @@ import {
   FileSpreadsheet,
   Activity,
   Wrench,
+  FolderOpen,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -59,7 +61,7 @@ type AdminTab =
   | 'portfolio_snapshot' | 'users'
   | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config'
   | 'master_sheet' | 'changelog' | 'toolkit_links'
-  | 'email_templates' | 'content_manager';
+  | 'email_templates' | 'content_manager' | 'workspace_manager';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
   // ── Platform ──────────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: str
   { key: 'toolkit_links',      label: 'VC Toolkit Links',      Icon: Wrench,           group: 'Platform' },
   { key: 'email_templates',    label: 'Email Templates',       Icon: Bell,             group: 'Platform' },
   { key: 'content_manager',    label: 'Content & Pages',       Icon: Globe,            group: 'Platform' },
+  { key: 'workspace_manager',  label: 'Team Workspace',        Icon: FolderOpen,       group: 'Platform' },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -182,6 +185,7 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
   toolkit_links: { affects: ['VC Toolkit page — external URLs per tool, Built/To build status'] },
   email_templates: { affects: ['LP Comms emails', 'Capital call notices', 'Founder portal welcome', 'User invite email'] },
   content_manager: { affects: ['Page headings and subtitles across all tabs'] },
+  workspace_manager: { affects: ['Team Workspace — view, delete or bulk-clear any resource/gap/note across teams; review the activity log'] },
 };
 
 export default function AdminPage() {
@@ -216,6 +220,7 @@ export default function AdminPage() {
     toolkit_links:        <ToolkitManager />,
     email_templates:      <EmailTemplatesManager />,
     content_manager:      <ContentManager />,
+    workspace_manager:    <WorkspaceManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);

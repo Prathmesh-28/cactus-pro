@@ -1392,6 +1392,8 @@ export const defaultConfig: AppStore = {
     },
   ],
 
+  workspaceActivity: [],
+
   // ─── Deal pipeline stages (fully editable from Admin → Investment Settings) ──
   dealStages: [
     { name: 'Sourcing',       bgColor: '#F3F4F6', textColor: '#4B5563', borderColor: '#E5E7EB' },

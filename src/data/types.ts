@@ -39,6 +39,9 @@ export interface Person {
   linkedInUrl: string;
   isPartner: boolean;
   isVisibleOnWebsite: boolean;
+  phone?: string;
+  department?: string;
+  reportsTo?: string;   // name of manager
 }
 
 // ─── Company Employees (from Apollo/CSV) ─────────────────────────────────────
@@ -262,9 +265,20 @@ export interface Resource {
   tags: string[];
   team?: WorkspaceTeam;   // visibility scope (defaults to 'all' when absent)
   ownerId?: string;       // id of the creator (for owner-only edit/delete)
+  pinned?: boolean;       // pinned resources sort to the top
+  fileId?: number;        // attached uploaded file (via /api/files)
+  fileName?: string;      // original name of the attached file
 }
 
 // ─── Workspace: Gaps ─────────────────────────────────────────────────────────
+
+export interface GapComment {
+  id: string;
+  text: string;
+  author: string;
+  authorId?: string;
+  createdAt: string;
+}
 
 export type GapCategory = 'data' | 'feature' | 'process' | 'other';
 export type GapPriority = 'high' | 'medium' | 'low';
@@ -284,6 +298,19 @@ export interface Gap {
   resolutionNote: string;
   team?: WorkspaceTeam;   // visibility scope (defaults to 'all' when absent)
   ownerId?: string;       // id of the creator (for owner-only delete)
+  dueDate?: string;       // optional target date (YYYY-MM-DD)
+  comments?: GapComment[];// discussion thread
+}
+
+// ─── Workspace: Activity log ─────────────────────────────────────────────────
+export interface WorkspaceActivity {
+  id: string;
+  action: 'added' | 'updated' | 'deleted';
+  entity: 'resource' | 'gap' | 'note';
+  title: string;
+  actor: string;
+  at: string;
+  team?: WorkspaceTeam;
 }
 
 // ─── Workspace: Team Notes ────────────────────────────────────────────────────
@@ -390,6 +417,7 @@ export interface AppStore {
   resources: Resource[];
   gaps: Gap[];
   teamNotes: TeamNote[];
+  workspaceActivity: WorkspaceActivity[];
   // ── Configurable sections (never hardcoded) ──
   dealStages: DealStageConfig[];
   kpiThresholds: KpiThresholds;

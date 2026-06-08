@@ -13,6 +13,9 @@ const EMPTY: Omit<Person, 'id'> = {
   linkedInUrl: '',
   isPartner: false,
   isVisibleOnWebsite: true,
+  phone: '',
+  department: '',
+  reportsTo: '',
 };
 
 export default function PeopleManager() {
@@ -24,7 +27,7 @@ export default function PeopleManager() {
   const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cactus-accent/30 bg-white';
 
   const startCreate = () => { setForm(EMPTY); setCreating(true); setEditing(null); };
-  const startEdit = (p: Person) => { setEditing(p); setForm({ name: p.name, title: p.title, bio: p.bio, photoUrl: p.photoUrl, email: p.email, linkedInUrl: p.linkedInUrl, isPartner: p.isPartner, isVisibleOnWebsite: p.isVisibleOnWebsite }); setCreating(false); };
+  const startEdit = (p: Person) => { setEditing(p); setForm({ name: p.name, title: p.title, bio: p.bio, photoUrl: p.photoUrl, email: p.email, linkedInUrl: p.linkedInUrl, isPartner: p.isPartner, isVisibleOnWebsite: p.isVisibleOnWebsite, phone: p.phone ?? '', department: p.department ?? '', reportsTo: p.reportsTo ?? '' }); setCreating(false); };
   const cancel = () => { setEditing(null); setCreating(false); };
 
   const save = () => {
@@ -52,6 +55,18 @@ export default function PeopleManager() {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Photo URL</label>
           <input className={inputCls} value={form.photoUrl} onChange={(e) => setForm((f) => ({ ...f, photoUrl: e.target.value }))} placeholder="https://..." />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+          <input className={inputCls} value={form.phone ?? ''} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+91 …" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Department</label>
+          <input className={inputCls} value={form.department ?? ''} onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))} placeholder="Investments / Finance / Portfolio…" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Reports to</label>
+          <input className={inputCls} value={form.reportsTo ?? ''} onChange={(e) => setForm((f) => ({ ...f, reportsTo: e.target.value }))} placeholder="Manager name" />
         </div>
         <div className="sm:col-span-2">
           <label className="block text-xs font-medium text-gray-600 mb-1">LinkedIn URL</label>
