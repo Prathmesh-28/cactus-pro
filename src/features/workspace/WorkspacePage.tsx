@@ -6,7 +6,8 @@ import {
   BookOpen, Wrench, Users, Mail, Star,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import type { Resource, ResourceType, Gap, GapStatus, GapPriority, GapCategory } from '../../data/types';
+import { useAuth } from '../../context/AuthContext';
+import type { Resource, ResourceType, Gap, GapStatus, GapPriority, GapCategory, WorkspaceTeam } from '../../data/types';
 import { cn } from '../../lib/utils';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -59,16 +60,43 @@ const CAT_LABELS: Record<GapCategory, string> = {
   data: 'Data', feature: 'Feature', process: 'Process', other: 'Other',
 };
 
+// ─── Team scoping (visibility) ──────────────────────────────────────────────
+const TEAM_ORDER: WorkspaceTeam[] = ['all', 'portfolio', 'investment', 'finance'];
+const TEAM_LABELS: Record<WorkspaceTeam, string> = {
+  all: 'Everyone', portfolio: 'Portfolio', investment: 'Investment', finance: 'Finance',
+};
+const TEAM_COLORS: Record<WorkspaceTeam, string> = {
+  all: '#6B7280', portfolio: '#1C4B42', investment: '#B45309', finance: '#185FA5',
+};
+
+// Which team a role belongs to. Super admin (and unknown roles) → null = sees all.
+function teamForRole(role?: string): WorkspaceTeam | null {
+  if (role === 'portfolio_team' || role === 'portfolio_viewer') return 'portfolio';
+  if (role === 'investment_team') return 'investment';
+  if (role === 'finance_team') return 'finance';
+  return null;
+}
+
+function TeamBadge({ team }: { team?: WorkspaceTeam }) {
+  const t = team ?? 'all';
+  return (
+    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+      style={{ backgroundColor: TEAM_COLORS[t] + '18', color: TEAM_COLORS[t] }}>
+      {TEAM_LABELS[t]}
+    </span>
+  );
+}
+
 type WorkspaceTab = 'resources' | 'gaps' | 'team';
 
 // ─── Resource form ────────────────────────────────────────────────────────────
 
-function ResourceForm({ onSave, onCancel, primaryColor }: {
-  onSave: (r: Resource) => void; onCancel: () => void; primaryColor: string;
+function ResourceForm({ onSave, onCancel, primaryColor, defaultTeam }: {
+  onSave: (r: Resource) => void; onCancel: () => void; primaryColor: string; defaultTeam: WorkspaceTeam;
 }) {
   const [form, setForm] = useState<Omit<Resource, 'id'>>({
     name: '', url: '', type: 'document', description: '',
-    addedBy: '', addedAt: today(), tags: [],
+    addedBy: '', addedAt: today(), tags: [], team: defaultTeam,
   });
   const [tagInput, setTagInput] = useState('');
 
@@ -113,12 +141,13 @@ function ResourceForm({ onSave, onCancel, primaryColor }: {
           </select>
         </div>
         <div>
-          <label className="text-xs text-gray-500 mb-1 block">Added by</label>
-          <input
-            value={form.addedBy} onChange={e => set('addedBy', e.target.value)}
-            placeholder="Your name"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
-          />
+          <label className="text-xs text-gray-500 mb-1 block">Share with</label>
+          <select
+            value={form.team ?? 'all'} onChange={e => set('team', e.target.value)}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-white"
+          >
+            {TEAM_ORDER.map(t => <option key={t} value={t}>{TEAM_LABELS[t]}</option>)}
+          </select>
         </div>
         <div className="col-span-2">
           <label className="text-xs text-gray-500 mb-1 block">Description</label>
@@ -170,13 +199,13 @@ function ResourceForm({ onSave, onCancel, primaryColor }: {
 
 // ─── Gap form ─────────────────────────────────────────────────────────────────
 
-function GapForm({ onSave, onCancel, primaryColor, people }: {
-  onSave: (g: Gap) => void; onCancel: () => void; primaryColor: string; people: string[];
+function GapForm({ onSave, onCancel, primaryColor, people, defaultTeam }: {
+  onSave: (g: Gap) => void; onCancel: () => void; primaryColor: string; people: string[]; defaultTeam: WorkspaceTeam;
 }) {
   const [form, setForm] = useState<Omit<Gap, 'id'>>({
     title: '', description: '', companyName: '', category: 'data',
     status: 'open', priority: 'medium', assignedTo: '',
-    createdAt: today(), resolvedAt: '', resolutionNote: '',
+    createdAt: today(), resolvedAt: '', resolutionNote: '', team: defaultTeam,
   });
   const set = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
   const valid = form.title.trim();
@@ -235,6 +264,15 @@ function GapForm({ onSave, onCancel, primaryColor, people }: {
             {people.map(p => <option key={p} value={p} />)}
           </datalist>
         </div>
+        <div>
+          <label className="text-xs text-gray-500 mb-1 block">Share with</label>
+          <select
+            value={form.team ?? 'all'} onChange={e => set('team', e.target.value)}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-white"
+          >
+            {TEAM_ORDER.map(t => <option key={t} value={t}>{TEAM_LABELS[t]}</option>)}
+          </select>
+        </div>
         <div className="col-span-2">
           <label className="text-xs text-gray-500 mb-1 block">Description</label>
           <textarea
@@ -263,8 +301,8 @@ function GapForm({ onSave, onCancel, primaryColor, people }: {
 
 // ─── Gap card ─────────────────────────────────────────────────────────────────
 
-function GapCard({ gap, people, onUpdate, onDelete, primaryColor }: {
-  gap: Gap; people: string[]; onUpdate: (g: Gap) => void; onDelete: (id: string) => void; primaryColor: string;
+function GapCard({ gap, people, onUpdate, onDelete, primaryColor, canManage }: {
+  gap: Gap; people: string[]; onUpdate: (g: Gap) => void; onDelete: (id: string) => void; primaryColor: string; canManage: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [resolving, setResolving] = useState(false);
@@ -295,6 +333,7 @@ function GapCard({ gap, people, onUpdate, onDelete, primaryColor }: {
                 {pc.label}
               </span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{CAT_LABELS[gap.category]}</span>
+              <TeamBadge team={gap.team} />
               {gap.companyName && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{gap.companyName}</span>
               )}
@@ -310,9 +349,11 @@ function GapCard({ gap, people, onUpdate, onDelete, primaryColor }: {
             <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
               {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
-            <button onClick={() => onDelete(gap.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400">
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            {canManage && (
+              <button onClick={() => onDelete(gap.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400" title="Delete (owner / super admin)">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -374,29 +415,44 @@ function GapCard({ gap, people, onUpdate, onDelete, primaryColor }: {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function WorkspacePage() {
-  const { store, addResource, deleteResource, addGap, updateGap, deleteGap, addTeamNote, deleteTeamNote } = useApp();
+  const { store, currentRole, addResource, deleteResource, addGap, updateGap, deleteGap, addTeamNote, deleteTeamNote } = useApp();
+  const { user } = useAuth();
   const { firm, people: firmPeople } = store;
   const primaryColor = firm.primaryColor;
   const accentColor = firm.accentColor;
 
-  const resources = store.resources ?? [];
-  const gaps = store.gaps ?? [];
-  const teamNotes = store.teamNotes ?? [];
+  // ── Permissions ──────────────────────────────────────────────────────────────
+  const isSuperAdmin = user?.role === 'super_admin' || currentRole === 'super_admin';
+  const myTeam = teamForRole(user?.role ?? currentRole); // null = super admin / sees all
+  const myId = user?.id != null ? String(user.id) : undefined; // stable string owner id
+  const defaultTeam: WorkspaceTeam = myTeam ?? 'all';
+  // Visible if super admin, item is shared with everyone, or it matches my team.
+  const canSee = (it: { team?: WorkspaceTeam }) =>
+    isSuperAdmin || !it.team || it.team === 'all' || it.team === myTeam;
+  // Editable/deletable only by the creator or a super admin.
+  const canManage = (it: { ownerId?: string }) =>
+    isSuperAdmin || (!!it.ownerId && it.ownerId === myId);
+
+  const resources = (store.resources ?? []).filter(canSee);
+  const gaps = (store.gaps ?? []).filter(canSee);
+  const teamNotes = (store.teamNotes ?? []).filter(canSee);
   const peopleNames = firmPeople.map(p => p.name);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('resources');
   const [showResForm, setShowResForm] = useState(false);
   const [showGapForm, setShowGapForm] = useState(false);
   const [resSearch, setResSearch] = useState('');
+  const [resTeamFilter, setResTeamFilter] = useState<WorkspaceTeam | '*'>('*');
   const [gapFilter, setGapFilter] = useState<GapStatus | 'all'>('all');
   const [noteContent, setNoteContent] = useState('');
-  const [noteAuthor, setNoteAuthor] = useState('');
+  const [noteTeam, setNoteTeam] = useState<WorkspaceTeam>(defaultTeam);
 
   // ── Resources ──────────────────────────────────────────────────────────────
   const filteredRes = resources.filter(r =>
-    !resSearch || r.name.toLowerCase().includes(resSearch.toLowerCase()) ||
-    r.description.toLowerCase().includes(resSearch.toLowerCase()) ||
-    r.tags.some(t => t.includes(resSearch.toLowerCase()))
+    (resTeamFilter === '*' || (r.team ?? 'all') === resTeamFilter) &&
+    (!resSearch || r.name.toLowerCase().includes(resSearch.toLowerCase()) ||
+      r.description.toLowerCase().includes(resSearch.toLowerCase()) ||
+      r.tags.some(t => t.includes(resSearch.toLowerCase())))
   );
 
   // ── Gaps ───────────────────────────────────────────────────────────────────
@@ -408,11 +464,11 @@ export default function WorkspacePage() {
     if (!noteContent.trim()) return;
     addTeamNote({
       id: uid(), content: noteContent.trim(),
-      author: noteAuthor.trim() || 'Team', createdAt: today(),
-      linkedGapId: '', tags: [],
+      author: user?.name || user?.email || 'Team', createdAt: today(),
+      linkedGapId: '', tags: [], team: noteTeam, ownerId: myId,
     });
     setNoteContent('');
-    setNoteAuthor('');
+    setNoteTeam(defaultTeam);
   };
 
   return (
@@ -464,6 +520,15 @@ export default function WorkspacePage() {
                 className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
               />
             </div>
+            <select
+              value={resTeamFilter}
+              onChange={e => setResTeamFilter(e.target.value as WorkspaceTeam | '*')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none"
+              title="Filter by team"
+            >
+              <option value="*">All teams</option>
+              {TEAM_ORDER.map(t => <option key={t} value={t}>{TEAM_LABELS[t]}</option>)}
+            </select>
             <button
               onClick={() => setShowResForm(s => !s)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white"
@@ -477,7 +542,8 @@ export default function WorkspacePage() {
           {showResForm && (
             <ResourceForm
               primaryColor={primaryColor}
-              onSave={r => { addResource(r); setShowResForm(false); }}
+              defaultTeam={defaultTeam}
+              onSave={r => { addResource({ ...r, addedBy: user?.name || user?.email || 'Unknown', ownerId: myId }); setShowResForm(false); }}
               onCancel={() => setShowResForm(false)}
             />
           )}
@@ -497,14 +563,20 @@ export default function WorkspacePage() {
                         style={{ backgroundColor: color + '15', color }}>
                         <Icon className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
                       </div>
-                      <button
-                        onClick={() => deleteResource(r.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-400 transition-opacity"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canManage(r) && (
+                        <button
+                          onClick={() => deleteResource(r.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-400 transition-opacity"
+                          title="Delete (owner / super admin)"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
-                    <p className="text-sm font-semibold text-gray-900 mb-1 leading-snug">{r.name}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-semibold text-gray-900 leading-snug">{r.name}</p>
+                      <TeamBadge team={r.team} />
+                    </div>
                     <p className="text-xs text-gray-500 leading-relaxed mb-3 line-clamp-2">{r.description}</p>
                     {r.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
@@ -587,8 +659,8 @@ export default function WorkspacePage() {
 
           {showGapForm && (
             <GapForm
-              primaryColor={primaryColor} people={peopleNames}
-              onSave={g => { addGap(g); setShowGapForm(false); }}
+              primaryColor={primaryColor} people={peopleNames} defaultTeam={defaultTeam}
+              onSave={g => { addGap({ ...g, ownerId: myId }); setShowGapForm(false); }}
               onCancel={() => setShowGapForm(false)}
             />
           )}
@@ -598,7 +670,7 @@ export default function WorkspacePage() {
             <div className="space-y-2">
               {filteredGaps.map(g => (
                 <GapCard key={g.id} gap={g} people={peopleNames} primaryColor={primaryColor}
-                  onUpdate={updateGap} onDelete={deleteGap} />
+                  onUpdate={updateGap} onDelete={deleteGap} canManage={canManage(g)} />
               ))}
             </div>
           ) : (
@@ -624,19 +696,18 @@ export default function WorkspacePage() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 resize-none bg-white"
               />
               <div className="flex items-center gap-2">
-                <input
-                  value={noteAuthor} onChange={e => setNoteAuthor(e.target.value)}
-                  list="people-list-note"
-                  placeholder="Your name"
-                  className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
-                />
-                <datalist id="people-list-note">
-                  {peopleNames.map(p => <option key={p} value={p} />)}
-                </datalist>
+                <span className="text-xs text-gray-400">Posting as <span className="font-medium text-gray-600">{user?.name || user?.email || 'Team'}</span> ·</span>
+                <select
+                  value={noteTeam} onChange={e => setNoteTeam(e.target.value as WorkspaceTeam)}
+                  className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white focus:outline-none"
+                  title="Share note with"
+                >
+                  {TEAM_ORDER.map(t => <option key={t} value={t}>{TEAM_LABELS[t]}</option>)}
+                </select>
                 <button
                   onClick={postNote}
                   disabled={!noteContent.trim()}
-                  className="px-4 py-1.5 text-xs font-medium rounded-lg text-white disabled:opacity-40"
+                  className="ml-auto px-4 py-1.5 text-xs font-medium rounded-lg text-white disabled:opacity-40"
                   style={{ backgroundColor: accentColor }}
                 >
                   Post Note
@@ -658,6 +729,7 @@ export default function WorkspacePage() {
                           </div>
                           <span className="text-xs font-medium text-gray-700">{n.author || 'Team'}</span>
                           <span className="text-xs text-gray-400">{fmtDate(n.createdAt)}</span>
+                          <TeamBadge team={n.team} />
                         </div>
                         <p className="text-sm text-gray-700 leading-relaxed">{n.content}</p>
                         {n.tags.length > 0 && (
@@ -668,9 +740,11 @@ export default function WorkspacePage() {
                           </div>
                         )}
                       </div>
-                      <button onClick={() => deleteTeamNote(n.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-400 transition-opacity flex-shrink-0">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canManage(n) && (
+                        <button onClick={() => deleteTeamNote(n.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-400 transition-opacity flex-shrink-0" title="Delete (owner / super admin)">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -248,6 +248,9 @@ export interface CashFlowPoint {
 
 export type ResourceType = 'spreadsheet' | 'document' | 'presentation' | 'folder' | 'link' | 'other';
 
+// Which team a workspace item is shared with. 'all' = visible to everyone.
+export type WorkspaceTeam = 'all' | 'portfolio' | 'investment' | 'finance';
+
 export interface Resource {
   id: string;
   name: string;
@@ -257,6 +260,8 @@ export interface Resource {
   addedBy: string;
   addedAt: string;
   tags: string[];
+  team?: WorkspaceTeam;   // visibility scope (defaults to 'all' when absent)
+  ownerId?: string;       // id of the creator (for owner-only edit/delete)
 }
 
 // ─── Workspace: Gaps ─────────────────────────────────────────────────────────
@@ -277,6 +282,8 @@ export interface Gap {
   createdAt: string;
   resolvedAt: string;
   resolutionNote: string;
+  team?: WorkspaceTeam;   // visibility scope (defaults to 'all' when absent)
+  ownerId?: string;       // id of the creator (for owner-only delete)
 }
 
 // ─── Workspace: Team Notes ────────────────────────────────────────────────────
@@ -288,6 +295,8 @@ export interface TeamNote {
   createdAt: string;
   linkedGapId: string;
   tags: string[];
+  team?: WorkspaceTeam;   // visibility scope (defaults to 'all' when absent)
+  ownerId?: string;       // id of the creator (for owner-only delete)
 }
 
 // ─── Deal Stage Config ────────────────────────────────────────────────────────
