@@ -59,6 +59,35 @@ export function fileDownloadUrl(fileId: number): string {
   return `${BASE}/api/files/download/${fileId}`;
 }
 
+// ─── AI Assistant ────────────────────────────────────────────────────────────
+
+export interface AiChatTurn { role: 'user' | 'bot'; text: string; }
+
+/**
+ * Ask the Claude-backed assistant. Returns the answer text, or null if the AI
+ * backend is unavailable (no API key configured) or the request fails — callers
+ * fall back to the local rule-based engine in that case.
+ */
+export async function aiChat(
+  message: string,
+  context: string,
+  history: AiChatTurn[] = [],
+): Promise<string | null> {
+  try {
+    const res = await fetch(`${BASE}/api/ai/chat`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ message, context, history }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.available || !data.text) return null;
+    return data.text as string;
+  } catch {
+    return null;
+  }
+}
+
 // ─── KV Store ────────────────────────────────────────────────────────────────
 
 export async function kvGet(namespace: string, key: string): Promise<unknown> {

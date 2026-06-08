@@ -19,6 +19,41 @@ export function genId() {
     ? crypto.randomUUID() : Math.random().toString(36).slice(2);
 }
 
+/**
+ * Compact, plain-text portfolio snapshot sent to the Claude-backed assistant as
+ * grounding context. Kept terse so it fits comfortably in the prompt.
+ */
+export function buildPortfolioContext(store: AppStore): string {
+  const sectorName = (id: string) => store.sectors.find(s => s.id === id)?.name ?? '—';
+  const lines: string[] = [];
+
+  lines.push(`FIRM: ${store.firm?.name ?? 'Cactus Partners'}`);
+
+  if (store.fundMetrics?.length) {
+    lines.push('\nFUND METRICS:');
+    for (const m of store.fundMetrics) {
+      if (m.visible === false) continue;
+      lines.push(`- ${m.label}: ${m.value}${m.delta ? ` (${m.delta})` : ''}`);
+    }
+  }
+
+  lines.push('\nPORTFOLIO COMPANIES:');
+  for (const c of store.companies) {
+    const fy = c.financialHistory?.[0];
+    lines.push(
+      `- ${c.name} | sector: ${sectorName(c.sectorId)} | stage: ${c.stage} | status: ${c.status} | HQ: ${c.hqCity} | CEO: ${c.ceoName} | ` +
+      `valuation: ${c.currentValuation || '—'} | revenue: ${c.revenue || (fy?.revenue ?? '—')} | Cactus stake: ${c.ownershipPct}% | ` +
+      `Cactus invested: ${c.cactusInvestment || '—'} | MOIC: ${c.moic}x | IRR: ${c.irr}% | ${c.shortDescription || ''}`.trim()
+    );
+  }
+
+  const active = store.companies.filter(c => c.status === 'Active').length;
+  const exited = store.companies.filter(c => c.status === 'Exited').length;
+  lines.push(`\nTOTALS: ${store.companies.length} companies (${active} active, ${exited} exited).`);
+
+  return lines.join('\n');
+}
+
 // ─── Year extraction ──────────────────────────────────────────────────────────
 function extractFY(msg: string): string | null {
   const m = msg;

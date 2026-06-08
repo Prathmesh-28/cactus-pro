@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, RefreshCw, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { getBotResponse, genId, type BotMessage } from '../../lib/chatbot';
+import { getBotResponse, buildPortfolioContext, genId, type BotMessage } from '../../lib/chatbot';
+import { aiChat } from '../../lib/api';
 
 const WELCOME: BotMessage = {
   id: 'welcome',
@@ -61,13 +62,21 @@ export default function Chatbot() {
     setInput('');
 
     const userMsg: BotMessage = { id: genId(), role: 'user', text: msg, timestamp: new Date() };
+    const history = messages
+      .filter(m => m.id !== 'welcome')
+      .map(m => ({ role: m.role, text: m.text }));
     setMessages(m => [...m, userMsg]);
     setTyping(true);
 
-    // Simulate slight delay for natural feel
-    await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
+    // Local rule-based answer — used as a fallback and to surface the matched
+    // company card / nav links alongside the AI's prose.
+    const local = getBotResponse(msg, store);
 
-    const response = getBotResponse(msg, store);
+    // Prefer the Claude-backed assistant; null means it's unavailable (no API
+    // key) or the request failed, in which case we use the local engine.
+    const aiText = await aiChat(msg, buildPortfolioContext(store), history);
+
+    const response = aiText ? { ...local, text: aiText } : local;
     const botMsg: BotMessage = { id: genId(), timestamp: new Date(), ...response };
     setMessages(m => [...m, botMsg]);
     setTyping(false);

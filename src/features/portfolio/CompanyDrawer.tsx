@@ -22,6 +22,7 @@ import StatusBadge from '../../components/ui/StatusBadge';
 import AvatarChip from '../../components/ui/AvatarChip';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportCompanyPDF, exportCompanyExcel } from '../../lib/export';
+import RoundModeler from './RoundModeler';
 
 interface Props {
   company: PortfolioCompany | null;
@@ -1062,6 +1063,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       ) : (
         <p className="text-sm text-gray-400 text-center py-8">No cap table data available.</p>
       )}
+      {company.capTable.length > 0 && <RoundModeler company={company} primaryColor={primaryColor} />}
     </div>
   );
 
