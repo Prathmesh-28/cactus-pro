@@ -3,7 +3,10 @@
  * Handles granular queries: "EBITDA of AMPM in FY23-24", "Who invested in Bellatrix?",
  * "Which company has the highest MOIC?", "What is Lohum's CAGR?" etc.
  */
-import type { AppStore, PortfolioCompany, FinancialYear } from '../data/types';
+import type { AppStore, PortfolioCompany, FinancialYear, Sector } from '../data/types';
+import { deriveFund } from './fundDerive';
+import { fundMultiples, xirr, europeanWaterfall } from './fundEconomics';
+import { formatCr, formatMultiple, formatPct } from './money';
 
 export interface BotMessage {
   id: string;
@@ -127,6 +130,19 @@ function matchCompany(msg: string, store: AppStore): PortfolioCompany | null {
   ) ?? null;
 }
 
+// All companies named in the message (for comparisons like "AMPM vs Lohum").
+function matchCompanies(msg: string, store: AppStore): PortfolioCompany[] {
+  const m = msg.toLowerCase();
+  return store.companies.filter(c => c.name && m.includes(c.name.toLowerCase()));
+}
+
+// Sector named in the message (e.g. "EV companies", "deep tech portfolio").
+function matchSector(msg: string, store: AppStore): Sector | null {
+  const m = msg.toLowerCase();
+  const sorted = [...store.sectors].sort((a,b) => (b.name?.length||0) - (a.name?.length||0));
+  return sorted.find(s => s.name && s.name.length > 2 && m.includes(s.name.toLowerCase())) ?? null;
+}
+
 // ─── Number parser ────────────────────────────────────────────────────────────
 function parseCrNum(val: string): number {
   if (!val || val === '—') return 0;
@@ -142,13 +158,21 @@ function latestFY(c: PortfolioCompany): FinancialYear|null { return c.financialH
 // ─── Category classifier ──────────────────────────────────────────────────────
 type Category = 'fin_year_metric'|'fin_metric'|'fin_history'|'funding_rounds'|'cap_table'|
   'key_people'|'patents'|'competitors'|'valuation'|'ownership'|'moic_irr'|'cagr'|'company_overview'|
-  'portfolio_rank'|'portfolio_filter'|'portfolio_stat'|'lp_data'|'deal_data'|'fund_metric'|
-  'export_help'|'sync_help'|'logo_help'|'color_help'|'role_help'|'announcement_help'|
-  'calendar_help'|'docs_help'|'search_help'|'navigation'|'greeting'|'help'|'admin_help'|'unknown';
+  'compare'|'portfolio_rank'|'portfolio_filter'|'portfolio_stat'|'sector_query'|'lp_data'|'deal_data'|
+  'fund_metric'|'fund_economics'|
+  'export_help'|'sync_help'|'logo_help'|'color_help'|'role_help'|'announcement_help'|'captable_help'|
+  'calendar_help'|'docs_help'|'search_help'|'navigation'|'greeting'|'thanks'|'bye'|'about_bot'|'help'|'admin_help'|'unknown';
 
-function classify(msg: string, co: PortfolioCompany|null): Category {
+function classify(msg: string, co: PortfolioCompany|null, store: AppStore): Category {
   const m = msg.toLowerCase();
-  if (/^(hi|hello|hey|greet|namaste|hola|yo\b)/i.test(m.trim())) return 'greeting';
+  const t = m.trim();
+  // ── Small talk ──
+  if (/^(hi|hello|hey|heya|hiya|greetings|namaste|hola|yo|sup|howdy)\b/i.test(t)) return 'greeting';
+  if (/^(thanks|thank you|thank u|thx|ty|cheers|much appreciated|appreciate(d)?)\b/i.test(t)
+      || /^(awesome|perfect|great|nice|cool|brilliant|love it|got it)[\s!.]*$/i.test(t)) return 'thanks';
+  if (/^(bye|goodbye|see ya|see you|cya|later|good ?night|gn)\b/i.test(t)) return 'bye';
+  if (/who are you|what are you|your name|are you (a |an )?(ai|bot|human|real|chatgpt|claude|gpt)|do you use (ai|claude|gpt|chatgpt)/i.test(m)) return 'about_bot';
+  // ── Feature help ──
   if (/export|download|pdf|excel|report/i.test(m)) return 'export_help';
   if (/sync|sharepoint|onedrive|teams.*excel/i.test(m)) return 'sync_help';
   if (/logo|upload.*logo|firm.*logo/i.test(m) && !co) return 'logo_help';
@@ -157,6 +181,7 @@ function classify(msg: string, co: PortfolioCompany|null): Category {
   if (/announc|banner|notif/i.test(m)) return 'announcement_help';
   if (/calendar|compliance.*dead|deadline|due date/i.test(m)) return 'calendar_help';
   if (/upload.*doc|file.*upload|attach|pdf.*upload/i.test(m)) return 'docs_help';
+  if (/(how|where).*(model|simulate).*round|model a (new )?round|round modeler|dilut(e|ion)|option pool|what if.*(raise|round)/i.test(m)) return 'captable_help';
   if (/\b(search|find|look for)\b/i.test(m) && !co) return 'search_help';
   if (/admin|setting|config|taxonomy|threshold|homepage.*edit/i.test(m) && !co) return 'admin_help';
   if (co) {
@@ -176,14 +201,16 @@ function classify(msg: string, co: PortfolioCompany|null): Category {
     if (/cagr|growth rate|yoy|year.*year.*growth/i.test(m)) return 'cagr';
     return 'company_overview';
   }
+  if (/tvpi|\bdpi\b|rvpi|\bj-?curve\b|carried interest|\bcarry\b|waterfall|catch.?up|hurdle|net irr|gross irr|fund.*(return|perform|economic|moic|multiple|irr)|(return|perform|economic).*\bfund\b/i.test(m)) return 'fund_economics';
   if (/highest|best|top|most|largest|biggest|max|lowest|worst|least|smallest|min/i.test(m)) return 'portfolio_rank';
-  if (/profitable|making.*profit|unprofitable|loss.*making|all.*seed|series [abc]|growth.*stage/i.test(m)) return 'portfolio_filter';
+  if (matchSector(msg, store) || /\bsectors?\b/i.test(m)) return 'sector_query';
+  if (/profitable|making.*profit|unprofitable|loss.*making|all.*seed|series [abc]|growth.*stage|watch.?list|on watch|exited|written off/i.test(m)) return 'portfolio_filter';
   if (/all.*compan|list.*compan|total.*valuation|how many|count|number of/i.test(m)) return 'portfolio_stat';
-  if (/\blp\b|limited partner|commitment|called capital|distributed|nav/i.test(m)) return 'lp_data';
+  if (/\blp\b|limited partner|commitment|called capital|distributed|\bnav\b/i.test(m)) return 'lp_data';
   if (/deal|pipeline|sourcing|due dilig|term sheet|ic review|closed|passed/i.test(m)) return 'deal_data';
-  if (/\baum\b|\bnav\b|tvpi|dpi|gross irr|net irr|called capital|fund metric/i.test(m)) return 'fund_metric';
+  if (/\baum\b|fund metric/i.test(m)) return 'fund_metric';
   if (/help|lost|confused|how do|what can|guide|explain/i.test(m)) return 'help';
-  if (/go to|navigate|open|where.*page|which tab|get to/i.test(m)) return 'navigation';
+  if (/go to|navigate|open|where.*page|which tab|get to|where is/i.test(m)) return 'navigation';
   return 'unknown';
 }
 
@@ -197,9 +224,30 @@ function allLinks() { return [{label:'View all companies',path:'/dashboard'}]; }
 // ─── Main response function ───────────────────────────────────────────────────
 export function getBotResponse(userMsg: string, store: AppStore): Omit<BotMessage,'id'|'timestamp'> {
   const co  = matchCompany(userMsg, store);
-  const cat = classify(userMsg, co);
   const { companies, sectors, lps, deals, fundMetrics, people } = store;
   const sN  = (id: string) => sectors.find(s=>s.id===id)?.name??'—';
+
+  // ── COMPARE TWO+ COMPANIES (checked before single-company routing) ────────
+  const named = matchCompanies(userMsg, store);
+  if (named.length >= 2 && /\b(compare|comparison|versus|vs|difference|better|against|head.?to.?head)\b/i.test(userMsg)) {
+    const picks = named.slice(0, 3);
+    const row = (label: string, fn: (c: PortfolioCompany) => string) =>
+      `**${label}:** ${picks.map(c => `${c.name} — ${fn(c)}`).join(' · ')}`;
+    return r(
+      `**Comparison: ${picks.map(c=>c.name).join(' vs ')}**\n\n` +
+      row('Sector', c => sN(c.sectorId)) + '\n' +
+      row('Stage', c => `${c.stage} (${c.status})`) + '\n' +
+      row('Valuation', c => c.currentValuation || '—') + '\n' +
+      row('Revenue', c => c.revenue || latestFY(c)?.revenue || '—') + '\n' +
+      row('MOIC', c => c.moic > 0 ? `${c.moic}x` : '—') + '\n' +
+      row('IRR', c => c.irr > 0 ? `${c.irr}%` : '—') + '\n' +
+      row('Cactus stake', c => `${c.ownershipPct}%`) + '\n' +
+      row('Cactus invested', c => c.cactusInvestment || '—'),
+      allLinks()
+    );
+  }
+
+  const cat = classify(userMsg, co, store);
 
   // ── SPECIFIC FINANCIAL YEAR + METRIC ────────────────────────────────────
   if (cat === 'fin_year_metric' && co) {
@@ -466,6 +514,71 @@ export function getBotResponse(userMsg: string, store: AppStore): Omit<BotMessag
     return r(`**Fund Metrics:**\n\n${vis.map(m=>`• **${m.label}:** ${m.value}${m.delta?` _(${m.delta})_`:''}`).join('\n')}`, [{label:'Finance → Fund Overview',path:'/finance'}]);
   }
 
+  // ── FUND ECONOMICS (computed live: DPI/RVPI/TVPI, Net IRR, carry waterfall) ─
+  if (cat === 'fund_economics') {
+    const m = userMsg.toLowerCase();
+    const fundName = /fund\s*2|fund\s*ii\b/i.test(m) ? 'Fund 2'
+      : /fund\s*1|fund\s*i\b/i.test(m) ? 'Fund 1' : undefined;
+    const d = deriveFund(store.fundInvestments, fundName);
+    if (!store.fundInvestments.length || d.paidIn === 0) {
+      const vis = fundMetrics.filter(x => x.visible);
+      return r(
+        `I don't have deployed-capital data in the Fund Ledger yet, so I can't compute fund economics.` +
+        (vis.length ? `\n\n**Fund Metrics on record:**\n${vis.map(x=>`• **${x.label}:** ${x.value}`).join('\n')}` : ''),
+        [{label:'Finance → Fund Economics',path:'/finance'}]
+      );
+    }
+    const mult = fundMultiples({ paidIn: d.paidIn, distributions: d.distributions, nav: d.nav });
+    const irr = xirr(d.cashflows);
+    const label = fundName ?? 'All Funds';
+
+    if (/carry|waterfall|catch.?up|hurdle|carried interest|\bgp\b|split/i.test(m)) {
+      const wf = europeanWaterfall({ contributed: d.paidIn, totalValue: mult.totalValue, hurdleRate: 0.08, years: 5, carryPct: 0.2, gpCatchUp: true });
+      return r(
+        `**${label} — Carried-Interest Waterfall** (European · 8% hurdle · 20% carry · 5y):\n\n` +
+        `• Total value **${formatCr(mult.totalValue)}** on **${formatCr(d.paidIn)}** paid-in — profit **${formatCr(wf.profit)}**\n` +
+        `• Return of capital → LP: **${formatCr(wf.returnOfCapital)}**\n` +
+        `• Preferred return → LP: **${formatCr(wf.preferredReturn)}**\n` +
+        `• GP catch-up: **${formatCr(wf.gpCatchUp)}**\n` +
+        `• Carry split → GP **${formatCr(wf.carrySplit.gp)}** / LP **${formatCr(wf.carrySplit.lp)}**\n\n` +
+        `➡️ **LP receives ${formatCr(wf.lpTotal)} · GP receives ${formatCr(wf.gpTotal)}** (GP = ${formatPct(wf.gpSharePct)} of total value)\n\n` +
+        `_Tune the hurdle, carry % and catch-up live in Finance → Fund Economics._`,
+        [{label:'Finance → Fund Economics',path:'/finance'}]
+      );
+    }
+
+    return r(
+      `**${label} — Fund Economics** (derived live from the Fund Ledger):\n\n` +
+      `• Deployed (paid-in): **${formatCr(d.paidIn)}**\n` +
+      `• Distributions: **${formatCr(d.distributions)}**\n` +
+      `• NAV (residual): **${formatCr(d.nav)}**\n` +
+      `• **DPI** (realised): ${formatMultiple(mult.dpi)}\n` +
+      `• **RVPI** (unrealised): ${formatMultiple(mult.rvpi)}\n` +
+      `• **TVPI** (total value): **${formatMultiple(mult.tvpi)}**\n` +
+      `• **Net IRR:** ${Number.isNaN(irr) ? '—' : formatPct(irr)}\n` +
+      `• ${d.counts.active} active · ${d.counts.exited} exited · ${d.counts.writtenOff} written off\n\n` +
+      `_Full J-curve + carry waterfall in Finance → Fund Economics. Ask "fund carry" for the waterfall._`,
+      [{label:'Finance → Fund Economics',path:'/finance'}]
+    );
+  }
+
+  // ── SECTOR QUERIES ───────────────────────────────────────────────────────
+  if (cat === 'sector_query') {
+    const sec = matchSector(userMsg, store);
+    if (!sec) {
+      const rows = sectors.map(s => ({ s, n: companies.filter(c => c.sectorId === s.id).length }))
+        .filter(x => x.n > 0).sort((a,b) => b.n - a.n)
+        .map(x => `• **${x.s.name}**: ${x.n} ${x.n === 1 ? 'company' : 'companies'}`).join('\n');
+      return r(`**Portfolio Sectors:**\n\n${rows || 'No sectors configured yet.'}\n\nAsk e.g. *"companies in ${sectors.find(s=>companies.some(c=>c.sectorId===s.id))?.name ?? 'EV'}"* to drill into one.`, allLinks());
+    }
+    const list = companies.filter(c => c.sectorId === sec.id);
+    if (!list.length) return r(`No companies recorded in **${sec.name}** yet.`, allLinks());
+    const rows = list.map(c =>
+      `• **${c.name}** — ${c.stage} · ${c.status} · valuation ${c.currentValuation||'—'} · MOIC ${c.moic>0?c.moic+'x':'—'} · Cactus ${c.ownershipPct}%`
+    ).join('\n');
+    return r(`**${sec.name} — ${list.length} ${list.length === 1 ? 'company' : 'companies'}:**\n\n${rows}`, allLinks());
+  }
+
   // ── FEATURE HELP ─────────────────────────────────────────────────────────
   if (cat==='export_help') return r(`📥 **All Export Locations:**\n\n**Portfolio Summary** (PDF + Excel)\n→ Portfolio tab → "Export ▾" dropdown\n\n**Individual Company Report** (PDF + Excel)\n→ Company card → drawer → "Export ▾" next to ✕\nIncludes: financials, cap table, key people, patents, funding rounds\n\n**Finance Summary** (PDF + Excel)\n→ Finance tab → sidebar → "Export Finance" button\n\n**Deal Pipeline** (PDF + Excel)\n→ Investment tab → "Export ▾" next to Add Deal\n\nAll PDFs branded with Cactus green/lime palette + confidential footer.`);
 
@@ -487,12 +600,25 @@ export function getBotResponse(userMsg: string, store: AppStore): Omit<BotMessag
 
   if (cat==='admin_help') return r(`⚙️ **Admin Panel (${14} sections):**\n\n• Firm Settings — Logo, colours, name, tagline\n• Portfolio Companies — Every field including financials, cap table, funding, key people, patents\n• People & Team\n• Sectors\n• Fund Metrics\n• Roles & Permissions\n• Announcements\n• Data Sync — SharePoint/Excel\n• Deal Stages — Names + colours\n• Homepage — Hero, pillars, nav links\n• KPI Thresholds — MOIC/IRR colour breakpoints\n• Finance Config — Fund names, fiscal years\n• Taxonomy — Stages, statuses\n• Portfolio Snapshot — Investment data per company\n\nAll changes auto-save to PostgreSQL.`, [{label:'Admin Panel',path:'/admin'}]);
 
-  if (cat==='navigation') return r(`🧭 **Quick Navigation:**\n\n• Portfolio → /dashboard\n• Finance → /finance\n• Investment → /investment\n• VC Toolkit → /toolkit\n• Workspace → /workspace\n• Admin → /admin\n\nPress **⌘K** to search and jump anywhere instantly.`, [{label:'Portfolio',path:'/dashboard'},{label:'Finance',path:'/finance'},{label:'Admin',path:'/admin'}]);
+  if (cat==='captable_help') return r(`🧮 **Model a Funding Round (dilution):**\n\nOpen any company → **Cap Table tab** → **"Model a New Round"**.\n\nEnter:\n• **Pre-money** valuation (₹Cr)\n• **New money** raised (₹Cr)\n• Optional **new ESOP pool %** — carved pre-money, so it dilutes existing holders, not the new investor\n\nYou'll instantly see post-money, the new investor's %, price per share, and **before → after ownership with each holder's dilution** (Cactus highlighted).`, [{label:'Portfolio',path:'/dashboard'}]);
 
-  if (cat==='greeting') return r(`👋 Hi! I'm the **Cactus Pro Assistant** — I know everything in this portal.\n\nAsk me:\n• *"What is AMPM's EBITDA in FY23-24?"*\n• *"Which company has the highest MOIC?"*\n• *"Who invested in Bellatrix's latest round?"*\n• *"Show me all profitable companies"*\n• *"What is Lohum's cap table?"*\n• *"AMPM financial history"*\n• *"How do I sync SharePoint?"*`, [{label:'Portfolio',path:'/dashboard'},{label:'Finance',path:'/finance'},{label:'Admin',path:'/admin'}]);
+  if (cat==='navigation') return r(`🧭 **Quick Navigation:**\n\n• Portfolio → /dashboard\n• Finance → /finance (incl. **Fund Economics**: DPI/TVPI/IRR, J-curve, carry waterfall)\n• Investment → /investment\n• VC Toolkit → /toolkit\n• Workspace → /workspace\n• Admin → /admin\n\nPress **⌘K** to search and jump anywhere instantly.`, [{label:'Portfolio',path:'/dashboard'},{label:'Finance',path:'/finance'},{label:'Admin',path:'/admin'}]);
 
-  if (cat==='help') return r(`**I can answer very specific questions:**\n\n**Company Data:**\n• *"EBITDA of AMPM in FY23-24"*\n• *"Lohum's revenue history"*\n• *"Bellatrix cap table"*\n• *"Key people at Kapture"*\n• *"Indigrid funding rounds"*\n• *"Vitraya patents"*\n• *"AMPM CAGR"*\n\n**Portfolio Analytics:**\n• *"Which company has highest MOIC?"*\n• *"All Series A companies"*\n• *"Show profitable companies"*\n• *"Total portfolio valuation"*\n• *"Lowest IRR in portfolio"*\n\n**Feature Help:**\n• *"How do I export PDF?"*\n• *"How do I sync SharePoint?"*\n• *"How do I upload logo?"*\n\n**All companies:** ${companies.map(c=>c.name).join(', ')}`, [{label:'Portfolio',path:'/dashboard'},{label:'Admin',path:'/admin'}]);
+  if (cat==='thanks') return r(`You're welcome! 🌵 Anything else — portfolio data, fund economics, or a hand with the portal?`);
 
-  // Unknown fallback
-  return r(`I didn't catch that — let me help.\n\n**Try very specific questions like:**\n• *"AMPM EBITDA FY23-24"*\n• *"Lohum revenue"*\n• *"Who runs Vitraya?"*\n• *"Highest MOIC"*\n• *"All Seed companies"*\n• *"Bellatrix cap table"*\n\n**Companies I know:** ${companies.map(c=>c.name).join(' · ')}\n\nWhat would you like to know? 🌵`, [{label:'Portfolio',path:'/dashboard'},{label:'Admin',path:'/admin'}]);
+  if (cat==='bye') return r(`👋 Cheers! I'm here whenever you need portfolio data, fund metrics, or help with the portal.`);
+
+  if (cat==='about_bot') return r(`I'm the **Cactus Pro Assistant** — the built-in helper for this portal. I read the live portal data (portfolio companies, fund ledger, metrics) and answer questions about it, and I explain how to use every feature. I run entirely inside the portal — no external accounts needed.\n\nTry:\n• *"fund TVPI"* or *"fund carry waterfall"*\n• *"compare Lohum and Auric"*\n• *"highest MOIC"*\n• *"companies in EV"*\n• *"how do I model a round?"*`, [{label:'Portfolio',path:'/dashboard'},{label:'Finance',path:'/finance'}]);
+
+  if (cat==='greeting') return r(`👋 Hi! I'm the **Cactus Pro Assistant** — I know everything in this portal.\n\nAsk me:\n• *"What is AMPM's EBITDA in FY23-24?"*\n• *"Which company has the highest MOIC?"*\n• *"Fund TVPI and net IRR"* or *"fund carry waterfall"*\n• *"Compare Lohum and Auric"*\n• *"Companies in EV"*\n• *"Show me all profitable companies"*\n• *"What is Lohum's cap table?"*\n• *"How do I model a round?"* or *"How do I sync SharePoint?"*`, [{label:'Portfolio',path:'/dashboard'},{label:'Finance',path:'/finance'},{label:'Admin',path:'/admin'}]);
+
+  if (cat==='help') return r(`**I can answer very specific questions:**\n\n**Company Data:**\n• *"EBITDA of AMPM in FY23-24"*\n• *"Lohum's revenue history"*\n• *"Bellatrix cap table"*\n• *"Key people at Kapture"*\n• *"Indigrid funding rounds"*\n• *"Vitraya patents"* · *"AMPM CAGR"*\n\n**Portfolio Analytics:**\n• *"Which company has highest MOIC?"*\n• *"Compare Lohum and Auric"*\n• *"Companies in EV"* · *"All Series A companies"*\n• *"Show profitable companies"* · *"Total portfolio valuation"*\n\n**Fund Economics:**\n• *"Fund TVPI / DPI / net IRR"*\n• *"Fund carry waterfall"*\n\n**Feature Help:**\n• *"How do I model a round?"*\n• *"How do I export PDF / sync SharePoint / upload logo?"*\n\n**All companies:** ${companies.map(c=>c.name).join(', ')}`, [{label:'Portfolio',path:'/dashboard'},{label:'Admin',path:'/admin'}]);
+
+  // ── Smart unknown fallback ───────────────────────────────────────────────
+  // If they named a metric but no company, ask which company.
+  const askedMetric = extractMetric(userMsg);
+  if (askedMetric) {
+    return r(`I can pull **${METRIC_LABELS[askedMetric]}** — for which company? e.g. *"${companies[0]?.name ?? 'Lohum'} ${METRIC_LABELS[askedMetric].toLowerCase()}"* (add a year like *"FY23-24"* for a single year).\n\n**Companies:** ${companies.map(c=>c.name).join(' · ')}`, [{label:'Portfolio',path:'/dashboard'}]);
+  }
+  return r(`I didn't quite catch that — here's what I'm great at:\n\n• Company data — *"AMPM EBITDA FY23-24"*, *"Bellatrix cap table"*, *"who runs Vitraya?"*\n• Rankings & filters — *"highest MOIC"*, *"all Seed companies"*, *"profitable companies"*\n• Compare — *"compare Lohum and Auric"*\n• Sectors — *"companies in EV"*\n• Fund economics — *"fund TVPI"*, *"fund carry waterfall"*\n• How-to — *"how do I model a round / export a PDF / sync SharePoint?"*\n\n**Companies I know:** ${companies.map(c=>c.name).join(' · ')}\n\nWhat would you like to know? 🌵`, [{label:'Portfolio',path:'/dashboard'},{label:'Admin',path:'/admin'}]);
 }

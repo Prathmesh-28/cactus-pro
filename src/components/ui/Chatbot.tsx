@@ -18,14 +18,14 @@ const WELCOME: BotMessage = {
 };
 
 const QUICK_PROMPTS = [
-  'How do I upload the firm logo?',
-  'How do I export a PDF report?',
-  'How do I sync SharePoint data?',
+  'Fund TVPI and net IRR',
+  'Which company has the highest MOIC?',
+  'Compare Lohum and Auric',
   'Tell me about Lohum',
-  'What is the current NAV?',
-  'How do I change brand colours?',
-  'Where is the compliance calendar?',
-  'How do I add a new deal?',
+  'Fund carry waterfall',
+  'Companies in EV',
+  'How do I model a round?',
+  'How do I export a PDF report?',
 ];
 
 function parseMarkdown(text: string): string {
