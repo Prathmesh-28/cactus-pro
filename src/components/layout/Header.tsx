@@ -162,7 +162,7 @@ export default function Header() {
               <button
                 onClick={handleSyncAll}
                 disabled={syncing}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
                 style={syncDone
                   ? { backgroundColor: '#86CA0F', color: '#1C4B42' }
                   : { backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)' }
@@ -175,7 +175,7 @@ export default function Header() {
 
               {/* Dark mode toggle */}
               <button onClick={toggleDark}
-                className="p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
                 title={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
                 {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
@@ -183,7 +183,7 @@ export default function Header() {
               {/* Mail compose button */}
               <button
                 onClick={() => setShowMailComposer(true)}
-                className="p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
                 title="Compose Email"
               >
                 <Mail className="w-4 h-4" />
@@ -192,7 +192,7 @@ export default function Header() {
               {/* LinkedIn post button */}
               <button
                 onClick={() => setShowLinkedIn(true)}
-                className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/10"
                 title="LinkedIn Post Generator"
                 style={{ color: '#70B5F9' }}
               >
@@ -316,6 +316,30 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
+
+            {/* Quick actions (moved here from the top bar on mobile) */}
+            <div className="mt-2 pt-2 grid grid-cols-2 gap-1.5 border-t" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+              <button onClick={() => { handleSyncAll(); }} disabled={syncing}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium disabled:opacity-60"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}>
+                <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} /> {syncing ? 'Syncing…' : 'Sync'}
+              </button>
+              <button onClick={() => { toggleDark(); }}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}>
+                {dark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />} {dark ? 'Light' : 'Dark'}
+              </button>
+              <button onClick={() => { setShowMailComposer(true); setMobileOpen(false); }}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}>
+                <Mail className="w-3.5 h-3.5" /> Email
+              </button>
+              <button onClick={() => { setShowLinkedIn(true); setMobileOpen(false); }}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: '#70B5F9' }}>
+                <ExternalLink className="w-3.5 h-3.5" /> LinkedIn
+              </button>
+            </div>
           </div>
         )}
       </header>

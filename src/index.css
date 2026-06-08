@@ -34,6 +34,9 @@
 html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;          /* never let the page pan sideways on mobile */
   font-family: var(--font-body);
   background-color: #F6FAF7;
   color: #191c14;
@@ -42,10 +45,16 @@ html, body {
 }
 
 #root {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
 }
+
+/* Safety net: media/embeds shouldn't force horizontal overflow on small screens */
+img, svg, video, canvas { max-width: 100%; }
 
 /* Headings use the serif face like the main website */
 h1, h2, h3 {
