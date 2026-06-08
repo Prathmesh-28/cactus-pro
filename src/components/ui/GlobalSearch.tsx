@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, X, Building2, Users, TrendingUp, Tag, BarChart2, Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import type { PortfolioCompany } from '../../data/types';
+import type { PortfolioCompany, TabName } from '../../data/types';
 
 type ResultKind = 'company' | 'person' | 'deal' | 'sector' | 'metric' | 'nav';
 interface Result {
@@ -23,17 +23,18 @@ const KIND_META: Record<ResultKind, { label: string; Icon: React.ElementType; co
   nav:     { label: 'Navigate',   Icon: Zap,        color: '#86CA0F' },
 };
 
-const QUICK_NAV = [
-  { title: 'Portfolio', subtitle: 'View all portfolio companies',     path: '/dashboard' },
-  { title: 'Finance',   subtitle: 'Fund metrics, LP table, expenses', path: '/finance'   },
-  { title: 'Investment Pipeline', subtitle: 'Deal Kanban board',      path: '/investment'},
-  { title: 'VC Toolkit',  subtitle: 'Calculators and templates',      path: '/toolkit'   },
-  { title: 'Workspace',   subtitle: 'Resources, gaps, team notes',    path: '/workspace' },
-  { title: 'Admin',       subtitle: 'Settings and configuration',     path: '/admin'     },
-  { title: 'Admin → Firm Settings',    subtitle: 'Logo, colours, tagline', path: '/admin' },
-  { title: 'Admin → Portfolio Snapshot', subtitle: 'Edit MOIC, IRR data', path: '/admin' },
-  { title: 'Admin → Data Sync',   subtitle: 'SharePoint / Excel sync',  path: '/admin'  },
-  { title: 'Admin → Homepage',    subtitle: 'Hero text, value pillars',  path: '/admin'  },
+const QUICK_NAV: { title: string; subtitle: string; path: string; tab: TabName }[] = [
+  { title: 'Portfolio', subtitle: 'View all portfolio companies',     path: '/dashboard',  tab: 'portfolio' },
+  { title: 'Finance',   subtitle: 'Fund metrics, LP table, expenses', path: '/finance',    tab: 'finance' },
+  { title: 'Investment Pipeline', subtitle: 'Deal Kanban board',      path: '/investment', tab: 'investment' },
+  { title: 'VC Toolkit',  subtitle: 'Calculators and templates',      path: '/toolkit',    tab: 'toolkit' },
+  { title: 'Workspace',   subtitle: 'Resources, gaps, team notes',    path: '/workspace',  tab: 'workspace' },
+  { title: 'Operations',  subtitle: 'Tasks, meeting notes, intros',   path: '/operations', tab: 'operations' },
+  { title: 'Admin',       subtitle: 'Settings and configuration',     path: '/admin',      tab: 'admin' },
+  { title: 'Admin → Firm Settings',    subtitle: 'Logo, colours, tagline', path: '/admin',  tab: 'admin' },
+  { title: 'Admin → Portfolio Snapshot', subtitle: 'Edit MOIC, IRR data', path: '/admin',  tab: 'admin' },
+  { title: 'Admin → Data Sync',   subtitle: 'SharePoint / Excel sync',  path: '/admin',    tab: 'admin' },
+  { title: 'Admin → Homepage',    subtitle: 'Hero text, value pillars',  path: '/admin',   tab: 'admin' },
 ];
 
 function fuzzy(str: string, q: string): boolean {
@@ -49,7 +50,7 @@ interface Props {
 }
 
 export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
-  const { store, currentRole } = useApp();
+  const { store, currentRole, canAccess } = useApp();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -71,10 +72,17 @@ export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // Only surface nav targets the current role can actually open.
+  const navItems = useMemo(() => QUICK_NAV.filter(n => canAccess(n.tab)), [canAccess, currentRole]);
+  const canPortfolio  = canAccess('portfolio');
+  const canFinance    = canAccess('finance');
+  const canInvestment = canAccess('investment');
+  const canAdmin      = canAccess('admin');
+
   const results = useMemo((): Result[] => {
     if (!query.trim() && open) {
       // Show quick nav when no query
-      return QUICK_NAV.slice(0, 6).map((n, i) => ({
+      return navItems.slice(0, 6).map((n, i) => ({
         id: `nav-${i}`, kind: 'nav' as ResultKind,
         title: n.title, subtitle: n.subtitle,
         action: () => { navigate(n.path); setOpen(false); },
@@ -84,63 +92,75 @@ export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
     const q = query.trim();
     const res: Result[] = [];
 
-    // Companies
-    store.companies.filter(c => fuzzy(c.name + ' ' + c.ceoName + ' ' + c.hqCity + ' ' + c.stage + ' ' + c.shortDescription, q))
-      .slice(0, 5).forEach(c => res.push({
-        id: `co-${c.id}`, kind: 'company', title: c.name,
-        subtitle: `${store.sectors.find(s=>s.id===c.sectorId)?.name??''} · ${c.stage} · ${c.hqCity}`,
-        logoUrl: c.logoUrl,
-        action: () => { navigate(`/dashboard?open=${c.id}`); setOpen(false); },
-      }));
-
-    // People (firm team)
-    store.people.filter(p => fuzzy(p.name + ' ' + p.title + ' ' + p.bio, q))
-      .slice(0, 3).forEach(p => res.push({
-        id: `pe-${p.id}`, kind: 'person', title: p.name, subtitle: p.title,
-        action: () => { navigate('/admin'); setOpen(false); },
-      }));
-
-    // Company key people
-    store.companies.forEach(c => {
-      c.keyPeople.filter(p => fuzzy(p.name + ' ' + p.title, q)).slice(0,2).forEach((p,i) => {
-        res.push({
-          id: `kp-${c.id}-${i}`, kind: 'person', title: p.name,
-          subtitle: `${p.title} · ${c.name}`,
+    // Companies (portfolio access)
+    if (canPortfolio) {
+      store.companies.filter(c => fuzzy(c.name + ' ' + c.ceoName + ' ' + c.hqCity + ' ' + c.stage + ' ' + c.shortDescription, q))
+        .slice(0, 5).forEach(c => res.push({
+          id: `co-${c.id}`, kind: 'company', title: c.name,
+          subtitle: `${store.sectors.find(s=>s.id===c.sectorId)?.name??''} · ${c.stage} · ${c.hqCity}`,
+          logoUrl: c.logoUrl,
           action: () => { navigate(`/dashboard?open=${c.id}`); setOpen(false); },
+        }));
+    }
+
+    // People (firm team) — managed in Admin
+    if (canAdmin) {
+      store.people.filter(p => fuzzy(p.name + ' ' + p.title + ' ' + p.bio, q))
+        .slice(0, 3).forEach(p => res.push({
+          id: `pe-${p.id}`, kind: 'person', title: p.name, subtitle: p.title,
+          action: () => { navigate('/admin'); setOpen(false); },
+        }));
+    }
+
+    // Company key people (portfolio access)
+    if (canPortfolio) {
+      store.companies.forEach(c => {
+        c.keyPeople.filter(p => fuzzy(p.name + ' ' + p.title, q)).slice(0,2).forEach((p,i) => {
+          res.push({
+            id: `kp-${c.id}-${i}`, kind: 'person', title: p.name,
+            subtitle: `${p.title} · ${c.name}`,
+            action: () => { navigate(`/dashboard?open=${c.id}`); setOpen(false); },
+          });
         });
       });
-    });
+    }
 
-    // Deals
-    store.deals.filter(d => fuzzy(d.companyName + ' ' + d.stage + ' ' + d.ticketSize, q))
-      .slice(0, 3).forEach(d => res.push({
-        id: `de-${d.id}`, kind: 'deal', title: d.companyName,
-        subtitle: `${d.stage} · ${d.ticketSize}`,
-        action: () => { navigate('/investment'); setOpen(false); },
+    // Deals (investment access)
+    if (canInvestment) {
+      store.deals.filter(d => fuzzy(d.companyName + ' ' + d.stage + ' ' + d.ticketSize, q))
+        .slice(0, 3).forEach(d => res.push({
+          id: `de-${d.id}`, kind: 'deal', title: d.companyName,
+          subtitle: `${d.stage} · ${d.ticketSize}`,
+          action: () => { navigate('/investment'); setOpen(false); },
+        }));
+    }
+
+    // Sectors (portfolio access)
+    if (canPortfolio) {
+      store.sectors.filter(s => fuzzy(s.name, q)).forEach(s => res.push({
+        id: `se-${s.id}`, kind: 'sector', title: s.name,
+        subtitle: `${store.companies.filter(c=>c.sectorId===s.id).length} companies`,
+        action: () => { navigate(`/dashboard?sector=${s.id}`); setOpen(false); },
       }));
+    }
 
-    // Sectors
-    store.sectors.filter(s => fuzzy(s.name, q)).forEach(s => res.push({
-      id: `se-${s.id}`, kind: 'sector', title: s.name,
-      subtitle: `${store.companies.filter(c=>c.sectorId===s.id).length} companies`,
-      action: () => { navigate(`/dashboard?sector=${s.id}`); setOpen(false); },
-    }));
+    // Fund Metrics (finance access)
+    if (canFinance) {
+      store.fundMetrics.filter(m => fuzzy(m.label + ' ' + m.value, q)).slice(0,2).forEach(m => res.push({
+        id: `me-${m.id}`, kind: 'metric', title: m.label,
+        subtitle: `${m.value}${m.delta ? ' · '+m.delta : ''}`,
+        action: () => { navigate('/finance'); setOpen(false); },
+      }));
+    }
 
-    // Fund Metrics
-    store.fundMetrics.filter(m => fuzzy(m.label + ' ' + m.value, q)).slice(0,2).forEach(m => res.push({
-      id: `me-${m.id}`, kind: 'metric', title: m.label,
-      subtitle: `${m.value}${m.delta ? ' · '+m.delta : ''}`,
-      action: () => { navigate('/finance'); setOpen(false); },
-    }));
-
-    // Quick nav
-    QUICK_NAV.filter(n => fuzzy(n.title + ' ' + n.subtitle, q)).slice(0,3).forEach((n,i) => res.push({
+    // Quick nav (already access-filtered)
+    navItems.filter(n => fuzzy(n.title + ' ' + n.subtitle, q)).slice(0,3).forEach((n,i) => res.push({
       id: `na-${i}`, kind: 'nav', title: n.title, subtitle: n.subtitle,
       action: () => { navigate(n.path); setOpen(false); },
     }));
 
     return res.slice(0, 10);
-  }, [query, open, store]);
+  }, [query, open, store, navItems, canPortfolio, canFinance, canInvestment, canAdmin]);
 
   useEffect(() => { setActiveIdx(0); }, [results]);
 
@@ -149,8 +169,6 @@ export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
     if (e.key === 'ArrowUp')   { e.preventDefault(); setActiveIdx(i => Math.max(i-1, 0)); }
     if (e.key === 'Enter' && results[activeIdx]) results[activeIdx].action();
   };
-
-  if (currentRole !== 'super_admin') return null;
 
   return (
     <>

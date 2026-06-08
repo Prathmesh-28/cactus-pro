@@ -596,7 +596,7 @@ export function getBotResponse(userMsg: string, store: AppStore): Omit<BotMessag
 
   if (cat==='docs_help') return r(`📎 **Uploading Documents:**\n\nAny company → CompanyDrawer → **Docs tab**\n\n• Upload: PDF, Word, Excel, images (max 20 MB)\n• Stored in **PostgreSQL on Render** — permanent + shared\n• PDFs open inline; download or delete anytime`, [{label:'Portfolio',path:'/dashboard'}]);
 
-  if (cat==='search_help') return r(`🔍 **Global Search (Super Admin):**\n\nClick search bar in header or press **⌘K** / **Ctrl+K**\n\nSearches: ${companies.length} companies, key people, deals, metrics, sectors, nav links\n\n**↑↓** navigate · **Enter** open · **Esc** close`);
+  if (cat==='search_help') return r(`🔍 **Global Search (everyone):**\n\nClick the search bar in the header or press **⌘K** / **Ctrl+K**\n\nSearches: ${companies.length} companies, key people, deals, metrics, sectors, and nav links — results are scoped to what your role can access.\n\n**↑↓** navigate · **Enter** open · **Esc** close`);
 
   if (cat==='admin_help') return r(`⚙️ **Admin Panel (${14} sections):**\n\n• Firm Settings — Logo, colours, name, tagline\n• Portfolio Companies — Every field including financials, cap table, funding, key people, patents\n• People & Team\n• Sectors\n• Fund Metrics\n• Roles & Permissions\n• Announcements\n• Data Sync — SharePoint/Excel\n• Deal Stages — Names + colours\n• Homepage — Hero, pillars, nav links\n• KPI Thresholds — MOIC/IRR colour breakpoints\n• Finance Config — Fund names, fiscal years\n• Taxonomy — Stages, statuses\n• Portfolio Snapshot — Investment data per company\n\nAll changes auto-save to PostgreSQL.`, [{label:'Admin Panel',path:'/admin'}]);
 
