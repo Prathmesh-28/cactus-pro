@@ -21,6 +21,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
   'http://localhost:5173',
   'http://localhost:4173',
+  'capacitor://localhost',   // iOS Capacitor app origin
+  'https://localhost',       // Android Capacitor app origin
 ];
 app.use(cors({
   origin: (origin, cb) => {

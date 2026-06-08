@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Cactus Pro</string>
+    <string name="title_activity_main">Cactus Pro</string>
+    <string name="package_name">in.cactuspartners.app</string>
+    <string name="custom_url_scheme">in.cactuspartners.app</string>
+</resources>
