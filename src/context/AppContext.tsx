@@ -285,11 +285,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
           };
         }
 
+        // Migrate old 11-sector scheme → 3 consolidated sectors
+        const OLD_TO_NEW: Record<string, string> = {
+          s1: 's1', s2: 's3', s3: 's1', s4: 's1',
+          s5: 's2', s6: 's2', s7: 's3', s8: 's3',
+          s9: 's2', s10: 's2', s11: 's2',
+        };
+        const NEW_SECTORS = [
+          { id: 's1', name: 'Advanced Manufacturing', color: '#D97706', iconName: 'cpu'      },
+          { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
+          { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
+        ];
+        let needsSectorMigration = false;
+        if (mergedStore.sectors?.some(s => !['s1','s2','s3'].includes(s.id) || !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
+          needsSectorMigration = true;
+          mergedStore = {
+            ...mergedStore,
+            sectors: NEW_SECTORS,
+            companies: mergedStore.companies?.map(c => ({
+              ...c,
+              sectorId: OLD_TO_NEW[c.sectorId] ?? c.sectorId,
+            })),
+            deals: mergedStore.deals?.map(d => ({
+              ...d,
+              sectorId: OLD_TO_NEW[d.sectorId] ?? d.sectorId,
+            })),
+          };
+        }
+
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
 
         // Write backfilled data back to KV so the next poll doesn't overwrite it
-        if (needsGapsBackfill) {
+        if (needsGapsBackfill || needsSectorMigration) {
           const appBucket = splitStoreByNamespace(mergedStore)['app'];
           kvSet('app', KV_KEY, appBucket).catch(() => {});
         }
@@ -331,6 +359,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   ...c,
                   companyGaps: c.companyGaps ?? defaultGapsMap.get(c.id) ?? [],
                 })),
+              };
+            }
+            // Keep sectors normalized to 3-sector scheme
+            const OLD_TO_NEW_POLL: Record<string, string> = {
+              s1:'s1',s2:'s3',s3:'s1',s4:'s1',s5:'s2',s6:'s2',s7:'s3',s8:'s3',s9:'s2',s10:'s2',s11:'s2',
+            };
+            if (next.sectors?.some(s => !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
+              next = {
+                ...next,
+                sectors: [
+                  { id: 's1', name: 'Advanced Manufacturing', color: '#D97706', iconName: 'cpu'      },
+                  { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
+                  { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
+                ],
+                companies: next.companies?.map(c => ({ ...c, sectorId: OLD_TO_NEW_POLL[c.sectorId] ?? c.sectorId })),
+                deals:     next.deals?.map(d => ({ ...d, sectorId: OLD_TO_NEW_POLL[d.sectorId] ?? d.sectorId })),
               };
             }
             try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
