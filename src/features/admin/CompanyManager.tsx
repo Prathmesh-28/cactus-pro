@@ -37,7 +37,7 @@ const EMPTY_COMPANY: Omit<PortfolioCompany, 'id'> = {
   tracxnScore: 0, tracxnTag: '', email: '', legalEntityName: '', cin: '',
   ipoPlans: '', revenueGrowthCagr1yr: '', revenueGrowthCagr3yr: '',
   coverageAreas: [], competitors: [], keyPeople: [],
-  fundingRounds: [], financialHistory: [], capTable: [], patents: [],
+  fundingRounds: [], financialHistory: [], capTable: [], patents: [], companyGaps: [],
   teamMembers: [],
 };
 

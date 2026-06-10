@@ -203,6 +203,7 @@ export const defaultConfig: AppStore = {
         { title: 'System For Fast Discharging Of Battery Cells', status: 'Filed', filingLocation: 'India', applicationDate: 'Nov 16, 2023', grantDate: '—' },
         { title: 'System And Process For Regeneration Of Battery Grade Graphite From Spent Lithium Ion Batteries', status: 'Filed', filingLocation: 'India', applicationDate: 'Oct 30, 2023', grantDate: '—' },
       ],
+      companyGaps: [],
       teamMembers: lohomTeam,
     },
 
@@ -286,6 +287,7 @@ export const defaultConfig: AppStore = {
         { title: 'Electric Thruster for Satellite Propulsion', status: 'Filed', filingLocation: 'India', applicationDate: '2019', grantDate: '—' },
         { title: 'Green Propulsion System (Hydrazine Alternative)', status: 'Filed', filingLocation: 'India', applicationDate: '2022', grantDate: '—' },
       ],
+      companyGaps: [],
       teamMembers: bellatrixTeam,
     },
 
@@ -595,6 +597,7 @@ export const defaultConfig: AppStore = {
       patents: [
         { title: 'Sub-resolution Measurement Of Fuel In Fuel Tank', status: 'Published', filingLocation: 'India', applicationDate: 'Mar 19, 2021', grantDate: '—' },
       ],
+      companyGaps: [],
       teamMembers: intanglesTeam,
     },
 
@@ -1105,6 +1108,7 @@ export const defaultConfig: AppStore = {
       patents: [
         { title: 'GST-based Dynamic Credit Scoring Model for SMEs', status: 'Filed', filingLocation: 'India', applicationDate: '2021', grantDate: '—' },
       ],
+      companyGaps: [],
       teamMembers: [],
     },
   ],
