@@ -16,6 +16,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line,
 } from 'recharts';
 import { useApp } from '../../context/AppContext';
+import { parseCr } from '../../lib/money';
 import type { CompanyGap, CompanyGapType } from '../../data/types';
 import type { PortfolioCompany } from '../../data/types';
 import SectorPill from '../../components/ui/SectorPill';
@@ -46,17 +47,6 @@ const TABS: { key: DrawerTab; label: string; Icon: React.ElementType }[] = [
 ];
 
 // ─── Chart helpers ────────────────────────────────────────────────────────────
-
-function parseCr(val: string): number {
-  if (!val || val === '—') return 0;
-  const stripped = val.replace(/\(.*?\)/g, '').trim();
-  const clean = stripped.replace(/[₹,\s]/g, '');
-  const neg = clean.startsWith('-');
-  const abs = clean.replace(/^-/, '');
-  if (abs.includes('Cr')) return (neg ? -1 : 1) * (parseFloat(abs) || 0);
-  if (abs.includes('L')) return (neg ? -1 : 1) * ((parseFloat(abs) || 0) / 100);
-  return parseFloat(clean) || 0;
-}
 
 function parsePct(val: string): number {
   return parseFloat(val?.replace('%', '')) || 0;

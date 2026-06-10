@@ -191,7 +191,6 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
 export default function AdminPage() {
   const { store, canAccess, resetToDefaults } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('firm');
-  const [confirmReset, setConfirmReset] = useState(false);
 
   if (!canAccess('admin')) return <AccessRestricted tab="admin" />;
 
@@ -235,31 +234,17 @@ export default function AdminPage() {
           </p>
         </div>
         <div>
-          {confirmReset ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Reset all data?</span>
-              <button
-                onClick={() => { resetToDefaults(); setConfirmReset(false); }}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500 text-white hover:bg-red-600"
-              >
-                Yes, reset
-              </button>
-              <button
-                onClick={() => setConfirmReset(false)}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-600"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setConfirmReset(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reset to Defaults
-            </button>
-          )}
+          <button
+            onClick={() => {
+              if (window.confirm('Reset ALL data to defaults? This cannot be undone and will affect all users immediately.')) {
+                resetToDefaults();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset to Defaults
+          </button>
         </div>
       </div>
 

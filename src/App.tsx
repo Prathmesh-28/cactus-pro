@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
@@ -30,7 +31,7 @@ function PageLoader() {
       <div className="text-center space-y-3">
         <div className="w-8 h-8 rounded-xl flex items-center justify-center mx-auto"
           style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
-          <span className="text-white text-base">🌵</span>
+          <Loader2 className="w-4 h-4 text-white animate-spin" />
         </div>
         <p className="text-sm text-gray-400">Loading…</p>
       </div>
@@ -49,7 +50,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
       <div className="text-center space-y-3">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center mx-auto"
           style={{ background: 'linear-gradient(135deg,#86CA0F,#95c840)' }}>
-          <span className="text-white text-xl">🌵</span>
+          <Loader2 className="w-5 h-5 text-white animate-spin" />
         </div>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Loading…</p>
       </div>

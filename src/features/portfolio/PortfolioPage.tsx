@@ -59,10 +59,7 @@ export default function PortfolioPage() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
 
-  if (!canAccess('portfolio')) return <AccessRestricted tab="portfolio" />;
-
   // Auto-open company or set sector from URL params (?open=c3 or ?sector=s1)
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const openId   = searchParams.get('open');
     const sectorId = searchParams.get('sector');
@@ -76,6 +73,8 @@ export default function PortfolioPage() {
       setSearchParams({}, { replace: true });
     }
   }, [searchParams]);
+
+  if (!canAccess('portfolio')) return <AccessRestricted tab="portfolio" />;
 
   const { firm, fundMetrics, companies, sectors } = store;
   const totalInvestedCr = (store.portfolioSnapshot ?? []).reduce(

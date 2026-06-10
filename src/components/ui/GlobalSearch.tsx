@@ -162,7 +162,7 @@ export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
     return res.slice(0, 10);
   }, [query, open, store, navItems, canPortfolio, canFinance, canInvestment, canAdmin]);
 
-  useEffect(() => { setActiveIdx(0); }, [results]);
+  useEffect(() => { setActiveIdx(0); }, [query]);
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx(i => Math.min(i+1, results.length-1)); }

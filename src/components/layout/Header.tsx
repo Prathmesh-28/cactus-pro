@@ -1,22 +1,5 @@
-import { useState as _useState, useEffect as _useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink, RefreshCw, Moon, Sun } from 'lucide-react';
-
-function useDarkMode() {
-  const [dark, setDark] = _useState(() => document.documentElement.classList.contains('dark') || localStorage.getItem('cactus_dark') === '1');
-  const toggle = () => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem('cactus_dark', next ? '1' : '0');
-  };
-  _useEffect(() => {
-    const saved = localStorage.getItem('cactus_dark') === '1';
-    document.documentElement.classList.toggle('dark', saved);
-    setDark(saved);
-  }, []);
-  return { dark, toggle };
-}
+import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink, RefreshCw } from 'lucide-react';
 import { getSyncSources, runSync } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -41,7 +24,6 @@ const NAV_ITEMS: { tab: TabName; label: string; path: string }[] = [
 export default function Header() {
   const { store, currentRole, canAccess } = useApp();
   const { user: authUser, logout } = useAuth();
-  const { dark, toggle: toggleDark } = useDarkMode();
   const { firm, announcements, roles } = store;
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,6 +32,7 @@ export default function Header() {
   const [showLinkedIn, setShowLinkedIn] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncDone, setSyncDone] = useState(false);
+  const [syncConfirm, setSyncConfirm] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
@@ -200,27 +183,42 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Sync All button */}
-              <button
-                onClick={handleSyncAll}
-                disabled={syncing}
-                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
-                style={syncDone
-                  ? { backgroundColor: '#86CA0F', color: '#1C4B42' }
-                  : { backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)' }
-                }
-                title="Sync all SharePoint sources"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-                <span className="hidden xl:inline">{syncing ? 'Syncing…' : syncDone ? '✓ Synced' : 'Sync'}</span>
-              </button>
-
-              {/* Dark mode toggle */}
-              <button onClick={toggleDark}
-                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/20 text-white"
-                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
-                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
+              {/* Sync All button + confirmation popover */}
+              <div className="hidden md:flex items-center gap-1.5 relative">
+                <button
+                  onClick={() => setSyncConfirm(true)}
+                  disabled={syncing}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
+                  style={syncDone
+                    ? { backgroundColor: '#86CA0F', color: '#1C4B42' }
+                    : { backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)' }
+                  }
+                  title="Sync all SharePoint sources"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+                  <span className="hidden xl:inline">{syncing ? 'Syncing…' : syncDone ? '✓ Synced' : 'Sync'}</span>
+                </button>
+                {syncConfirm && (
+                  <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-200 px-4 py-3 flex flex-col gap-2 z-50 w-44">
+                    <p className="text-xs font-semibold text-gray-800 whitespace-nowrap">Confirm sync?</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { handleSyncAll(); setSyncConfirm(false); }}
+                        className="flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors"
+                        style={{ backgroundColor: '#1C4B42' }}
+                      >
+                        Yes, sync
+                      </button>
+                      <button
+                        onClick={() => setSyncConfirm(false)}
+                        className="flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Mail compose button */}
               <button
@@ -360,15 +358,10 @@ export default function Header() {
 
             {/* Quick actions (moved here from the top bar on mobile) */}
             <div className="mt-2 pt-2 grid grid-cols-2 gap-1.5 border-t" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
-              <button onClick={() => { handleSyncAll(); }} disabled={syncing}
+              <button onClick={() => { setSyncConfirm(true); }} disabled={syncing}
                 className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium disabled:opacity-60"
                 style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}>
                 <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} /> {syncing ? 'Syncing…' : 'Sync'}
-              </button>
-              <button onClick={() => { toggleDark(); }}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
-                style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}>
-                {dark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />} {dark ? 'Light' : 'Dark'}
               </button>
               <button onClick={() => { setShowMailComposer(true); setMobileOpen(false); }}
                 className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"

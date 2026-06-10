@@ -17,7 +17,7 @@ export default function SaveIndicator() {
 
   const c = configs[state];
   return (
-    <div className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-white text-xs font-medium shadow-lg transition-all ${c.bg}`}>
+    <div className={`fixed bottom-20 sm:bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-white text-xs font-medium shadow-lg transition-all ${c.bg}`}>
       {c.icon} {c.text}
     </div>
   );

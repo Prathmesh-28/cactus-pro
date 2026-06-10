@@ -6,7 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function generateId(): string {
-  return Math.random().toString(36).slice(2, 10);
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
 }
 
 export function exportToCSV(data: Record<string, unknown>[], filename: string): void {
@@ -16,12 +19,14 @@ export function exportToCSV(data: Record<string, unknown>[], filename: string): 
     headers
       .map((h) => {
         const val = row[h];
-        const str = val === null || val === undefined ? '' : String(val);
+        const str = val === null || val === undefined ? '' :
+          (typeof val === 'object' ? JSON.stringify(val) : String(val));
         return `"${str.replace(/"/g, '""')}"`;
       })
       .join(',')
   );
-  const csv = [headers.join(','), ...rows].join('\n');
+  const headerRow = headers.map(h => `"${String(h).replace(/"/g, '""')}"`).join(',');
+  const csv = [headerRow, ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
