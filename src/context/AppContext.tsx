@@ -297,7 +297,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
         ];
         let needsSectorMigration = false;
-        if (mergedStore.sectors?.some(s => !['s1','s2','s3'].includes(s.id) || !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
+        if (!mergedStore.sectors || mergedStore.sectors.length !== 3 || mergedStore.sectors.some(s => !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
           needsSectorMigration = true;
           mergedStore = {
             ...mergedStore,
@@ -318,8 +318,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Write backfilled data back to KV so the next poll doesn't overwrite it
         if (needsGapsBackfill || needsSectorMigration) {
-          const appBucket = splitStoreByNamespace(mergedStore)['app'];
-          kvSet('app', KV_KEY, appBucket).catch(() => {});
+          const buckets = splitStoreByNamespace(mergedStore);
+          kvSet('app',       KV_KEY, buckets['app']).catch(() => {});
+          kvSet('portfolio', KV_KEY, buckets['portfolio']).catch(() => {});
         }
 
         // Push finance data keys into localStorage for finance tab hooks
@@ -365,7 +366,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const OLD_TO_NEW_POLL: Record<string, string> = {
               s1:'s1',s2:'s3',s3:'s1',s4:'s1',s5:'s2',s6:'s2',s7:'s3',s8:'s3',s9:'s2',s10:'s2',s11:'s2',
             };
-            if (next.sectors?.some(s => !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
+            if (!next.sectors || next.sectors.length !== 3 || next.sectors.some(s => !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
               next = {
                 ...next,
                 sectors: [
