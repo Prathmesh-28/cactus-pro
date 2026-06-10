@@ -358,6 +358,20 @@ export function exportCompanyPDF(company: PortfolioCompany, store: AppStore) {
     });
   }
 
+  // Strategic Gaps
+  if (company.companyGaps?.length > 0) {
+    doc.addPage(); y = 20;
+    y = addSectionTitle(doc, 'Strategic Gaps', y);
+    autoTable(doc, {
+      ...TABLE_STYLES,
+      startY: y,
+      head: [['Gap Name','Type','Issue','Resolution','Impact']],
+      body: company.companyGaps.map(g => [g.name, g.type, g.issue, g.resolution, g.impact]),
+      columnStyles: { 2: { cellWidth: 'auto' }, 3: { cellWidth: 'auto' }, 4: { cellWidth: 'auto' } },
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6;
+  }
+
   // IPO plans
   if (company.ipoPlans) {
     doc.addPage();
@@ -423,6 +437,12 @@ export function exportCompanyExcel(company: PortfolioCompany, store: AppStore) {
     const ws = XLSX.utils.aoa_to_sheet([h, ...company.patents.map(p=>[p.title,p.status,p.filingLocation,p.applicationDate,p.grantDate])]);
     ws['!cols'] = [{ wch: 50 }, { wch: 14 }, { wch: 16 }, { wch: 18 }, { wch: 18 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Patents');
+  }
+  if (company.companyGaps?.length) {
+    const h = ['Gap Name','Type','Issue','Resolution','Impact'];
+    const ws = XLSX.utils.aoa_to_sheet([h, ...company.companyGaps.map(g=>[g.name,g.type,g.issue,g.resolution,g.impact])]);
+    ws['!cols'] = [{ wch: 28 }, { wch: 24 }, { wch: 50 }, { wch: 50 }, { wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Strategic Gaps');
   }
 
   XLSX.writeFile(wb, `${company.name} — Report.xlsx`);

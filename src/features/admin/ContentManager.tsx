@@ -12,6 +12,7 @@ const PAGES = [
   { key: 'operations', label: 'Operations', icon: '⚙️', hPh: 'Operations', dPh: 'Meeting notes, tasks, portfolio updates' },
   { key: 'toolkit',    label: 'VC Toolkit', icon: '🔧', hPh: 'VC Toolkit', dPh: 'Analytical frameworks and tools' },
   { key: 'workspace',  label: 'Workspace',  icon: '🏢', hPh: 'Workspace',  dPh: 'Resources, gaps tracker, team notes' },
+  { key: 'admin',      label: 'Admin',      icon: '⚙️', hPh: 'Admin',      dPh: 'Platform administration and configuration' },
 ];
 
 export default function ContentManager() {

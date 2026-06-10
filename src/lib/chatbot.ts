@@ -48,6 +48,11 @@ export function buildPortfolioContext(store: AppStore): string {
       `valuation: ${c.currentValuation || '—'} | revenue: ${c.revenue || (fy?.revenue ?? '—')} | Cactus stake: ${c.ownershipPct}% | ` +
       `Cactus invested: ${c.cactusInvestment || '—'} | MOIC: ${c.moic}x | IRR: ${c.irr}% | ${c.shortDescription || ''}`.trim()
     );
+    if (c.companyGaps?.length) {
+      for (const g of c.companyGaps) {
+        lines.push(`  GAP [${c.name}] ${g.name} (${g.type}): issue="${g.issue}" resolution="${g.resolution}" impact="${g.impact}"`);
+      }
+    }
   }
 
   const active = store.companies.filter(c => c.status === 'Active').length;
@@ -161,7 +166,7 @@ type Category = 'fin_year_metric'|'fin_metric'|'fin_history'|'funding_rounds'|'c
   'compare'|'portfolio_rank'|'portfolio_filter'|'portfolio_stat'|'sector_query'|'lp_data'|'deal_data'|
   'fund_metric'|'fund_economics'|
   'export_help'|'sync_help'|'logo_help'|'color_help'|'role_help'|'announcement_help'|'captable_help'|
-  'calendar_help'|'docs_help'|'search_help'|'navigation'|'greeting'|'thanks'|'bye'|'about_bot'|'help'|'admin_help'|'unknown';
+  'calendar_help'|'docs_help'|'search_help'|'gaps_help'|'navigation'|'greeting'|'thanks'|'bye'|'about_bot'|'help'|'admin_help'|'unknown';
 
 function classify(msg: string, co: PortfolioCompany|null, store: AppStore): Category {
   const m = msg.toLowerCase();
@@ -183,6 +188,7 @@ function classify(msg: string, co: PortfolioCompany|null, store: AppStore): Cate
   if (/upload.*doc|file.*upload|attach|pdf.*upload/i.test(m)) return 'docs_help';
   if (/(how|where).*(model|simulate).*round|model a (new )?round|round modeler|dilut(e|ion)|option pool|what if.*(raise|round)/i.test(m)) return 'captable_help';
   if (/\b(search|find|look for)\b/i.test(m) && !co) return 'search_help';
+  if (/\bgap(s)?\b|strategic.*gap|gap.*type|organisation design|governance.*gap|strategy.*gap|international.*expansion/i.test(m)) return 'gaps_help';
   if (/admin|setting|config|taxonomy|threshold|homepage.*edit/i.test(m) && !co) return 'admin_help';
   if (co) {
     const fy = extractFY(msg);
@@ -598,7 +604,9 @@ export function getBotResponse(userMsg: string, store: AppStore): Omit<BotMessag
 
   if (cat==='search_help') return r(`🔍 **Global Search (everyone):**\n\nClick the search bar in the header or press **⌘K** / **Ctrl+K**\n\nSearches: ${companies.length} companies, key people, deals, metrics, sectors, and nav links — results are scoped to what your role can access.\n\n**↑↓** navigate · **Enter** open · **Esc** close`);
 
-  if (cat==='admin_help') return r(`⚙️ **Admin Panel (${14} sections):**\n\n• Firm Settings — Logo, colours, name, tagline\n• Portfolio Companies — Every field including financials, cap table, funding, key people, patents\n• People & Team\n• Sectors\n• Fund Metrics\n• Roles & Permissions\n• Announcements\n• Data Sync — SharePoint/Excel\n• Deal Stages — Names + colours\n• Homepage — Hero, pillars, nav links\n• KPI Thresholds — MOIC/IRR colour breakpoints\n• Finance Config — Fund names, fiscal years\n• Taxonomy — Stages, statuses\n• Portfolio Snapshot — Investment data per company\n\nAll changes auto-save to PostgreSQL.`, [{label:'Admin Panel',path:'/admin'}]);
+  if (cat==='gaps_help') return r(`🎯 **Strategic Gaps Tracker:**\n\nOpen any company → **Gaps tab**\n\nEach gap has:\n• **Gap Name** — short label\n• **Gap Type** — Strategy / Organisation Design / International Expansion / Governance\n• **Issue** — what the problem is\n• **Resolution** — how it was or will be addressed\n• **Impact** — outcome or expected value\n\nAdd gaps via "+ Add Gap", edit inline, or delete. All gaps are stored per-company and included in company PDF + Excel exports.`, [{label:'Portfolio',path:'/dashboard'}]);
+
+  if (cat==='admin_help') return r(`⚙️ **Admin Panel (15 sections):**\n\n• Firm Settings — Logo, colours, name, tagline\n• Portfolio Companies — Every field including financials, cap table, funding, key people, patents, strategic gaps\n• People & Team\n• Sectors\n• Fund Metrics\n• Roles & Permissions\n• Announcements\n• Data Sync — SharePoint/Excel\n• Deal Stages — Names + colours\n• Homepage — Hero, pillars, nav links\n• KPI Thresholds — MOIC/IRR colour breakpoints\n• Finance Config — Fund names, fiscal years\n• Taxonomy — Stages, statuses\n• Portfolio Snapshot — Investment data per company\n• Content Manager — Page headings and descriptions\n\nAll changes auto-save to PostgreSQL.`, [{label:'Admin Panel',path:'/admin'}]);
 
   if (cat==='captable_help') return r(`🧮 **Model a Funding Round (dilution):**\n\nOpen any company → **Cap Table tab** → **"Model a New Round"**.\n\nEnter:\n• **Pre-money** valuation (₹Cr)\n• **New money** raised (₹Cr)\n• Optional **new ESOP pool %** — carved pre-money, so it dilutes existing holders, not the new investor\n\nYou'll instantly see post-money, the new investor's %, price per share, and **before → after ownership with each holder's dilution** (Cactus highlighted).`, [{label:'Portfolio',path:'/dashboard'}]);
 

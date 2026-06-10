@@ -12,7 +12,7 @@
 const express = require('express');
 const router = express.Router();
 
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-opus-4-8';
+const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 const hasKey = () => !!process.env.ANTHROPIC_API_KEY;
 
 // Lazily construct the client so the server still boots without a key.
@@ -66,7 +66,6 @@ router.post('/chat', async (req, res) => {
       max_tokens: 1024,
       system,
       messages: msgs,
-      output_config: { effort: 'low' }, // fast, low-latency for a chat UI
     });
     const text = (resp.content || [])
       .filter((b) => b.type === 'text')

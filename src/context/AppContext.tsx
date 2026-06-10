@@ -38,8 +38,7 @@ const PORTFOLIO_FIELDS = new Set([
   'portfolioFundView', // Portfolio team's independent copy of fund investment data
 ]);
 const INVESTMENT_FIELDS = new Set([
-  'icMemos','ddChecklists','referenceChecks','coInvestors',
-  'introRequests','coInvestors',
+  'icMemos','ddChecklists','referenceChecks','coInvestors','introRequests',
 ]);
 const OPERATIONS_FIELDS = new Set([
   'tasks','meetingNotes','signingDocs','firmEvents',
@@ -58,11 +57,11 @@ function fieldNamespace(field: string): string {
 
 // Fields accessible to a given role
 function accessibleNamespaces(role: string): string[] {
-  if (role === 'super_admin') return ['app','finance','portfolio','investment','operations'];
+  if (role === 'super_admin') return ['app','finance','portfolio','investment','operations','compliance'];
   if (role === 'finance_team')    return ['app','finance'];
-  if (role === 'portfolio_team')  return ['app','portfolio','operations'];
+  if (role === 'portfolio_team')  return ['app','portfolio','operations','compliance'];
   if (role === 'investment_team') return ['app','investment','operations'];
-  return ['app','operations'];
+  return ['app','operations','compliance'];
 }
 
 // Split a store object into per-namespace buckets
@@ -322,8 +321,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         if (Object.keys(merged).length > 0) {
           setStoreRaw(prev => {
-            const next = { ...prev, ...merged } as AppStore;
-            // Keep localStorage in sync so refresh shows fresh data too
+            let next = { ...prev, ...merged } as AppStore;
+            // Backfill companyGaps if KV data predates the field
+            if (next.companies?.some(c => !c.companyGaps)) {
+              const defaultGapsMap = new Map(defaultConfig.companies.map(c => [c.id, c.companyGaps ?? []]));
+              next = {
+                ...next,
+                companies: next.companies.map(c => ({
+                  ...c,
+                  companyGaps: c.companyGaps ?? defaultGapsMap.get(c.id) ?? [],
+                })),
+              };
+            }
             try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
             return next;
           });
