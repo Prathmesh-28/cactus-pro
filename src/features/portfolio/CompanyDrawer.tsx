@@ -513,6 +513,66 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       (store.portfolioFundView ?? []).filter(i => i.companyId === company.id),
     [store.portfolioFundView, company.id]);
 
+    const [yearStyle, setYearStyle]       = useState<'FY' | 'CY'>('FY');
+    const [selectedYear, setSelectedYear] = useState<string>('all');
+
+    function fyToCyLabel(p: { fiscalYear: string; quarter?: string; periodType: string }): string {
+      if (p.periodType === 'annual') return `${p.fiscalYear}-Annual (≈CY)`;
+      const fyYear = parseInt(p.fiscalYear.replace('FY', ''));
+      const map: Record<string, { cyYear: number; cyQ: string }> = {
+        Q1: { cyYear: fyYear - 1, cyQ: 'Q2' },
+        Q2: { cyYear: fyYear - 1, cyQ: 'Q3' },
+        Q3: { cyYear: fyYear - 1, cyQ: 'Q4' },
+        Q4: { cyYear: fyYear,     cyQ: 'Q1' },
+      };
+      const m = p.quarter ? map[p.quarter] : null;
+      return m ? `${m.cyYear}-${m.cyQ}` : p.fiscalYear;
+    }
+
+    const fyPeriods = useMemo(() =>
+      (store.financialPeriods ?? [])
+        .filter(p => p.companyId === company.id && p.yearStyle === 'FY')
+        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
+    [store.financialPeriods, company.id]);
+
+    const cyNativePeriods = useMemo(() =>
+      (store.financialPeriods ?? [])
+        .filter(p => p.companyId === company.id && p.yearStyle === 'CY')
+        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
+    [store.financialPeriods, company.id]);
+
+    const allPeriods = useMemo(() => {
+      if (yearStyle === 'FY') return fyPeriods;
+      const fromFY = fyPeriods.map(p => ({
+        ...p,
+        periodLabel: fyToCyLabel(p),
+        fiscalYear: p.periodType === 'annual' ? p.fiscalYear : String(
+          parseInt(p.fiscalYear.replace('FY','')) + (['Q4'].includes(p.quarter ?? '') ? 0 : -1)
+        ),
+      }));
+      return [...fromFY, ...cyNativePeriods].sort((a, b) => a.periodLabel.localeCompare(b.periodLabel));
+    }, [yearStyle, fyPeriods, cyNativePeriods]);
+
+    const availableYears = useMemo(() => {
+      const yrs = [...new Set(allPeriods.map(p => p.fiscalYear))].sort();
+      return ['all', ...yrs];
+    }, [allPeriods]);
+
+    const periods = useMemo(() =>
+      selectedYear === 'all' ? allPeriods : allPeriods.filter(p => p.fiscalYear === selectedYear),
+    [allPeriods, selectedYear]);
+
+    const annuals = useMemo(() => periods.filter(p => p.periodType === 'annual'), [periods]);
+
+    const yoy = useCallback((curr: string, prev: string): string => {
+      const c = parseFloat(curr), p = parseFloat(prev);
+      if (!p || !c) return '—';
+      return `${((c - p) / Math.abs(p) * 100).toFixed(1)}%`;
+    }, []);
+
+    const fmt = (v: string | number, suffix = '') =>
+      v && v !== '' && v !== '0' ? `${v}${suffix}` : '—';
+
     return (
     <div className="space-y-6">
 
@@ -725,6 +785,138 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       ) : (
         <p className="text-sm text-gray-400 text-center py-8">No financial history available.</p>
       )}
+
+      {/* ── FY / CY Financial Metrics ─────────────────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <h4 className="text-sm font-bold text-gray-900">Financial Metrics — Quarter by Quarter</h4>
+          <div className="flex items-center gap-2">
+            <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+              {(['FY','CY'] as const).map(ys => (
+                <button key={ys} onClick={() => { setYearStyle(ys); setSelectedYear('all'); }}
+                  className="px-3 py-1.5 font-medium transition-colors"
+                  style={yearStyle === ys ? { backgroundColor: primaryColor, color: '#fff' } : { color: '#6b7280' }}>
+                  {ys === 'FY' ? 'Indian FY (Apr-Mar)' : 'Calendar Year (auto-converted from FY)'}
+                </button>
+              ))}
+            </div>
+            <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)}
+              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none">
+              {availableYears.map(y => (
+                <option key={y} value={y}>{y === 'all' ? 'All Years' : y}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {periods.length === 0 ? (
+          <div className="text-center py-8 rounded-xl border-2 border-dashed border-gray-100">
+            <p className="text-sm text-gray-400">No data for {company.name} yet.</p>
+            <p className="text-xs text-gray-300 mt-1">Enter as FY (Indian Apr-Mar) — CY view auto-converts. Add via Portfolio Admin → Financial Periods or Master Sheet sync.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+            <table className="w-full text-xs whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-gray-100" style={{ backgroundColor: primaryColor }}>
+                  <th className="px-3 py-2.5 text-left text-white font-semibold sticky left-0 z-10" style={{ backgroundColor: primaryColor }}>Period</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Type</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Revenue (₹Cr)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Rev Growth YoY</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">ARR (₹Cr)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">MRR (₹Cr)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">NRR %</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Gross Margin %</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">EBITDA %</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Burn (₹Cr/mo)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Cash (₹Cr)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Runway (mo)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Headcount</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">FMV (₹Cr)</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">MOIC</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">IRR %</th>
+                  <th className="px-3 py-2.5 text-center text-white font-semibold">Valuation (₹Cr)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {periods.map((p, idx) => {
+                  const isAnnual = p.periodType === 'annual';
+                  const prevAnnual = annuals[annuals.indexOf(p) - 1];
+                  const revYoY  = isAnnual && prevAnnual ? yoy(p.revenue, prevAnnual.revenue) : p.revenueGrowthYoY || '—';
+                  return (
+                    <tr key={p.id}
+                      className={`${isAnnual ? 'font-semibold' : ''} ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/30 transition-colors`}>
+                      <td className="px-3 py-2 sticky left-0 bg-inherit border-r border-gray-100 font-mono text-xs" style={{ color: primaryColor }}>{p.periodLabel}</td>
+                      <td className="px-3 py-2 text-center">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${isAnnual ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {isAnnual ? 'Annual' : p.quarter}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-center font-medium text-gray-800">{fmt(p.revenue)}</td>
+                      <td className="px-3 py-2 text-center">
+                        {revYoY !== '—' ? (
+                          <span className={`text-xs font-medium ${parseFloat(revYoY) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                            {parseFloat(revYoY) >= 0 ? '▲' : '▼'} {revYoY}
+                          </span>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.arr)}</td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.mrr)}</td>
+                      <td className="px-3 py-2 text-center">
+                        {p.nrr ? (
+                          <span className={`text-xs font-medium ${parseFloat(p.nrr) >= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{p.nrr}%</span>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.grossMarginPct, '%')}</td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.ebitdaMarginPct, '%')}</td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.monthlyBurn)}</td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.cash)}</td>
+                      <td className="px-3 py-2 text-center">
+                        {p.runway ? (
+                          <span className={`text-xs font-medium ${parseFloat(p.runway) < 6 ? 'text-red-500 font-bold' : 'text-gray-700'}`}>{p.runway}</span>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-3 py-2 text-center text-gray-700">{p.headcount || '—'}</td>
+                      <td className="px-3 py-2 text-center font-medium" style={{ color: primaryColor }}>{fmt(p.currentValuation)}</td>
+                      <td className="px-3 py-2 text-center">
+                        {p.moic ? (
+                          <span className={`text-xs font-bold ${parseFloat(p.moic) >= 3 ? 'text-emerald-600' : parseFloat(p.moic) >= 2 ? 'text-amber-600' : 'text-red-500'}`}>
+                            {p.moic}x
+                          </span>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-3 py-2 text-center font-medium text-blue-600">{fmt(p.irr, '%')}</td>
+                      <td className="px-3 py-2 text-center text-gray-700">{fmt(p.currentValuation)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              {annuals.length >= 2 && (
+                <tfoot>
+                  <tr className="border-t-2 border-gray-200 bg-gray-50">
+                    <td className="px-3 py-2.5 text-xs font-bold text-gray-600 sticky left-0 bg-gray-50" colSpan={2}>YoY Growth</td>
+                    <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">{yoy(annuals[annuals.length-1].revenue, annuals[annuals.length-2].revenue)}</td>
+                    <td /><td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">{yoy(annuals[annuals.length-1].arr, annuals[annuals.length-2].arr)}</td>
+                    <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">{yoy(annuals[annuals.length-1].mrr, annuals[annuals.length-2].mrr)}</td>
+                    <td colSpan={7} />
+                    <td className="px-3 py-2.5 text-center text-xs font-semibold text-blue-600">{yoy(annuals[annuals.length-1].moic, annuals[annuals.length-2].moic)}</td>
+                    <td className="px-3 py-2.5 text-center text-xs font-semibold text-blue-600">{yoy(annuals[annuals.length-1].irr, annuals[annuals.length-2].irr)}</td>
+                    <td />
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
+        )}
+        <div className="mt-3 flex items-center gap-4 text-[10px] text-gray-400">
+          {yearStyle === 'FY' ? (
+            <><span>FY Q1 = Apr–Jun</span><span>Q2 = Jul–Sep</span><span>Q3 = Oct–Dec</span><span>Q4 = Jan–Mar</span></>
+          ) : (
+            <><span>CY Q1 = Jan–Mar</span><span>Q2 = Apr–Jun</span><span>Q3 = Jul–Sep</span><span>Q4 = Oct–Dec</span></>
+          )}
+          <span className="ml-auto">Bold rows = Annual. Color: MOIC ≥3x 🟢 ≥2x 🟡 &lt;2x 🔴</span>
+        </div>
+      </div>
     </div>
     );
   };
@@ -732,83 +924,9 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   // ── Tab: Funding ───────────────────────────────────────────────────────────
   // ── Funding Tab — comprehensive: Cactus investment + FY/CY quarterly metrics ──
   const FundingTab = () => {
-    const [yearStyle, setYearStyle]     = useState<'FY' | 'CY'>('FY');
-    const [selectedYear, setSelectedYear] = useState<string>('all');
-
-    // All Cactus investment entries for this company (can appear in Fund 1 AND Fund 2)
     const invEntries = useMemo(() =>
       (store.portfolioFundView ?? []).filter(i => i.companyId === company.id),
     [store.portfolioFundView, company.id]);
-
-    // FY→CY quarter mapping (enter data once as FY, view in either style)
-    // FY Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar
-    // CY Q1=Jan-Mar, Q2=Apr-Jun, Q3=Jul-Sep, Q4=Oct-Dec
-    function fyToCyLabel(p: { fiscalYear: string; quarter?: string; periodType: string }): string {
-      if (p.periodType === 'annual') return `${p.fiscalYear}-Annual (≈CY)`;
-      const fyYear = parseInt(p.fiscalYear.replace('FY', ''));
-      const map: Record<string, { cyYear: number; cyQ: string }> = {
-        Q1: { cyYear: fyYear - 1, cyQ: 'Q2' }, // Apr-Jun → CY Q2
-        Q2: { cyYear: fyYear - 1, cyQ: 'Q3' }, // Jul-Sep → CY Q3
-        Q3: { cyYear: fyYear - 1, cyQ: 'Q4' }, // Oct-Dec → CY Q4
-        Q4: { cyYear: fyYear,     cyQ: 'Q1' }, // Jan-Mar → CY Q1
-      };
-      const m = p.quarter ? map[p.quarter] : null;
-      return m ? `${m.cyYear}-${m.cyQ}` : p.fiscalYear;
-    }
-
-    // All FY periods for this company (source of truth — enter once)
-    const fyPeriods = useMemo(() =>
-      (store.financialPeriods ?? [])
-        .filter(p => p.companyId === company.id && p.yearStyle === 'FY')
-        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
-    [store.financialPeriods, company.id]);
-
-    // CY-native periods (if any explicitly stored as CY)
-    const cyNativePeriods = useMemo(() =>
-      (store.financialPeriods ?? [])
-        .filter(p => p.companyId === company.id && p.yearStyle === 'CY')
-        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel)),
-    [store.financialPeriods, company.id]);
-
-    // When CY selected: derive from FY data (auto-convert labels) + native CY rows
-    const allPeriods = useMemo(() => {
-      if (yearStyle === 'FY') return fyPeriods;
-      // Show FY periods relabelled as CY + any native CY rows
-      const fromFY = fyPeriods.map(p => ({
-        ...p,
-        periodLabel: fyToCyLabel(p),
-        fiscalYear: p.periodType === 'annual' ? p.fiscalYear : String(
-          parseInt(p.fiscalYear.replace('FY','')) + (['Q4'].includes(p.quarter ?? '') ? 0 : -1)
-        ),
-      }));
-      return [...fromFY, ...cyNativePeriods]
-        .sort((a, b) => a.periodLabel.localeCompare(b.periodLabel));
-    }, [yearStyle, fyPeriods, cyNativePeriods]);
-
-    // Unique fiscal years available
-    const availableYears = useMemo(() => {
-      const yrs = [...new Set(allPeriods.map(p => p.fiscalYear))].sort();
-      return ['all', ...yrs];
-    }, [allPeriods]);
-
-    // Filter by selected year
-    const periods = useMemo(() =>
-      selectedYear === 'all' ? allPeriods : allPeriods.filter(p => p.fiscalYear === selectedYear),
-    [allPeriods, selectedYear]);
-
-    // Annual rows only (for YoY growth)
-    const annuals = useMemo(() => periods.filter(p => p.periodType === 'annual'), [periods]);
-
-    // YoY calc helper
-    const yoy = useCallback((curr: string, prev: string): string => {
-      const c = parseFloat(curr), p = parseFloat(prev);
-      if (!p || !c) return '—';
-      return `${((c - p) / Math.abs(p) * 100).toFixed(1)}%`;
-    }, []);
-
-    const fmt = (v: string | number, suffix = '') =>
-      v && v !== '' && v !== '0' ? `${v}${suffix}` : '—';
-
 
     return (
       <div className="space-y-6">
@@ -941,162 +1059,6 @@ export default function CompanyDrawer({ company, onClose }: Props) {
           )
         )}
 
-        {/* ── FY / CY Financial Metrics ─────────────────────────────────── */}
-        <div>
-          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <h4 className="text-sm font-bold text-gray-900">Financial Metrics — Quarter by Quarter</h4>
-            <div className="flex items-center gap-2">
-              {/* FY / CY toggle */}
-              <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-                {(['FY','CY'] as const).map(ys => (
-                  <button key={ys} onClick={() => { setYearStyle(ys); setSelectedYear('all'); }}
-                    className="px-3 py-1.5 font-medium transition-colors"
-                    style={yearStyle === ys ? { backgroundColor: primaryColor, color: '#fff' } : { color: '#6b7280' }}>
-                    {ys === 'FY' ? 'Indian FY (Apr-Mar)' : 'Calendar Year (auto-converted from FY)'}
-                  </button>
-                ))}
-              </div>
-              {/* Year filter */}
-              <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)}
-                className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none">
-                {availableYears.map(y => (
-                  <option key={y} value={y}>{y === 'all' ? 'All Years' : y}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {periods.length === 0 ? (
-            <div className="text-center py-8 rounded-xl border-2 border-dashed border-gray-100">
-              <p className="text-sm text-gray-400">No data for {company.name} yet.</p>
-              <p className="text-xs text-gray-300 mt-1">Enter as FY (Indian Apr-Mar) — CY view auto-converts. Add via Portfolio Admin → Financial Periods or Master Sheet sync.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
-              <table className="w-full text-xs whitespace-nowrap">
-                <thead>
-                  <tr className="border-b border-gray-100" style={{ backgroundColor: primaryColor }}>
-                    <th className="px-3 py-2.5 text-left text-white font-semibold sticky left-0 z-10" style={{ backgroundColor: primaryColor }}>Period</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Type</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Revenue (₹Cr)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Rev Growth YoY</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">ARR (₹Cr)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">MRR (₹Cr)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">NRR %</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Gross Margin %</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">EBITDA %</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Burn (₹Cr/mo)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Cash (₹Cr)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Runway (mo)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Headcount</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">FMV (₹Cr)</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">MOIC</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">IRR %</th>
-                    <th className="px-3 py-2.5 text-center text-white font-semibold">Valuation (₹Cr)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {periods.map((p, idx) => {
-                    const isAnnual = p.periodType === 'annual';
-                    const prevAnnual = annuals[annuals.indexOf(p) - 1];
-                    const revYoY  = isAnnual && prevAnnual ? yoy(p.revenue, prevAnnual.revenue) : p.revenueGrowthYoY || '—';
-                    return (
-                      <tr key={p.id}
-                        className={`${isAnnual ? 'font-semibold' : ''} ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/30 transition-colors`}>
-                        <td className="px-3 py-2 sticky left-0 bg-inherit border-r border-gray-100 font-mono text-xs" style={{ color: primaryColor }}>
-                          {p.periodLabel}
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${isAnnual ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
-                            {isAnnual ? 'Annual' : p.quarter}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-center font-medium text-gray-800">{fmt(p.revenue)}</td>
-                        <td className="px-3 py-2 text-center">
-                          {revYoY !== '—' ? (
-                            <span className={`text-xs font-medium ${parseFloat(revYoY) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                              {parseFloat(revYoY) >= 0 ? '▲' : '▼'} {revYoY}
-                            </span>
-                          ) : <span className="text-gray-300">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.arr)}</td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.mrr)}</td>
-                        <td className="px-3 py-2 text-center">
-                          {p.nrr ? (
-                            <span className={`text-xs font-medium ${parseFloat(p.nrr) >= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{p.nrr}%</span>
-                          ) : <span className="text-gray-300">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.grossMarginPct, '%')}</td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.ebitdaMarginPct, '%')}</td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.monthlyBurn)}</td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.cash)}</td>
-                        <td className="px-3 py-2 text-center">
-                          {p.runway ? (
-                            <span className={`text-xs font-medium ${parseFloat(p.runway) < 6 ? 'text-red-500 font-bold' : 'text-gray-700'}`}>{p.runway}</span>
-                          ) : <span className="text-gray-300">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center text-gray-700">{p.headcount || '—'}</td>
-                        <td className="px-3 py-2 text-center font-medium" style={{ color: primaryColor }}>{fmt(p.currentValuation)}</td>
-                        <td className="px-3 py-2 text-center">
-                          {p.moic ? (
-                            <span className={`text-xs font-bold ${parseFloat(p.moic) >= 3 ? 'text-emerald-600' : parseFloat(p.moic) >= 2 ? 'text-amber-600' : 'text-red-500'}`}>
-                              {p.moic}x
-                            </span>
-                          ) : <span className="text-gray-300">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center font-medium text-blue-600">{fmt(p.irr, '%')}</td>
-                        <td className="px-3 py-2 text-center text-gray-700">{fmt(p.currentValuation)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-
-                {/* YoY Growth Summary — annual rows only */}
-                {annuals.length >= 2 && (
-                  <tfoot>
-                    <tr className="border-t-2 border-gray-200 bg-gray-50">
-                      <td className="px-3 py-2.5 text-xs font-bold text-gray-600 sticky left-0 bg-gray-50" colSpan={2}>YoY Growth</td>
-                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">
-                        {yoy(annuals[annuals.length-1].revenue, annuals[annuals.length-2].revenue)}
-                      </td>
-                      <td />
-                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">
-                        {yoy(annuals[annuals.length-1].arr, annuals[annuals.length-2].arr)}
-                      </td>
-                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-emerald-700">
-                        {yoy(annuals[annuals.length-1].mrr, annuals[annuals.length-2].mrr)}
-                      </td>
-                      <td colSpan={7} />
-                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-blue-600">
-                        {yoy(annuals[annuals.length-1].moic, annuals[annuals.length-2].moic)}
-                      </td>
-                      <td className="px-3 py-2.5 text-center text-xs font-semibold text-blue-600">
-                        {yoy(annuals[annuals.length-1].irr, annuals[annuals.length-2].irr)}
-                      </td>
-                      <td />
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
-            </div>
-          )}
-
-          {/* Quarter legend */}
-          <div className="mt-3 flex items-center gap-4 text-[10px] text-gray-400">
-            {yearStyle === 'FY' ? (
-              <>
-                <span>FY Q1 = Apr–Jun</span><span>Q2 = Jul–Sep</span>
-                <span>Q3 = Oct–Dec</span><span>Q4 = Jan–Mar</span>
-              </>
-            ) : (
-              <>
-                <span>CY Q1 = Jan–Mar</span><span>Q2 = Apr–Jun</span>
-                <span>Q3 = Jul–Sep</span><span>Q4 = Oct–Dec</span>
-              </>
-            )}
-            <span className="ml-auto">Bold rows = Annual. Color: MOIC ≥3x 🟢 ≥2x 🟡 &lt;2x 🔴</span>
-          </div>
-        </div>
       </div>
     );
   };
