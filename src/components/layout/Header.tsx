@@ -217,7 +217,7 @@ export default function Header() {
 
               {/* Dark mode toggle */}
               <button onClick={toggleDark}
-                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/20 text-white"
                 title={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
                 {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
@@ -225,7 +225,7 @@ export default function Header() {
               {/* Mail compose button */}
               <button
                 onClick={() => setShowMailComposer(true)}
-                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/20 text-white"
                 title="Compose Email"
               >
                 <Mail className="w-4 h-4" />
@@ -234,9 +234,8 @@ export default function Header() {
               {/* LinkedIn post button */}
               <button
                 onClick={() => setShowLinkedIn(true)}
-                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/10"
+                className="hidden md:inline-flex p-2 rounded-lg transition-colors hover:bg-white/20 text-white"
                 title="LinkedIn Post Generator"
-                style={{ color: '#70B5F9' }}
               >
                 <ExternalLink className="w-4 h-4" />
               </button>
@@ -251,12 +250,12 @@ export default function Header() {
                     style={{ backgroundColor: '#86CA0F', color: '#1C4B42' }}>
                     {(authUser?.name || authUser?.email || roleConfig?.displayName || 'U')[0].toUpperCase()}
                   </div>
-                  <div className="hidden lg:block text-left">
-                    <p className="text-xs font-semibold leading-tight text-white">
+                  <div className="hidden lg:block text-left max-w-[120px]">
+                    <p className="text-xs font-semibold leading-tight text-white truncate">
                       {authUser?.name || roleConfig?.displayName || 'User'}
                     </p>
                     {authUser?.email && (
-                      <p className="text-[10px] leading-tight" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                      <p className="text-[10px] leading-tight truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>
                         {authUser.email}
                       </p>
                     )}

@@ -266,7 +266,7 @@ export default function AdminPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
         <aside className="lg:w-56 flex-shrink-0">
-          <nav className="flex lg:flex-col gap-0.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+          <nav className="flex lg:flex-col gap-0.5 overflow-x-auto lg:overflow-x-hidden lg:overflow-y-auto lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] pb-2 lg:pb-4 scrollbar-thin scrollbar-thumb-gray-200">
             {(() => {
               const groups = ['Platform', 'Portfolio', 'Finance', 'Investment', 'Operations'];
               return groups.map(group => {
