@@ -262,6 +262,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Debounce timer for backend saves
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sectorsMigrated = useRef(false);
 
   // ── Hydrate from PostgreSQL on mount (team-namespaced) ──────────────────────
   useEffect(() => {
@@ -329,7 +330,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       setLoading(false);
     });
-  }, []);
+  }, []); // eslint-disable-line
 
   // ── Real-time cross-user polling — re-fetch KV every 15 s ───────────────────
   // Also runs immediately on mount so Finance team always sees latest Portfolio data.
@@ -391,6 +392,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
+
+  // ── One-time sector normalisation — writes through to KV via setStore ────────
+  useEffect(() => {
+    if (!sectorsMigrated.current) {
+      sectorsMigrated.current = true;
+      setStore(normaliseSectors);
+    }
+  }, []); // eslint-disable-line
 
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
