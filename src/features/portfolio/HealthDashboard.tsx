@@ -139,6 +139,7 @@ interface EditModalProps {
 }
 
 function EditModal({ company, quarter, existing, onSave, onClose }: EditModalProps) {
+  const { store } = useApp();
   const [form, setForm] = useState<HealthFormState>(
     existing
       ? {
@@ -156,6 +157,28 @@ function EditModal({ company, quarter, existing, onSave, onClose }: EditModalPro
 
   const setSignal = (key: keyof Omit<HealthFormState, 'notes' | 'reviewedBy'>) =>
     (v: HealthSignal) => setForm((f) => ({ ...f, [key]: v }));
+
+  function autoSuggest() {
+    const t = store.kpiThresholds;
+    const moic = Number(company.moic) || 0;
+    const irr  = Number(company.irr) || 0;
+    const growthStr = String(company.revenueGrowthCagr1yr || '0').replace('%', '');
+    const growth = parseFloat(growthStr) || 0;
+
+    const moicSignal: HealthSignal = moic >= t.moic.good ? 'green' : moic >= t.moic.warning ? 'amber' : moic > 0 ? 'red' : 'grey';
+    const irrSignal:  HealthSignal = irr  >= t.irr.good  ? 'green' : irr  >= t.irr.warning  ? 'amber' : irr  > 0 ? 'red' : 'grey';
+    const growthSignal: HealthSignal = growth > 30 ? 'green' : growth > 0 ? 'amber' : growth < 0 ? 'red' : 'grey';
+
+    // Derive overall from moic/irr — most objective signals
+    const signals = [moicSignal, irrSignal].filter(s => s !== 'grey');
+    const overall: HealthSignal = signals.includes('red') ? 'red' : signals.includes('amber') ? 'amber' : signals.length > 0 ? 'green' : 'grey';
+
+    setForm(f => ({
+      ...f,
+      revenueGrowth: growthSignal,
+      overallSignal: overall,
+    }));
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -176,6 +199,18 @@ function EditModal({ company, quarter, existing, onSave, onClose }: EditModalPro
 
         {/* Form */}
         <div className="p-5 space-y-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-medium text-gray-700">Health Signals</p>
+            <button
+              type="button"
+              onClick={autoSuggest}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border transition-colors hover:bg-lime-50"
+              style={{ borderColor: '#86CA0F', color: '#3A6B00' }}
+              title={`Auto-fill from: MOIC ${company.moic}x, IRR ${company.irr}%, Revenue CAGR ${company.revenueGrowthCagr1yr || '—'}`}
+            >
+              ✦ Auto-suggest from data
+            </button>
+          </div>
           {(Object.keys(SIGNAL_LABELS) as (keyof typeof SIGNAL_LABELS)[]).map((key) => (
             <div key={key}>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">

@@ -6,6 +6,15 @@ const { pool } = require('../db');
 const { signAccess, signRefresh, verifyRefresh, revokeRefresh, revokeAllRefresh } = require('../lib/jwt');
 const { sendInvite, sendPasswordReset } = require('../lib/email');
 const { authenticate, audit } = require('../middleware/auth');
+const rateLimit = require('express-rate-limit');
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+});
 
 // ── GET /auth/test-email — test SMTP config (super_admin only) ───────────────
 router.post('/test-email', authenticate, async (req, res) => {
@@ -21,7 +30,7 @@ router.post('/test-email', authenticate, async (req, res) => {
 });
 
 // ── POST /auth/login ──────────────────────────────────────────────────────────
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
   try {

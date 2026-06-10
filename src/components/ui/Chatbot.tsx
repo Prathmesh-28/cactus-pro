@@ -39,7 +39,17 @@ export default function Chatbot() {
   const { store } = useApp();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<BotMessage[]>([WELCOME]);
+  const [messages, setMessages] = useState<BotMessage[]>(() => {
+    try {
+      const saved = sessionStorage.getItem('cactus_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved) as BotMessage[];
+        // Restore Date objects (JSON.parse turns them into strings)
+        return parsed.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
+      }
+    } catch {}
+    return [WELCOME];
+  });
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -55,6 +65,14 @@ export default function Chatbot() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
+
+  useEffect(() => {
+    try {
+      // Keep only last 40 messages to stay well under sessionStorage limits
+      const toSave = messages.slice(-40);
+      sessionStorage.setItem('cactus_chat_history', JSON.stringify(toSave));
+    } catch {}
+  }, [messages]);
 
   const send = async (text?: string) => {
     const msg = (text ?? input).trim();

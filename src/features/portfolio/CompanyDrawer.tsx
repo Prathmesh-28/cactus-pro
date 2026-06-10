@@ -337,6 +337,12 @@ export default function CompanyDrawer({ company, onClose }: Props) {
     fetchFiles(company.id).then(setFiles);
   }, [company?.id]);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
   if (!company) return null;
 
   const handleSaveNotes = async () => {
@@ -349,6 +355,17 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const ALLOWED = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','image/png','image/jpeg','image/jpg','text/plain'];
+    if (file.size > 50 * 1024 * 1024) {
+      alert('File too large — maximum 50 MB.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    if (!ALLOWED.includes(file.type)) {
+      alert('File type not supported. Allowed: PDF, Word, Excel, PowerPoint, PNG, JPG, TXT.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
     setUploading(true);
     const uploaded = await uploadFile(company.id, file);
     if (uploaded) setFiles(prev => [uploaded, ...prev]);

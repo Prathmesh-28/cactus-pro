@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
-import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Target, BookOpen, Coins, RefreshCw as SyncIcon } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Scale, Target, BookOpen, Coins, RefreshCw as SyncIcon } from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
@@ -13,12 +13,13 @@ import CompliancesPage from './CompliancesPage';
 import CapitalCallTracker from './CapitalCallTracker';
 import ValuationLog from './ValuationLog';
 import LpCommHub from './LpCommHub';
+import LpReconciliation from './LpReconciliation';
 import FundClosingTracker from './FundClosingTracker';
 import FundLedger from './FundLedger';
 import FundEconomics from './FundEconomics';
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 
-type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'fund_closing' | 'fund_ledger' | 'economics' | 'team_sync';
+type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'lp_reconciliation' | 'fund_closing' | 'fund_ledger' | 'economics' | 'team_sync';
 
 const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'overview',      label: 'Fund Overview',   Icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
   { key: 'capital_calls', label: 'Capital Calls',    Icon: PhoneCall },
   { key: 'valuations',    label: 'Valuation Log',    Icon: TrendingUp },
   { key: 'lp_comms',      label: 'LP Comms',         Icon: Mail },
+  { key: 'lp_reconciliation', label: 'LP Reconciliation', Icon: Scale },
   { key: 'fund_closing',  label: 'Fund Closing',     Icon: Target },
   { key: 'fund_ledger',  label: 'Fund Ledger',      Icon: BookOpen },
   { key: 'economics',    label: 'Fund Economics',   Icon: Coins },
@@ -151,6 +153,7 @@ export default function FinancePage() {
           {activeTab === 'capital_calls' && <div className="p-6"><CapitalCallTracker /></div>}
           {activeTab === 'valuations'    && <div className="p-6"><ValuationLog /></div>}
           {activeTab === 'lp_comms'      && <div className="p-6"><LpCommHub /></div>}
+          {activeTab === 'lp_reconciliation' && <div className="p-6"><LpReconciliation /></div>}
           {activeTab === 'fund_closing'  && <div className="p-6"><FundClosingTracker /></div>}
           {activeTab === 'fund_ledger'   && <div className="p-6"><FundLedger /></div>}
           {activeTab === 'economics'     && <div className="p-6"><FundEconomics /></div>}

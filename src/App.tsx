@@ -7,6 +7,7 @@ import Footer from './components/layout/Footer';
 import Chatbot from './components/ui/Chatbot';
 import SaveIndicator from './components/ui/SaveIndicator';
 import ConnectionBanner from './components/ui/ConnectionBanner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Eagerly loaded (tiny, needed immediately)
 import LoginPage from './pages/LoginPage';
@@ -71,13 +72,13 @@ function AppShell() {
         <div className="flex-1">
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/dashboard"   element={<PortfolioPage />} />
-              <Route path="/finance"     element={<FinancePage />} />
-              <Route path="/investment"  element={<InvestmentPage />} />
-              <Route path="/operations"  element={<OperationsHub />} />
-              <Route path="/admin"       element={<AdminPage />} />
-              <Route path="/toolkit"     element={<VCToolkitPage />} />
-              <Route path="/workspace"   element={<WorkspacePage />} />
+              <Route path="/dashboard"   element={<ErrorBoundary name="Portfolio"><PortfolioPage /></ErrorBoundary>} />
+              <Route path="/finance"     element={<ErrorBoundary name="Finance"><FinancePage /></ErrorBoundary>} />
+              <Route path="/investment"  element={<ErrorBoundary name="Investment"><InvestmentPage /></ErrorBoundary>} />
+              <Route path="/operations"  element={<ErrorBoundary name="Operations"><OperationsHub /></ErrorBoundary>} />
+              <Route path="/admin"       element={<ErrorBoundary name="Admin"><AdminPage /></ErrorBoundary>} />
+              <Route path="/toolkit"     element={<ErrorBoundary name="VC Toolkit"><VCToolkitPage /></ErrorBoundary>} />
+              <Route path="/workspace"   element={<ErrorBoundary name="Workspace"><WorkspacePage /></ErrorBoundary>} />
               <Route path="*"            element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Suspense>

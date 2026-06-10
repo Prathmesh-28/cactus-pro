@@ -50,6 +50,8 @@ export default function Header() {
   const [showLinkedIn, setShowLinkedIn] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncDone, setSyncDone] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const bellRef = useRef<HTMLDivElement>(null);
 
   const handleSyncAll = async () => {
     setSyncing(true);
@@ -69,6 +71,15 @@ export default function Header() {
     const handler = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node))
         setProfileOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(e.target as Node))
+        setBellOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -140,10 +151,41 @@ export default function Header() {
             <div className="ml-auto flex items-center gap-2">
               {/* Notification bell */}
               {activeAnnouncements.length > 0 && (
-                <button className="relative p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white">
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#86CA0F' }} />
-                </button>
+                <div className="relative" ref={bellRef}>
+                  <button
+                    onClick={() => setBellOpen(o => !o)}
+                    className="relative p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                    title="Announcements"
+                  >
+                    <Bell className="w-4 h-4" />
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#86CA0F' }} />
+                  </button>
+                  {bellOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border z-50 overflow-hidden"
+                      style={{ borderColor: '#E3EDE9' }}>
+                      <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: '#F2F7F1', backgroundColor: '#F6FAF7' }}>
+                        <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#1C4B42' }}>Announcements</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#E3EDE9', color: '#1C4B42' }}>{activeAnnouncements.length}</span>
+                      </div>
+                      <div className="max-h-72 overflow-y-auto divide-y" style={{ borderColor: '#F2F7F1' }}>
+                        {activeAnnouncements.map(a => (
+                          <div key={a.id} className="px-4 py-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                                a.priority === 'urgent'  ? 'bg-red-100 text-red-700' :
+                                a.priority === 'warning' ? 'bg-amber-100 text-amber-700' :
+                                'bg-blue-100 text-blue-700'
+                              }`}>{a.priority}</span>
+                              <span className="text-xs font-semibold text-gray-900">{a.title}</span>
+                            </div>
+                            <p className="text-xs text-gray-500">{a.body}</p>
+                            <p className="text-[10px] text-gray-300 mt-1">Expires {new Date(a.expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Global Search */}

@@ -78,6 +78,9 @@ export default function PortfolioPage() {
   }, [searchParams]);
 
   const { firm, fundMetrics, companies, sectors } = store;
+  const totalInvestedCr = (store.portfolioSnapshot ?? []).reduce(
+    (s, inv) => s + parseFloat(inv.totalInvested || '0'), 0
+  );
 
   const visibleMetrics = fundMetrics.filter((m) => m.visible);
 
@@ -209,7 +212,7 @@ export default function PortfolioPage() {
             },
             {
               label: 'Total Invested (Cactus)',
-              value: '₹285 Cr+',
+              value: totalInvestedCr > 0 ? `₹${Math.round(totalInvestedCr)} Cr+` : `₹${companies.reduce((s, c) => { const n = parseFloat(String(c.cactusInvestment || '0').replace(/[^0-9.]/g, '')); return s + (isNaN(n) ? 0 : n); }, 0).toFixed(0)} Cr+`,
               sub: 'Across all rounds',
               color: firm.accentColor,
             },
@@ -349,14 +352,13 @@ export default function PortfolioPage() {
                       </div>
                     </th>
                   ))}
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredCompanies.map((c) => (
                   <tr
                     key={c.id}
-                    onDoubleClick={() => setSelectedCompany(c)}
+                    onClick={() => setSelectedCompany(c)}
                     className={`hover:bg-green-50/60 cursor-pointer transition-colors group ${c.status === 'Exited' ? 'opacity-55' : ''}`}
                   >
                     <td className="px-4 py-3">
@@ -398,14 +400,6 @@ export default function PortfolioPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => setSelectedCompany(c)}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 transition-colors"
-                      >
-                        Details
-                      </button>
-                    </td>
                   </tr>
                 ))}
                 {filteredCompanies.length === 0 && (
