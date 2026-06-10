@@ -84,24 +84,25 @@ function loadLocal(): AppStore | null {
   } catch { return null; }
 }
 
-// ─── Sector migration: 11-sector → 3-sector scheme ───────────────────────────
-const _SECTOR_OLD_TO_NEW: Record<string, string> = {
+// ─── Sector normalisation — always enforce the 3-sector scheme ───────────────
+// This runs on every load (initial + hydration + polling) to guarantee the
+// live KV data never reverts to the old 11-sector scheme.
+const _SECTOR_REMAP: Record<string, string> = {
   s1:'s1', s2:'s3', s3:'s1', s4:'s1',
   s5:'s2', s6:'s2', s7:'s3', s8:'s3',
   s9:'s2', s10:'s2', s11:'s2',
 };
-const _NEW_SECTORS = [
+const _CANONICAL_SECTORS = [
   { id: 's1', name: 'Advanced Manufacturing', color: '#D97706', iconName: 'cpu'      },
   { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
   { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
 ];
-function applySectorMigration(s: AppStore): AppStore {
-  if (s.sectors?.length === 3 && s.sectors.every(x => ['Advanced Manufacturing','Technology','Consumer'].includes(x.name))) return s;
+function normaliseSectors(s: AppStore): AppStore {
   return {
     ...s,
-    sectors: _NEW_SECTORS,
-    companies: s.companies?.map(c => ({ ...c, sectorId: _SECTOR_OLD_TO_NEW[c.sectorId] ?? c.sectorId })),
-    deals: s.deals?.map(d => ({ ...d, sectorId: _SECTOR_OLD_TO_NEW[d.sectorId] ?? d.sectorId })),
+    sectors: _CANONICAL_SECTORS,
+    companies: s.companies?.map(c => ({ ...c, sectorId: _SECTOR_REMAP[c.sectorId] ?? c.sectorId })),
+    deals:     s.deals?.map(d => ({ ...d, sectorId: _SECTOR_REMAP[d.sectorId] ?? d.sectorId })),
   };
 }
 
@@ -230,7 +231,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
   // Start with localStorage for instant render, then hydrate from PostgreSQL
-  const [store, setStoreRaw] = useState<AppStore>(() => applySectorMigration(seedPortfolioFundView(loadLocal() ?? defaultConfig)));
+  const [store, setStoreRaw] = useState<AppStore>(() => normaliseSectors(seedPortfolioFundView(loadLocal() ?? defaultConfig)));
   const [loading, setLoading] = useState(true);
   const [currentRole, setCurrentRoleState] = useState<RoleName>(
     () => (localStorage.getItem(ROLE_KEY) as RoleName) ?? 'super_admin'
@@ -306,18 +307,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        // Migrate old 11-sector scheme → 3 consolidated sectors
-        const preMigration = mergedStore;
-        mergedStore = applySectorMigration(mergedStore);
-        const needsSectorMigration = mergedStore !== preMigration;
+        // Always enforce 3-sector scheme — overwrites any stale KV data
+        mergedStore = normaliseSectors(mergedStore);
 
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
 
-        // Write backfilled data back to KV so the next poll doesn't overwrite it
-        if (needsGapsBackfill || needsSectorMigration) {
-          const buckets = splitStoreByNamespace(mergedStore);
-          kvSet('app', KV_KEY, buckets['app']).catch(() => {});
+        // Write normalised data back to KV
+        const buckets = splitStoreByNamespace(mergedStore);
+        kvSet('app', KV_KEY, buckets['app']).catch(() => {});
+        if (needsGapsBackfill) {
+          // gaps are in the app bucket, already written above
         }
 
         // Push finance data keys into localStorage for finance tab hooks
@@ -360,7 +360,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               };
             }
             // Keep sectors normalized to 3-sector scheme
-            next = applySectorMigration(next);
+            next = normaliseSectors(next);
             try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
             return next;
           });
