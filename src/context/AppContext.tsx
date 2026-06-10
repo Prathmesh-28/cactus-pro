@@ -426,6 +426,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // ── One-time sector migration via setStore → persists to KV ──────────────────
+  useEffect(() => {
+    const MIGRATION_KEY = 'cactus_sectors_v4';
+    if (!localStorage.getItem(MIGRATION_KEY)) {
+      localStorage.setItem(MIGRATION_KEY, '1');
+      setStore(normaliseSectors);
+    }
+  }, [setStore]);
+
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
     if (user?.role && user.role !== 'super_admin') return;
