@@ -16,6 +16,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line,
 } from 'recharts';
 import { useApp } from '../../context/AppContext';
+import type { CompanyGap, CompanyGapType } from '../../data/types';
 import type { PortfolioCompany } from '../../data/types';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -29,7 +30,7 @@ interface Props {
   onClose: () => void;
 }
 
-type DrawerTab = 'overview' | 'financials' | 'funding' | 'captable' | 'patents' | 'people' | 'calendar' | 'docs';
+type DrawerTab = 'overview' | 'financials' | 'funding' | 'captable' | 'patents' | 'people' | 'calendar' | 'docs' | 'gaps';
 
 const TABS: { key: DrawerTab; label: string; Icon: React.ElementType }[] = [
   { key: 'overview',   label: 'Overview',   Icon: Building2 },
@@ -40,6 +41,7 @@ const TABS: { key: DrawerTab; label: string; Icon: React.ElementType }[] = [
   { key: 'people',     label: 'People',     Icon: Users },
   { key: 'calendar',   label: 'Calendar',   Icon: CalendarDays },
   { key: 'docs',       label: 'Docs',       Icon: Paperclip },
+  { key: 'gaps',       label: 'Gaps',       Icon: Target },
 ];
 
 // ─── Chart helpers ────────────────────────────────────────────────────────────
@@ -312,7 +314,7 @@ function KV({ label, value }: { label: string; value: string | number }) {
 // ─── Main drawer ──────────────────────────────────────────────────────────────
 
 export default function CompanyDrawer({ company, onClose }: Props) {
-  const { store, canAddNotes } = useApp();
+  const { store, updateCompany, canAddNotes } = useApp();
   const [activeTab, setActiveTab] = useState<DrawerTab>('overview');
   const [notes, setNotes] = useState('');
   const [notesDirty, setNotesDirty] = useState(false);
@@ -546,37 +548,106 @@ export default function CompanyDrawer({ company, onClose }: Props) {
                   ))}
                 </div>
 
-                {/* Follow-on timeline */}
-                {inv.followOns?.length > 0 && (
-                  <div className="bg-white rounded-lg p-3 border border-gray-100">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Investment Rounds</p>
-                    <div className="space-y-1.5">
-                      {/* Initial */}
-                      <div className="flex items-center justify-between text-xs py-1 border-b border-gray-50">
-                        <span className="text-gray-500">{inv.investmentDate}</span>
-                        <span className="font-medium text-gray-700">{inv.stageAtEntry} — First Cheque</span>
-                        <span className="font-bold" style={{ color: primaryColor }}>₹{inv.firstCheque} Cr</span>
-                        <span className="text-gray-400">{inv.ownershipAtEntry}</span>
-                      </div>
-                      {/* Follow-ons */}
-                      {inv.followOns.map(fo => (
-                        <div key={fo.id} className="flex items-center justify-between text-xs py-1 border-b border-gray-50">
-                          <span className="text-gray-500">{fo.date}</span>
-                          <span className="font-medium text-gray-700">{fo.round}</span>
-                          <span className="font-bold text-amber-600">₹{fo.amount} Cr</span>
-                          <span className="text-gray-400">{fo.ownershipPost}</span>
-                        </div>
-                      ))}
-                      {/* Total */}
-                      <div className="flex items-center justify-between text-xs py-1 font-semibold">
-                        <span className="text-gray-600">Total</span>
-                        <span className="text-gray-600">All Rounds</span>
-                        <span style={{ color: primaryColor }}>₹{inv.totalInvested} Cr</span>
-                        <span className="text-gray-600">{inv.currentOwnership} today</span>
+                {/* Investment Rounds table with per-tranche metrics */}
+                {(() => {
+                  const totalInv = parseFloat(inv.totalInvested || '0');
+                  const totalFMV = parseFloat(inv.currentFMV || '0');
+
+                  function trancheMetrics(amount: number, dateStr: string) {
+                    const currentVal = totalInv > 0 ? (amount / totalInv) * totalFMV : 0;
+                    const moic = amount > 0 ? currentVal / amount : 0;
+                    const days = (Date.now() - new Date(dateStr).getTime()) / 86400000;
+                    const irr = moic > 0 && days > 30 ? (Math.pow(moic, 365 / days) - 1) * 100 : 0;
+                    return { currentVal, moic, irr };
+                  }
+
+                  const firstAmt = parseFloat(inv.firstCheque || '0');
+                  const firstM = trancheMetrics(firstAmt, inv.investmentDate);
+
+                  const thCls = 'text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide py-1.5 pr-2 whitespace-nowrap';
+                  const tdCls = 'text-right text-xs py-2 pr-2 whitespace-nowrap';
+
+                  return (
+                    <div className="bg-white rounded-lg p-3 border border-gray-100">
+                      <p className="text-xs font-semibold text-gray-500 mb-2">Investment Rounds</p>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide py-1.5 pr-2 whitespace-nowrap">Date</th>
+                              <th className="text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide py-1.5 pr-2 whitespace-nowrap">Round</th>
+                              <th className="text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide py-1.5 pr-2 whitespace-nowrap">Stake</th>
+                              <th className={thCls}>Invested</th>
+                              <th className={thCls}>Current Value</th>
+                              <th className={thCls}>Gain / Loss</th>
+                              <th className={thCls}>MOIC</th>
+                              <th className={thCls}>IRR</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* First cheque */}
+                            <tr className="border-b border-gray-50">
+                              <td className="text-left text-xs py-2 pr-2 text-gray-500">{inv.investmentDate}</td>
+                              <td className="text-left text-xs py-2 pr-2 font-medium text-gray-700">{inv.stageAtEntry} — First Cheque</td>
+                              <td className="text-right text-xs py-2 pr-2 text-gray-400">{inv.ownershipAtEntry}</td>
+                              <td className={`${tdCls} font-bold`} style={{ color: primaryColor }}>₹{inv.firstCheque} Cr</td>
+                              <td className={`${tdCls} font-semibold`} style={{ color: firstM.currentVal >= firstAmt ? primaryColor : '#EF4444' }}>
+                                ₹{firstM.currentVal.toFixed(2)} Cr
+                              </td>
+                              <td className={`${tdCls} ${firstM.currentVal >= firstAmt ? 'text-emerald-600' : 'text-red-500'}`}>
+                                {firstM.currentVal >= firstAmt ? '+' : ''}₹{(firstM.currentVal - firstAmt).toFixed(2)} Cr
+                              </td>
+                              <td className={`${tdCls} font-bold ${firstM.moic >= 2 ? 'text-emerald-600' : firstM.moic >= 1 ? 'text-amber-600' : 'text-red-500'}`}>
+                                {firstM.moic > 0 ? `${firstM.moic.toFixed(2)}x` : '—'}
+                              </td>
+                              <td className={`${tdCls} font-bold ${firstM.irr >= 20 ? 'text-emerald-600' : firstM.irr >= 10 ? 'text-amber-600' : 'text-red-500'}`}>
+                                {firstM.irr !== 0 ? `${firstM.irr.toFixed(1)}%` : '—'}
+                              </td>
+                            </tr>
+                            {/* Follow-ons */}
+                            {(inv.followOns ?? []).map(fo => {
+                              const foAmt = parseFloat(fo.amount || '0');
+                              const foM = trancheMetrics(foAmt, fo.date);
+                              return (
+                                <tr key={fo.id} className="border-b border-gray-50">
+                                  <td className="text-left text-xs py-2 pr-2 text-gray-500">{fo.date}</td>
+                                  <td className="text-left text-xs py-2 pr-2 font-medium text-gray-700">{fo.round}</td>
+                                  <td className="text-right text-xs py-2 pr-2 text-gray-400">{fo.ownershipPost}</td>
+                                  <td className={`${tdCls} font-bold text-amber-600`}>₹{fo.amount} Cr</td>
+                                  <td className={`${tdCls} font-semibold`} style={{ color: foM.currentVal >= foAmt ? primaryColor : '#EF4444' }}>
+                                    ₹{foM.currentVal.toFixed(2)} Cr
+                                  </td>
+                                  <td className={`${tdCls} ${foM.currentVal >= foAmt ? 'text-emerald-600' : 'text-red-500'}`}>
+                                    {foM.currentVal >= foAmt ? '+' : ''}₹{(foM.currentVal - foAmt).toFixed(2)} Cr
+                                  </td>
+                                  <td className={`${tdCls} font-bold ${foM.moic >= 2 ? 'text-emerald-600' : foM.moic >= 1 ? 'text-amber-600' : 'text-red-500'}`}>
+                                    {foM.moic > 0 ? `${foM.moic.toFixed(2)}x` : '—'}
+                                  </td>
+                                  <td className={`${tdCls} font-bold ${foM.irr >= 20 ? 'text-emerald-600' : foM.irr >= 10 ? 'text-amber-600' : 'text-red-500'}`}>
+                                    {foM.irr !== 0 ? `${foM.irr.toFixed(1)}%` : '—'}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            {/* Total row */}
+                            <tr className="border-t-2 border-gray-200 font-semibold bg-gray-50">
+                              <td className="text-left text-xs py-2 pr-2 text-gray-600">Total</td>
+                              <td className="text-left text-xs py-2 pr-2 text-gray-600">All Rounds</td>
+                              <td className="text-right text-xs py-2 pr-2 text-gray-600">{inv.currentOwnership}</td>
+                              <td className={`${tdCls} font-bold`} style={{ color: primaryColor }}>₹{inv.totalInvested} Cr</td>
+                              <td className={`${tdCls} font-bold`} style={{ color: primaryColor }}>₹{inv.currentFMV} Cr</td>
+                              <td className={`${tdCls} ${totalFMV >= totalInv ? 'text-emerald-600' : 'text-red-500'}`}>
+                                {totalFMV >= totalInv ? '+' : ''}₹{(totalFMV - totalInv).toFixed(2)} Cr
+                              </td>
+                              <td className={`${tdCls} font-bold`} style={{ color: primaryColor }}>{inv.moic}x</td>
+                              <td className={`${tdCls} font-bold`} style={{ color: primaryColor }}>{inv.irr}%</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Latest operating metrics */}
                 {(inv.revenue || inv.arr || inv.irr) && (
@@ -1314,6 +1385,140 @@ export default function CompanyDrawer({ company, onClose }: Props) {
     </div>
   );
 
+  // ── Tab: Gaps ──────────────────────────────────────────────────────────────
+  const GAP_TYPES: CompanyGapType[] = ['Strategy', 'Organisation Design', 'International Expansion', 'Governance'];
+  const GAP_TYPE_COLORS: Record<CompanyGapType, string> = {
+    'Strategy':                'bg-blue-50 text-blue-700',
+    'Organisation Design':     'bg-purple-50 text-purple-700',
+    'International Expansion': 'bg-amber-50 text-amber-700',
+    'Governance':              'bg-emerald-50 text-emerald-700',
+  };
+
+  const GapsTab = () => {
+    const blank = (): Omit<CompanyGap, 'id'> => ({ name: '', type: 'Strategy', issue: '', resolution: '', impact: '', resolvedAt: '' });
+    const [form, setForm] = useState<Omit<CompanyGap, 'id'>>(blank());
+    const [editId, setEditId] = useState<string | null>(null);
+    const [showForm, setShowForm] = useState(false);
+
+    const gaps = company.companyGaps ?? [];
+
+    const saveGap = () => {
+      if (!form.name.trim()) return;
+      const updated = editId
+        ? gaps.map(g => g.id === editId ? { ...form, id: editId } : g)
+        : [...gaps, { ...form, id: crypto.randomUUID() }];
+      updateCompany({ ...company, companyGaps: updated });
+      setShowForm(false);
+      setEditId(null);
+      setForm(blank());
+    };
+
+    const deleteGap = (id: string) => {
+      updateCompany({ ...company, companyGaps: gaps.filter(g => g.id !== id) });
+    };
+
+    const openEdit = (g: CompanyGap) => {
+      setForm({ name: g.name, type: g.type, issue: g.issue, resolution: g.resolution, impact: g.impact, resolvedAt: g.resolvedAt });
+      setEditId(g.id);
+      setShowForm(true);
+    };
+
+    const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-0';
+    const labelCls = 'block text-xs font-semibold text-gray-500 mb-1';
+
+    return (
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-gray-400">{gaps.length} gap{gaps.length !== 1 ? 's' : ''} recorded</p>
+          <button
+            onClick={() => { setForm(blank()); setEditId(null); setShowForm(true); }}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <span className="text-base leading-none">+</span> Add Gap
+          </button>
+        </div>
+
+        {/* Add / Edit form */}
+        {showForm && (
+          <div className="border rounded-xl p-4 space-y-3 bg-gray-50" style={{ borderColor: primaryColor + '40' }}>
+            <p className="text-xs font-bold text-gray-700">{editId ? 'Edit Gap' : 'New Gap'}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Gap Name *</label>
+                <input className={inputCls} placeholder="e.g. CFO Hire" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <label className={labelCls}>Gap Type</label>
+                <select className={inputCls} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as CompanyGapType }))}>
+                  {GAP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>What was the issue?</label>
+              <textarea rows={2} className={inputCls} placeholder="Describe the problem…" value={form.issue} onChange={e => setForm(f => ({ ...f, issue: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>How was the problem solved?</label>
+              <textarea rows={2} className={inputCls} placeholder="Steps taken to resolve…" value={form.resolution} onChange={e => setForm(f => ({ ...f, resolution: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>What impact has it created?</label>
+              <textarea rows={2} className={inputCls} placeholder="Outcome and measurable impact…" value={form.impact} onChange={e => setForm(f => ({ ...f, impact: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Resolved Date (optional)</label>
+              <input type="date" className={inputCls} value={form.resolvedAt} onChange={e => setForm(f => ({ ...f, resolvedAt: e.target.value }))} />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => { setShowForm(false); setEditId(null); }} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100">Cancel</button>
+              <button onClick={saveGap} className="text-xs px-4 py-1.5 rounded-lg text-white font-semibold" style={{ backgroundColor: primaryColor }}>{editId ? 'Save Changes' : 'Add Gap'}</button>
+            </div>
+          </div>
+        )}
+
+        {/* Gaps table */}
+        {gaps.length > 0 ? (
+          <div className="overflow-x-auto rounded-xl border border-gray-100">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  {['Gap Name', 'Type', 'Issue', 'How Solved', 'Impact', 'Resolved', ''].map(h => (
+                    <th key={h} className="px-3 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {gaps.map(g => (
+                  <tr key={g.id} className="hover:bg-gray-50 align-top">
+                    <td className="px-3 py-2.5 font-semibold text-gray-800 whitespace-nowrap">{g.name}</td>
+                    <td className="px-3 py-2.5">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap ${GAP_TYPE_COLORS[g.type]}`}>{g.type}</span>
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-600 max-w-[140px]"><p className="line-clamp-2">{g.issue || '—'}</p></td>
+                    <td className="px-3 py-2.5 text-gray-600 max-w-[140px]"><p className="line-clamp-2">{g.resolution || '—'}</p></td>
+                    <td className="px-3 py-2.5 text-gray-600 max-w-[140px]"><p className="line-clamp-2">{g.impact || '—'}</p></td>
+                    <td className="px-3 py-2.5 text-gray-400 whitespace-nowrap">{g.resolvedAt || '—'}</td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <button onClick={() => openEdit(g)} className="text-gray-400 hover:text-gray-700 p-1 rounded"><GitBranch className="w-3 h-3" /></button>
+                        <button onClick={() => deleteGap(g.id)} className="text-gray-300 hover:text-red-500 p-1 rounded"><Trash2 className="w-3 h-3" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          !showForm && <p className="text-sm text-gray-400 text-center py-8">No gaps recorded. Click "Add Gap" to get started.</p>
+        )}
+      </div>
+    );
+  };
+
   const TAB_CONTENT: Record<DrawerTab, React.ReactNode> = {
     overview:   <OverviewTab />,
     financials: <FinancialsTab />,
@@ -1323,6 +1528,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
     people:     <PeopleTab />,
     calendar:   <CalendarTab />,
     docs:       <DocsTab />,
+    gaps:       <GapsTab />,
   };
 
   return (

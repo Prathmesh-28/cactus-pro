@@ -360,6 +360,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 6.90, investment: '—', shares: '2,320' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: showroomTeam,
     },
 
@@ -438,6 +439,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 9.93, investment: '₹5.5 Cr', shares: '226,000' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: indigridTeam,
     },
 
@@ -508,6 +510,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 9.49, investment: '—', shares: '123,000' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: brandworksTeam,
     },
 
@@ -668,6 +671,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 7.55, investment: '—', shares: '15,600' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: kaptureTeam,
     },
 
@@ -749,6 +753,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 0.82, investment: '—', shares: '7,970' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: auricTeam,
     },
 
@@ -820,6 +825,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 1.50, investment: '—', shares: '12,700' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: [],
     },
 
@@ -893,6 +899,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 12.61, investment: '—', shares: '18,800' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: ananantTeam,
     },
 
@@ -967,6 +974,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 11.39, investment: '—', shares: '2,150' },
       ],
       patents: [],
+      companyGaps: [],
       teamMembers: vitrayaTeam,
     },
 
@@ -1028,6 +1036,7 @@ export const defaultConfig: AppStore = {
       ],
       capTable: [],
       patents: [],
+      companyGaps: [],
       teamMembers: parkMateTeam,
     },
 

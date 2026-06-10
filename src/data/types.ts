@@ -99,6 +99,18 @@ export interface CapTableEntry {
   shares: string;
 }
 
+export type CompanyGapType = 'Strategy' | 'Organisation Design' | 'International Expansion' | 'Governance';
+
+export interface CompanyGap {
+  id: string;
+  name: string;
+  type: CompanyGapType;
+  issue: string;        // what was the issue
+  resolution: string;   // how the problem got solved
+  impact: string;       // what impact it has created
+  resolvedAt: string;   // YYYY-MM-DD or empty if open
+}
+
 export interface Patent {
   title: string;
   status: string;
@@ -150,6 +162,7 @@ export interface PortfolioCompany {
   financialHistory: FinancialYear[];
   capTable: CapTableEntry[];
   patents: Patent[];
+  companyGaps: CompanyGap[];
   keyPeople: CompanyKeyPerson[];
   competitors: string[];
   revenueGrowthCagr1yr: string;
