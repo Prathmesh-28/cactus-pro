@@ -466,9 +466,10 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       {/* ── Sector Metrics Framework — contextual KPI reference ── */}
       {(() => {
         const sector = store.sectors.find(s => s.id === company.sectorId);
-        return sector ? (
-          <SectorMetricsPanel sectorId={company.sectorId} sectorName={sector.name} />
-        ) : null;
+        // Fallback: if sectorId not in store yet, use name-based or default to mfg
+        const sectorId = sector ? company.sectorId : 's1';
+        const sectorName = sector?.name ?? 'Advanced Manufacturing';
+        return <SectorMetricsPanel sectorId={sectorId} sectorName={sectorName} />;
       })()}
 
       {company.boardMemberIds.length > 0 && (

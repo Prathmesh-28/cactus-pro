@@ -406,7 +406,7 @@ interface Props {
 
 export default function SectorMetricsPanel({ sectorId, sectorName }: Props) {
   const [activeTab, setActiveTab] = useState<PanelTab>('sector');
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const sectorSections: MetricSection[] =
     sectorId === 's2' ? TECH_SECTIONS :
