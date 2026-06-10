@@ -273,7 +273,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
 
         // Backfill companyGaps for companies loaded from KV that predate this field
+        let needsGapsBackfill = false;
         if (mergedStore.companies?.some(c => !c.companyGaps)) {
+          needsGapsBackfill = true;
           const defaultGapsMap = new Map(defaultConfig.companies.map(c => [c.id, c.companyGaps ?? []]));
           mergedStore = {
             ...mergedStore,
@@ -286,6 +288,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
+
+        // Write backfilled data back to KV so the next poll doesn't overwrite it
+        if (needsGapsBackfill) {
+          const appBucket = splitStoreByNamespace(mergedStore)['app'];
+          kvSet('app', KV_KEY, appBucket).catch(() => {});
+        }
 
         // Push finance data keys into localStorage for finance tab hooks
         if (mergedStore.financeData) {
