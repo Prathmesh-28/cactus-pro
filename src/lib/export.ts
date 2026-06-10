@@ -5,7 +5,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import type { AppStore, PortfolioCompany } from '../data/types';
+import type { AppStore, LpCommunication, PortfolioCompany } from '../data/types';
 
 // ─── Brand colours ────────────────────────────────────────────────────────────
 const C = {
@@ -448,7 +448,83 @@ export function exportCompanyExcel(company: PortfolioCompany, store: AppStore) {
   XLSX.writeFile(wb, `${company.name} — Report.xlsx`);
 }
 
-// ─── 5. FINANCE SUMMARY — PDF ─────────────────────────────────────────────────
+// ─── 5. LP COMMUNICATION — PDF ───────────────────────────────────────────────
+
+const LP_COMM_LABELS: Record<string, string> = {
+  quarterly_update:    'Quarterly Update',
+  capital_call_notice: 'Capital Call Notice',
+  distribution_notice: 'Distribution Notice',
+  annual_report:       'Annual Report',
+  ad_hoc:              'Ad Hoc Communication',
+};
+
+export function exportLpCommPDF(comm: LpCommunication, firmName: string) {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const typeLabel = LP_COMM_LABELS[comm.type] ?? 'LP Communication';
+  const statusLine = comm.status === 'sent' && comm.sentAt
+    ? `Sent ${new Date(comm.sentAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`
+    : 'Draft';
+
+  addHeader(doc, typeLabel, statusLine, firmName);
+
+  let y = 38;
+
+  // Subject
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...C.primary);
+  const subjectLines = doc.splitTextToSize(comm.subject || '(No subject)', W - 28);
+  doc.text(subjectLines, 14, y);
+  y += subjectLines.length * 6 + 3;
+
+  // Divider
+  doc.setDrawColor(...C.border);
+  doc.line(14, y, W - 14, y);
+  y += 7;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...C.text);
+
+  // Render body line by line
+  for (const rawLine of (comm.body ?? '').split('\n')) {
+    if (y > 272) { doc.addPage(); y = 20; }
+    const clean = rawLine.replace(/\*\*/g, '');
+    const isSectionHead = rawLine.trim().startsWith('**') && rawLine.trim().endsWith('**');
+    const isBullet = clean.startsWith('- ');
+    const isEmpty = clean.trim() === '';
+
+    if (isEmpty) {
+      y += 3;
+    } else if (isSectionHead) {
+      y += 1;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...C.primary);
+      doc.text(clean.trim(), 14, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...C.text);
+      y += 6;
+    } else if (isBullet) {
+      doc.setFontSize(9);
+      const wrapped = doc.splitTextToSize(clean.slice(2), W - 34);
+      doc.text('•', 16, y);
+      doc.text(wrapped, 21, y);
+      y += wrapped.length * 5 + 1;
+    } else {
+      doc.setFontSize(9);
+      const wrapped = doc.splitTextToSize(clean, W - 28);
+      doc.text(wrapped, 14, y);
+      y += wrapped.length * 5 + 1;
+    }
+  }
+
+  addFooter(doc);
+  const safe = (comm.subject || 'LP Communication').replace(/[/\\:*?"<>|]/g, '-');
+  doc.save(`${safe}.pdf`);
+}
+
+// ─── 6. FINANCE SUMMARY — PDF ─────────────────────────────────────────────────
 
 export function exportFinancePDF(store: AppStore) {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });

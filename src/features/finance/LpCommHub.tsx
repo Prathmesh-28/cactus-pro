@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
 import {
   Plus, Mail, Send, FileText, X, Paperclip, Users,
-  CheckCircle2, Clock, ChevronRight, Inbox,
+  CheckCircle2, Clock, ChevronRight, Inbox, Download, Sparkles,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
+import { exportLpCommPDF } from '../../lib/export';
 import type { LpCommunication, LpCommType } from '../../data/types';
+import type { AppStore } from '../../data/types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -42,6 +44,158 @@ const TEMPLATES: Record<string, { type: LpCommType; subject: string; body: strin
     body: `Dear [LP Name],\n\nWe are pleased to inform you of a distribution from Cactus Fund [X].\n\n**Distribution Amount:** ₹[X]L\n**Distribution Date:** [Date]\n**Source:** [Exit / Dividend / Other]\n**Your Pro-Rata Share:** ₹[X]L\n\nFunds will be transferred to your registered bank account within 5 business days.\n\nThank you for your continued trust in Cactus.\n\nRegards,\nCactus Finance Team`,
   },
 };
+
+// ─── Live-data fill ───────────────────────────────────────────────────────────
+
+function currentQuarterFY() {
+  const now = new Date();
+  const m = now.getMonth() + 1;
+  const yr = now.getFullYear();
+  let q: number, fy1: number;
+  if (m >= 4) { fy1 = yr; q = m < 7 ? 1 : m < 10 ? 2 : 3; }
+  else         { fy1 = yr - 1; q = 4; }
+  return { q, label: `Q${q} FY${fy1}-${String(fy1 + 1).slice(2)}`, fy: `FY${fy1}-${String(fy1 + 1).slice(2)}` };
+}
+
+function getFM(store: AppStore, ...keys: string[]): string {
+  for (const k of keys) {
+    const m = (store.fundMetrics ?? []).find(fm => fm.label.toLowerCase().includes(k.toLowerCase()));
+    if (m?.value) return m.value;
+  }
+  return '—';
+}
+
+function fillFromLiveData(type: LpCommType, store: AppStore): { subject: string; body: string } {
+  const { q, label, fy } = currentQuarterFY();
+  const firmName = store.firm?.name ?? 'Cactus Partners';
+  const active = store.companies.filter(c => c.status === 'Active');
+  const exited = store.companies.filter(c => c.status === 'Exited').length;
+  const top = [...active].sort((a, b) => (Number(b.moic) || 0) - (Number(a.moic) || 0)).slice(0, 3);
+  const topAll = [...active].sort((a, b) => (Number(b.moic) || 0) - (Number(a.moic) || 0)).slice(0, 5);
+
+  const tvpi      = getFM(store, 'tvpi', 'net moic', 'gross moic');
+  const irr       = getFM(store, 'net irr', 'irr');
+  const nav       = getFM(store, 'nav', 'net asset', 'aum');
+  const invested  = getFM(store, 'total invested', 'deployed', 'invested capital');
+  const dateStr   = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (type === 'quarterly_update') {
+    const highlights = top.length
+      ? top.map(c => `- ${c.name}: ${c.moic}x MOIC${c.revenue ? ` | Rev ₹${c.revenue}` : ''}${c.stage ? ` | ${c.stage}` : ''}`).join('\n')
+      : '- [Add key portfolio highlights]';
+    return {
+      subject: `${label} – ${firmName} Portfolio Update`,
+      body: `Dear [LP Name],
+
+We are pleased to share the Portfolio Update for ${label}.
+
+**Portfolio Highlights**
+${highlights}
+
+**Portfolio Summary**
+Active: ${active.length} companies | Exited: ${exited} | Total: ${store.companies.length}
+
+**Fund Performance**
+TVPI: ${tvpi} | Net IRR: ${irr} | NAV: ${nav} | Total Invested: ${invested}
+
+**Key Developments**
+[Describe major events this quarter — board changes, product launches, key hires, follow-on rounds]
+
+**Upcoming**
+[Next quarter focus areas and planned follow-on investments]
+
+Please feel free to reach out with any questions.
+
+Warm regards,
+${firmName}`,
+    };
+  }
+
+  if (type === 'annual_report') {
+    const companyList = topAll.length
+      ? topAll.map(c => `- ${c.name}: ${c.moic}x MOIC | ${c.stage} | ${c.ownershipPct}% Cactus stake`).join('\n')
+      : '- [Add portfolio companies]';
+    return {
+      subject: `Annual Report ${fy} – ${firmName}`,
+      body: `Dear [LP Name],
+
+We are pleased to share the Annual Report for ${fy}.
+
+**Portfolio Overview**
+${store.companies.length} total companies — ${active.length} active, ${exited} exited
+
+**Top Portfolio Companies by MOIC**
+${companyList}
+
+**Fund Performance**
+TVPI: ${tvpi} | Net IRR: ${irr} | NAV: ${nav} | Total Invested: ${invested}
+
+**Year in Review**
+[Key milestones, exits, new investments, and strategic developments during ${fy}]
+
+**Strategy & Outlook**
+[Investment thesis, focus sectors, and deployment plans for the year ahead]
+
+Thank you for your continued trust and partnership.
+
+Warm regards,
+${firmName}`,
+    };
+  }
+
+  if (type === 'capital_call_notice') {
+    return {
+      subject: `Capital Call Notice – ${firmName} – ${dateStr}`,
+      body: `Dear [LP Name],
+
+Pursuant to Section [X] of the Limited Partnership Agreement, we hereby issue a Capital Call Notice.
+
+**Amount Called:** ₹[X]L
+**Due Date:** [Date — 10 business days from today]
+**Purpose:** [Investment in portfolio company / fund management expenses]
+**Your Pro-Rata Share:** ₹[X]L (based on your [X]% commitment)
+
+**Wire Instructions:**
+Bank: [Bank Name]
+Account No: [XXXX]
+IFSC: [XXXX]
+Reference: Capital Call – ${fy} – [LP Name]
+
+Please ensure funds are received by the due date. Contact finance@cactuspartners.in for any queries.
+
+Regards,
+${firmName} Finance Team`,
+    };
+  }
+
+  if (type === 'distribution_notice') {
+    return {
+      subject: `Distribution Notice – ${firmName} – ${dateStr}`,
+      body: `Dear [LP Name],
+
+We are pleased to inform you of a distribution from ${firmName}.
+
+**Distribution Amount:** ₹[X]Cr
+**Distribution Date:** ${dateStr}
+**Source:** [Exit proceeds / Dividend / Other]
+**Your Pro-Rata Share:** ₹[X]L (based on your [X]% commitment)
+**DPI to Date:** ${getFM(store, 'dpi', 'distributions')}
+
+Funds will be transferred to your registered bank account within 5 business days.
+
+Thank you for your continued trust in ${firmName}.
+
+Regards,
+${firmName} Finance Team`,
+    };
+  }
+
+  // ad_hoc
+  return {
+    subject: `Update from ${firmName} — ${dateStr}`,
+    body: `Dear [LP Name],\n\n[Message body]\n\nWarm regards,\n${firmName}`,
+  };
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -83,12 +237,13 @@ function StatusBadge({ status }: { status: 'draft' | 'sent' }) {
 interface DetailPanelProps {
   comm: LpCommunication;
   lpNames: Record<string, string>;
+  firmName: string;
   onClose: () => void;
   onSend: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-function DetailPanel({ comm, lpNames, onClose, onSend, onDelete }: DetailPanelProps) {
+function DetailPanel({ comm, lpNames, firmName, onClose, onSend, onDelete }: DetailPanelProps) {
   const targetLabel =
     comm.targetLpIds.length === 0
       ? 'All LPs'
@@ -178,6 +333,13 @@ function DetailPanel({ comm, lpNames, onClose, onSend, onDelete }: DetailPanelPr
           </button>
           <div className="flex items-center gap-3">
             <button
+              onClick={() => exportLpCommPDF(comm, firmName)}
+              className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg border font-medium text-gray-600 hover:bg-gray-50"
+              style={{ borderColor: '#94A3B8' }}
+            >
+              <Download className="w-4 h-4" /> Export PDF
+            </button>
+            <button
               onClick={onClose}
               className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100"
             >
@@ -208,6 +370,7 @@ interface ComposeModalProps {
 }
 
 function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
+  const { store } = useApp();
   const [type, setType]             = useState<LpCommType>('quarterly_update');
   const [subject, setSubject]       = useState('');
   const [body, setBody]             = useState('');
@@ -269,7 +432,7 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-          {/* Templates */}
+          {/* Templates + Live Fill */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Quick Templates</p>
             <div className="flex flex-wrap gap-2">
@@ -283,7 +446,22 @@ function ComposeModal({ lps, onSave, onClose }: ComposeModalProps) {
                   {key}
                 </button>
               ))}
+              <button
+                onClick={() => {
+                  const filled = fillFromLiveData(type, store);
+                  setSubject(filled.subject);
+                  setBody(filled.body);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors hover:bg-lime-50"
+                style={{ borderColor: '#86CA0F', color: '#3A6B00' }}
+                title="Auto-fill this template with live fund metrics and portfolio data"
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Fill from Live Data
+              </button>
             </div>
+            <p className="text-xs text-gray-400 mt-1.5">
+              "Fill from Live Data" pulls your current fund TVPI, IRR, NAV, and top companies.
+            </p>
           </div>
 
           {/* Type */}
@@ -642,6 +820,7 @@ export default function LpCommHub() {
         <DetailPanel
           comm={selectedComm}
           lpNames={lpNames}
+          firmName={store.firm?.name ?? 'Cactus Partners'}
           onClose={() => setSelectedId(null)}
           onSend={handleSend}
           onDelete={handleDelete}
