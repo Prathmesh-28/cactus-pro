@@ -105,8 +105,16 @@ const _NAME_TO_SECTOR: Record<string, string> = {
   'semiconductors':'s2','health & insurtech':'s2','fintech':'s2',
   'consumer':'s3','consumer (apparel)':'s3','consumer (ayurveda)':'s3','consumer (fashion)':'s3',
 };
+const _VALID_IDS = new Set(['s1','s2','s3']);
+
 function normaliseSectors(s: AppStore): AppStore {
-  // Build id→newId map including generated IDs (resolved via old sector name)
+  const sectorsOk = s.sectors?.length === 3 &&
+    s.sectors.every(x => ['Advanced Manufacturing','Technology','Consumer'].includes(x.name));
+  const companiesOk = !s.companies?.some(c => !_VALID_IDS.has(c.sectorId));
+  const dealsOk     = !s.deals?.some(d => !_VALID_IDS.has(d.sectorId));
+  if (sectorsOk && companiesOk && dealsOk) return { ...s, sectors: _CANONICAL_SECTORS };
+
+  // Build remap: standard IDs first, then name-based for generated IDs
   const idMap: Record<string, string> = { ..._SECTOR_REMAP };
   for (const sec of (s.sectors ?? [])) {
     if (!idMap[sec.id]) {
@@ -114,11 +122,19 @@ function normaliseSectors(s: AppStore): AppStore {
       if (mapped) idMap[sec.id] = mapped;
     }
   }
+
   return {
     ...s,
     sectors: _CANONICAL_SECTORS,
-    companies: s.companies?.map(c => ({ ...c, sectorId: idMap[c.sectorId] ?? 's1' })),
-    deals:     s.deals?.map(d => ({ ...d, sectorId: idMap[d.sectorId] ?? 's2' })),
+    // Only remap IDs that aren't already canonical — prevents double-mapping (s2→s3 on 2nd run)
+    companies: s.companies?.map(c => ({
+      ...c,
+      sectorId: _VALID_IDS.has(c.sectorId) ? c.sectorId : (idMap[c.sectorId] ?? 's1'),
+    })),
+    deals: s.deals?.map(d => ({
+      ...d,
+      sectorId: _VALID_IDS.has(d.sectorId) ? d.sectorId : (idMap[d.sectorId] ?? 's2'),
+    })),
   };
 }
 
