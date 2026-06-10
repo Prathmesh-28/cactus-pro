@@ -179,8 +179,8 @@ export default function GlobalSearch({ onSelectCompany: _oc }: Props) {
         style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.2)' }}
       >
         <Search className="w-3.5 h-3.5" />
-        <span className="text-xs">Search everything…</span>
-        <kbd className="ml-2 text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>⌘K</kbd>
+        <span className="hidden xl:inline text-xs">Search everything…</span>
+        <kbd className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>⌘K</kbd>
       </button>
 
       {/* Mobile icon */}

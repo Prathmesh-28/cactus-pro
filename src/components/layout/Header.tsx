@@ -148,7 +148,7 @@ export default function Header() {
             </nav>
 
             {/* Right side */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-1 xl:gap-2">
               {/* Notification bell */}
               {activeAnnouncements.length > 0 && (
                 <div className="relative" ref={bellRef}>
@@ -212,7 +212,7 @@ export default function Header() {
                 title="Sync all SharePoint sources"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'Syncing…' : syncDone ? '✓ Synced' : 'Sync'}
+                <span className="hidden xl:inline">{syncing ? 'Syncing…' : syncDone ? '✓ Synced' : 'Sync'}</span>
               </button>
 
               {/* Dark mode toggle */}
