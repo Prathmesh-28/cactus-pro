@@ -84,6 +84,27 @@ function loadLocal(): AppStore | null {
   } catch { return null; }
 }
 
+// ─── Sector migration: 11-sector → 3-sector scheme ───────────────────────────
+const _SECTOR_OLD_TO_NEW: Record<string, string> = {
+  s1:'s1', s2:'s3', s3:'s1', s4:'s1',
+  s5:'s2', s6:'s2', s7:'s3', s8:'s3',
+  s9:'s2', s10:'s2', s11:'s2',
+};
+const _NEW_SECTORS = [
+  { id: 's1', name: 'Advanced Manufacturing', color: '#D97706', iconName: 'cpu'      },
+  { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
+  { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
+];
+function applySectorMigration(s: AppStore): AppStore {
+  if (s.sectors?.length === 3 && s.sectors.every(x => ['Advanced Manufacturing','Technology','Consumer'].includes(x.name))) return s;
+  return {
+    ...s,
+    sectors: _NEW_SECTORS,
+    companies: s.companies?.map(c => ({ ...c, sectorId: _SECTOR_OLD_TO_NEW[c.sectorId] ?? c.sectorId })),
+    deals: s.deals?.map(d => ({ ...d, sectorId: _SECTOR_OLD_TO_NEW[d.sectorId] ?? d.sectorId })),
+  };
+}
+
 // ─── Context shape ────────────────────────────────────────────────────────────
 interface AppContextValue {
   store: AppStore;
@@ -209,7 +230,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
   // Start with localStorage for instant render, then hydrate from PostgreSQL
-  const [store, setStoreRaw] = useState<AppStore>(() => seedPortfolioFundView(loadLocal() ?? defaultConfig));
+  const [store, setStoreRaw] = useState<AppStore>(() => applySectorMigration(seedPortfolioFundView(loadLocal() ?? defaultConfig)));
   const [loading, setLoading] = useState(true);
   const [currentRole, setCurrentRoleState] = useState<RoleName>(
     () => (localStorage.getItem(ROLE_KEY) as RoleName) ?? 'super_admin'
@@ -286,32 +307,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
 
         // Migrate old 11-sector scheme → 3 consolidated sectors
-        const OLD_TO_NEW: Record<string, string> = {
-          s1: 's1', s2: 's3', s3: 's1', s4: 's1',
-          s5: 's2', s6: 's2', s7: 's3', s8: 's3',
-          s9: 's2', s10: 's2', s11: 's2',
-        };
-        const NEW_SECTORS = [
-          { id: 's1', name: 'Advanced Manufacturing', color: '#D97706', iconName: 'cpu'      },
-          { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
-          { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
-        ];
-        let needsSectorMigration = false;
-        if (!mergedStore.sectors || mergedStore.sectors.length !== 3 || mergedStore.sectors.some(s => !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
-          needsSectorMigration = true;
-          mergedStore = {
-            ...mergedStore,
-            sectors: NEW_SECTORS,
-            companies: mergedStore.companies?.map(c => ({
-              ...c,
-              sectorId: OLD_TO_NEW[c.sectorId] ?? c.sectorId,
-            })),
-            deals: mergedStore.deals?.map(d => ({
-              ...d,
-              sectorId: OLD_TO_NEW[d.sectorId] ?? d.sectorId,
-            })),
-          };
-        }
+        const preMigration = mergedStore;
+        mergedStore = applySectorMigration(mergedStore);
+        const needsSectorMigration = mergedStore !== preMigration;
 
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
@@ -319,8 +317,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Write backfilled data back to KV so the next poll doesn't overwrite it
         if (needsGapsBackfill || needsSectorMigration) {
           const buckets = splitStoreByNamespace(mergedStore);
-          kvSet('app',       KV_KEY, buckets['app']).catch(() => {});
-          kvSet('portfolio', KV_KEY, buckets['portfolio']).catch(() => {});
+          kvSet('app', KV_KEY, buckets['app']).catch(() => {});
         }
 
         // Push finance data keys into localStorage for finance tab hooks
@@ -363,21 +360,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               };
             }
             // Keep sectors normalized to 3-sector scheme
-            const OLD_TO_NEW_POLL: Record<string, string> = {
-              s1:'s1',s2:'s3',s3:'s1',s4:'s1',s5:'s2',s6:'s2',s7:'s3',s8:'s3',s9:'s2',s10:'s2',s11:'s2',
-            };
-            if (!next.sectors || next.sectors.length !== 3 || next.sectors.some(s => !['Advanced Manufacturing','Technology','Consumer'].includes(s.name))) {
-              next = {
-                ...next,
-                sectors: [
-                  { id: 's1', name: 'Advanced Manufacturing', color: '#D97706', iconName: 'cpu'      },
-                  { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
-                  { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
-                ],
-                companies: next.companies?.map(c => ({ ...c, sectorId: OLD_TO_NEW_POLL[c.sectorId] ?? c.sectorId })),
-                deals:     next.deals?.map(d => ({ ...d, sectorId: OLD_TO_NEW_POLL[d.sectorId] ?? d.sectorId })),
-              };
-            }
+            next = applySectorMigration(next);
             try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
             return next;
           });
