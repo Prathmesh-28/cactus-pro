@@ -322,6 +322,11 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   const [files, setFiles] = useState<CompanyFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Gap form state lifted here so it survives store-triggered re-renders
+  const gapBlank = (): Omit<CompanyGap, 'id'> => ({ name: '', type: 'Strategy', issue: '', resolution: '', impact: '', resolvedAt: '' });
+  const [gapShowForm, setGapShowForm] = useState(false);
+  const [gapEditId, setGapEditId] = useState<string | null>(null);
+  const [gapForm, setGapForm] = useState<Omit<CompanyGap, 'id'>>(gapBlank());
 
   useEffect(() => {
     if (!company) return;
@@ -1395,32 +1400,30 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   };
 
   const GapsTab = () => {
-    const blank = (): Omit<CompanyGap, 'id'> => ({ name: '', type: 'Strategy', issue: '', resolution: '', impact: '', resolvedAt: '' });
-    const [form, setForm] = useState<Omit<CompanyGap, 'id'>>(blank());
-    const [editId, setEditId] = useState<string | null>(null);
-    const [showForm, setShowForm] = useState(false);
-
-    const gaps = company.companyGaps ?? [];
+    // Use lifted state (gapShowForm, gapEditId, gapForm) so it survives store re-renders
+    // Read gaps from live store so updates are immediately reflected
+    const liveCompany = store.companies.find(c => c.id === company.id) ?? company;
+    const gaps = liveCompany.companyGaps ?? [];
 
     const saveGap = () => {
-      if (!form.name.trim()) return;
-      const updated = editId
-        ? gaps.map(g => g.id === editId ? { ...form, id: editId } : g)
-        : [...gaps, { ...form, id: crypto.randomUUID() }];
-      updateCompany({ ...company, companyGaps: updated });
-      setShowForm(false);
-      setEditId(null);
-      setForm(blank());
+      if (!gapForm.name.trim()) return;
+      const updated = gapEditId
+        ? gaps.map(g => g.id === gapEditId ? { ...gapForm, id: gapEditId } : g)
+        : [...gaps, { ...gapForm, id: crypto.randomUUID() }];
+      updateCompany({ ...liveCompany, companyGaps: updated });
+      setGapShowForm(false);
+      setGapEditId(null);
+      setGapForm(gapBlank());
     };
 
     const deleteGap = (id: string) => {
-      updateCompany({ ...company, companyGaps: gaps.filter(g => g.id !== id) });
+      updateCompany({ ...liveCompany, companyGaps: gaps.filter(g => g.id !== id) });
     };
 
     const openEdit = (g: CompanyGap) => {
-      setForm({ name: g.name, type: g.type, issue: g.issue, resolution: g.resolution, impact: g.impact, resolvedAt: g.resolvedAt });
-      setEditId(g.id);
-      setShowForm(true);
+      setGapForm({ name: g.name, type: g.type, issue: g.issue, resolution: g.resolution, impact: g.impact, resolvedAt: g.resolvedAt });
+      setGapEditId(g.id);
+      setGapShowForm(true);
     };
 
     const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-0';
@@ -1432,7 +1435,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
         <div className="flex items-center justify-between">
           <p className="text-xs text-gray-400">{gaps.length} gap{gaps.length !== 1 ? 's' : ''} recorded</p>
           <button
-            onClick={() => { setForm(blank()); setEditId(null); setShowForm(true); }}
+            onClick={() => { setGapForm(gapBlank()); setGapEditId(null); setGapShowForm(true); }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
             style={{ backgroundColor: primaryColor }}
           >
@@ -1441,40 +1444,40 @@ export default function CompanyDrawer({ company, onClose }: Props) {
         </div>
 
         {/* Add / Edit form */}
-        {showForm && (
+        {gapShowForm && (
           <div className="border rounded-xl p-4 space-y-3 bg-gray-50" style={{ borderColor: primaryColor + '40' }}>
-            <p className="text-xs font-bold text-gray-700">{editId ? 'Edit Gap' : 'New Gap'}</p>
+            <p className="text-xs font-bold text-gray-700">{gapEditId ? 'Edit Gap' : 'New Gap'}</p>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Gap Name *</label>
-                <input className={inputCls} placeholder="e.g. CFO Hire" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                <input className={inputCls} placeholder="e.g. CFO Hire" value={gapForm.name} onChange={e => setGapForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div>
                 <label className={labelCls}>Gap Type</label>
-                <select className={inputCls} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as CompanyGapType }))}>
+                <select className={inputCls} value={gapForm.type} onChange={e => setGapForm(f => ({ ...f, type: e.target.value as CompanyGapType }))}>
                   {GAP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
             </div>
             <div>
               <label className={labelCls}>What was the issue?</label>
-              <textarea rows={2} className={inputCls} placeholder="Describe the problem…" value={form.issue} onChange={e => setForm(f => ({ ...f, issue: e.target.value }))} />
+              <textarea rows={2} className={inputCls} placeholder="Describe the problem…" value={gapForm.issue} onChange={e => setGapForm(f => ({ ...f, issue: e.target.value }))} />
             </div>
             <div>
               <label className={labelCls}>How was the problem solved?</label>
-              <textarea rows={2} className={inputCls} placeholder="Steps taken to resolve…" value={form.resolution} onChange={e => setForm(f => ({ ...f, resolution: e.target.value }))} />
+              <textarea rows={2} className={inputCls} placeholder="Steps taken to resolve…" value={gapForm.resolution} onChange={e => setGapForm(f => ({ ...f, resolution: e.target.value }))} />
             </div>
             <div>
               <label className={labelCls}>What impact has it created?</label>
-              <textarea rows={2} className={inputCls} placeholder="Outcome and measurable impact…" value={form.impact} onChange={e => setForm(f => ({ ...f, impact: e.target.value }))} />
+              <textarea rows={2} className={inputCls} placeholder="Outcome and measurable impact…" value={gapForm.impact} onChange={e => setGapForm(f => ({ ...f, impact: e.target.value }))} />
             </div>
             <div>
               <label className={labelCls}>Resolved Date (optional)</label>
-              <input type="date" className={inputCls} value={form.resolvedAt} onChange={e => setForm(f => ({ ...f, resolvedAt: e.target.value }))} />
+              <input type="date" className={inputCls} value={gapForm.resolvedAt} onChange={e => setGapForm(f => ({ ...f, resolvedAt: e.target.value }))} />
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => { setShowForm(false); setEditId(null); }} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100">Cancel</button>
-              <button onClick={saveGap} className="text-xs px-4 py-1.5 rounded-lg text-white font-semibold" style={{ backgroundColor: primaryColor }}>{editId ? 'Save Changes' : 'Add Gap'}</button>
+              <button onClick={() => { setGapShowForm(false); setGapEditId(null); }} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100">Cancel</button>
+              <button onClick={saveGap} className="text-xs px-4 py-1.5 rounded-lg text-white font-semibold" style={{ backgroundColor: primaryColor }}>{gapEditId ? 'Save Changes' : 'Add Gap'}</button>
             </div>
           </div>
         )}
@@ -1513,7 +1516,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
             </table>
           </div>
         ) : (
-          !showForm && <p className="text-sm text-gray-400 text-center py-8">No gaps recorded. Click "Add Gap" to get started.</p>
+          !gapShowForm && <p className="text-sm text-gray-400 text-center py-8">No gaps recorded. Click "Add Gap" to get started.</p>
         )}
       </div>
     );

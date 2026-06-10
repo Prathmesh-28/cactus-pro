@@ -1,8 +1,48 @@
-import type { AppStore } from './types';
+import type { AppStore, CompanyGap } from './types';
 import {
   ananantTeam, bellatrixTeam, parkMateTeam, brandworksTeam, indigridTeam,
   intanglesTeam, kaptureTeam, auricTeam, lohomTeam, showroomTeam, vitrayaTeam,
 } from './teamMembers';
+
+// ─── Seed gaps (one per type) for all portfolio companies ────────────────────
+const SEED_GAPS: CompanyGap[] = [
+  {
+    id: 'sg-1',
+    name: 'Go-to-Market Clarity',
+    type: 'Strategy',
+    issue: 'The company lacked a focused GTM strategy for priority segments, leading to scattered sales efforts and high CAC.',
+    resolution: 'Cactus facilitated a strategy sprint with the founding team and an external GTM advisor to define ICP, pricing tiers, and channel priorities.',
+    impact: 'CAC reduced by 32%; sales cycle shortened from 90 to 52 days within two quarters of execution.',
+    resolvedAt: '2024-06-30',
+  },
+  {
+    id: 'sg-2',
+    name: 'Leadership Bandwidth',
+    type: 'Organisation Design',
+    issue: 'Founder was managing 6 direct reports across product, sales, and ops simultaneously, creating execution bottlenecks as headcount crossed 80.',
+    resolution: 'Recruited a COO with relevant sector experience; restructured into three business units with dedicated heads.',
+    impact: 'Decision turnaround improved by 40%; attrition dropped from 24% to 10% in FY25.',
+    resolvedAt: '2024-09-15',
+  },
+  {
+    id: 'sg-3',
+    name: 'Southeast Asia Entry',
+    type: 'International Expansion',
+    issue: 'Strong inbound interest from SEA markets but no regulatory pathway, local partner, or compliance framework in place.',
+    resolution: 'Partnered with a Singapore-based distribution partner; completed regulatory compliance filings for Singapore and UAE.',
+    impact: 'First two international customers signed with combined ARR of $520K; pipeline of $2.1M in SEA.',
+    resolvedAt: '2025-03-01',
+  },
+  {
+    id: 'sg-4',
+    name: 'Board & ESOP Formalisation',
+    type: 'Governance',
+    issue: 'ESOP pool was informally managed with no vesting schedules; board had no independent director, raising concerns during Series A due diligence.',
+    resolution: 'Formalised ESOP policy with standard 4-year vesting and 1-year cliff; onboarded one independent director; adopted board charter.',
+    impact: 'Cleared Series A legal due diligence cleanly; improved investor confidence and reduced closing timeline by 3 weeks.',
+    resolvedAt: '2024-12-01',
+  },
+];
 
 export const defaultConfig: AppStore = {
   firm: {
@@ -203,7 +243,7 @@ export const defaultConfig: AppStore = {
         { title: 'System For Fast Discharging Of Battery Cells', status: 'Filed', filingLocation: 'India', applicationDate: 'Nov 16, 2023', grantDate: '—' },
         { title: 'System And Process For Regeneration Of Battery Grade Graphite From Spent Lithium Ion Batteries', status: 'Filed', filingLocation: 'India', applicationDate: 'Oct 30, 2023', grantDate: '—' },
       ],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: lohomTeam,
     },
 
@@ -287,7 +327,7 @@ export const defaultConfig: AppStore = {
         { title: 'Electric Thruster for Satellite Propulsion', status: 'Filed', filingLocation: 'India', applicationDate: '2019', grantDate: '—' },
         { title: 'Green Propulsion System (Hydrazine Alternative)', status: 'Filed', filingLocation: 'India', applicationDate: '2022', grantDate: '—' },
       ],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: bellatrixTeam,
     },
 
@@ -362,7 +402,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 6.90, investment: '—', shares: '2,320' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: showroomTeam,
     },
 
@@ -441,7 +481,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 9.93, investment: '₹5.5 Cr', shares: '226,000' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: indigridTeam,
     },
 
@@ -512,7 +552,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 9.49, investment: '—', shares: '123,000' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: brandworksTeam,
     },
 
@@ -597,7 +637,7 @@ export const defaultConfig: AppStore = {
       patents: [
         { title: 'Sub-resolution Measurement Of Fuel In Fuel Tank', status: 'Published', filingLocation: 'India', applicationDate: 'Mar 19, 2021', grantDate: '—' },
       ],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: intanglesTeam,
     },
 
@@ -674,7 +714,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 7.55, investment: '—', shares: '15,600' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: kaptureTeam,
     },
 
@@ -756,7 +796,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 0.82, investment: '—', shares: '7,970' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: auricTeam,
     },
 
@@ -828,7 +868,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 1.50, investment: '—', shares: '12,700' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: [],
     },
 
@@ -902,7 +942,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 12.61, investment: '—', shares: '18,800' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: ananantTeam,
     },
 
@@ -977,7 +1017,7 @@ export const defaultConfig: AppStore = {
         { investor: 'ESOP Pool', category: 'ESOP', holdingPct: 11.39, investment: '—', shares: '2,150' },
       ],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: vitrayaTeam,
     },
 
@@ -1039,7 +1079,7 @@ export const defaultConfig: AppStore = {
       ],
       capTable: [],
       patents: [],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: parkMateTeam,
     },
 
@@ -1108,7 +1148,7 @@ export const defaultConfig: AppStore = {
       patents: [
         { title: 'GST-based Dynamic Credit Scoring Model for SMEs', status: 'Filed', filingLocation: 'India', applicationDate: '2021', grantDate: '—' },
       ],
-      companyGaps: [],
+      companyGaps: SEED_GAPS,
       teamMembers: [],
     },
   ],
