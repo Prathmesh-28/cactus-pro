@@ -24,6 +24,7 @@ import AvatarChip from '../../components/ui/AvatarChip';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportCompanyPDF, exportCompanyExcel } from '../../lib/export';
 import RoundModeler from './RoundModeler';
+import SectorMetricsPanel from './SectorMetricsPanel';
 
 interface Props {
   company: PortfolioCompany | null;
@@ -461,6 +462,14 @@ export default function CompanyDrawer({ company, onClose }: Props) {
           </div>
         </Section>
       )}
+
+      {/* ── Sector Metrics Framework — contextual KPI reference ── */}
+      {(() => {
+        const sector = store.sectors.find(s => s.id === company.sectorId);
+        return sector ? (
+          <SectorMetricsPanel sectorId={company.sectorId} sectorName={sector.name} />
+        ) : null;
+      })()}
 
       {company.boardMemberIds.length > 0 && (
         <Section title="Cactus Board Members" icon={Users}>
