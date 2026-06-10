@@ -294,6 +294,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Debounce timer for backend saves
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Grace period: skip polling merges for 3s after any user write so the
+  // debounced KV write (400ms) has time to complete before the poll overwrites.
+  const lastUserWriteRef = useRef<number>(0);
 
   // ── Hydrate from PostgreSQL on mount (team-namespaced) ──────────────────────
   useEffect(() => {
@@ -380,6 +383,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (v && typeof v === 'object') merged = { ...merged, ...(v as Partial<AppStore>) };
         }
         if (Object.keys(merged).length > 0) {
+          // Skip merge if user wrote data within the last 3s — prevents the poll
+          // from clobbering a change that hasn't reached KV yet.
+          if (Date.now() - lastUserWriteRef.current < 3000) return;
           setStoreRaw(prev => {
             let next = { ...prev, ...merged } as AppStore;
             // Backfill companyGaps if KV data predates the field
@@ -412,6 +418,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const next = typeof updater === 'function' ? updater(prev) : updater;
       // Instant local cache
       localStorage.setItem(LS_KEY, JSON.stringify(next));
+      // Mark write time so polling skips the merge for the next 3s
+      lastUserWriteRef.current = Date.now();
       // Debounced backend save — split by namespace, write each separately
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => {
@@ -426,12 +434,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // ── One-time sector migration via setStore → persists to KV ──────────────────
+  // ── One-time sector migration v5 — fixes double-mapping corruption ───────────
+  // v4 only remapped non-canonical IDs. v5 additionally corrects companies that
+  // got the wrong canonical ID (e.g. Technology→Consumer) from the pre-idempotency
+  // bug by using defaultConfig sector assignments as ground truth.
   useEffect(() => {
-    const MIGRATION_KEY = 'cactus_sectors_v4';
-    if (!localStorage.getItem(MIGRATION_KEY)) {
-      localStorage.setItem(MIGRATION_KEY, '1');
-      setStore(normaliseSectors);
+    const V5_KEY = 'cactus_sectors_v5';
+    if (!localStorage.getItem(V5_KEY)) {
+      localStorage.setItem(V5_KEY, '1');
+      const defaultSectorMap = new Map(defaultConfig.companies.map(c => [c.id, c.sectorId]));
+      setStore(s => ({
+        ...s,
+        sectors: _CANONICAL_SECTORS,
+        companies: s.companies?.map(c => ({
+          ...c,
+          sectorId: defaultSectorMap.get(c.id)
+            ?? (_VALID_IDS.has(c.sectorId) ? c.sectorId : (_SECTOR_REMAP[c.sectorId] ?? 's1')),
+        })),
+        deals: s.deals?.map(d => ({
+          ...d,
+          sectorId: _VALID_IDS.has(d.sectorId) ? d.sectorId : (_SECTOR_REMAP[d.sectorId] ?? 's2'),
+        })),
+      }));
     }
   }, [setStore]);
 
