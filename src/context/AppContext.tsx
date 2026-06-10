@@ -272,6 +272,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           };
         }
 
+        // Backfill companyGaps for companies loaded from KV that predate this field
+        if (mergedStore.companies?.some(c => !c.companyGaps)) {
+          const defaultGapsMap = new Map(defaultConfig.companies.map(c => [c.id, c.companyGaps ?? []]));
+          mergedStore = {
+            ...mergedStore,
+            companies: mergedStore.companies.map(c => ({
+              ...c,
+              companyGaps: c.companyGaps ?? defaultGapsMap.get(c.id) ?? [],
+            })),
+          };
+        }
+
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
 
