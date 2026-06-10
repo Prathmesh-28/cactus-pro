@@ -95,6 +95,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     init();
   }, []);
 
+  // Proactive token refresh — schedule a refresh ~60s before the access token expires
+  useEffect(() => {
+    let timerId: ReturnType<typeof setTimeout>;
+
+    const scheduleRefresh = () => {
+      const token = getAccessToken();
+      if (!token) return;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expiresAt: number = payload.exp * 1000;
+        const delay = expiresAt - Date.now() - 60_000;
+        if (delay <= 0) {
+          // Already expired or about to — refresh immediately
+          refresh().then((ok) => {
+            if (!ok) logout();
+            else scheduleRefresh();
+          });
+          return;
+        }
+        timerId = setTimeout(async () => {
+          const ok = await refresh();
+          if (!ok) {
+            logout();
+          } else {
+            scheduleRefresh(); // chain next refresh for the new token
+          }
+        }, delay);
+      } catch {
+        // Malformed token — let the server reject it naturally
+      }
+    };
+
+    if (user) scheduleRefresh();
+    return () => clearTimeout(timerId);
+  }, [user]); // re-schedule whenever user changes (login/logout)
+
   // Interceptor: add auth header to all API calls
   // Components use getAccessToken() to build headers themselves.
 

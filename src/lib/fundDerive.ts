@@ -30,7 +30,14 @@ export function deriveFund(
   fund?: string,
   today: Date = new Date(),
 ): DerivedFund {
-  const rows = fund ? investments.filter((i) => i.fund === fund) : investments;
+  const filtered = fund ? investments.filter((i) => i.fund === fund) : investments;
+
+  // Deduplicate by id — keep only the last-seen entry for each deal so that
+  // deals which have transitioned through multiple statuses (active → secondary →
+  // exited) are counted exactly once at their current/latest status.
+  const seen = new Map<string, FundInvestment>();
+  for (const r of filtered) seen.set(r.id, r);
+  const rows = Array.from(seen.values());
 
   let paidIn = 0;
   let distributions = 0;

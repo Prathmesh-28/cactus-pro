@@ -320,7 +320,7 @@ export default function PortfolioPage() {
             <div>
               <h2 className="font-heading font-bold text-gray-900 text-base leading-tight">Portfolio Companies</h2>
               <p className="text-xs text-gray-400">
-                {filteredCompanies.length} of {companies.length} companies · Double-click row for full profile
+                {filteredCompanies.length} of {companies.length} companies · Click a row to open the full profile
               </p>
             </div>
           </div>

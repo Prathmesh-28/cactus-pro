@@ -84,13 +84,17 @@ function fmtCr(val: number | null): string {
 
 // ─── Green gradient card ──────────────────────────────────────────────────────
 
-function GreenCard({ label, value, onEdit, compact = false }:
-  { label: string; value: string; onEdit?: () => void; compact?: boolean }) {
+function GreenCard({ label, value, onEdit, compact = false, skeleton = false }:
+  { label: string; value: string; onEdit?: () => void; compact?: boolean; skeleton?: boolean }) {
   return (
     <div className="relative group rounded-lg text-white p-5 shadow-md flex-1"
       style={{ background: 'linear-gradient(135deg,#1E293B,#2D4A6B)', minWidth: compact ? 110 : 160 }}>
       <div className="text-[11px] uppercase tracking-widest text-white/70 font-semibold">{label}</div>
-      <div className={`mt-2 font-serif font-bold leading-none tabular-nums ${compact ? 'text-lg' : 'text-2xl md:text-[26px]'}`}>{value}</div>
+      <div className={`mt-2 font-serif font-bold leading-none tabular-nums ${compact ? 'text-lg' : 'text-2xl md:text-[26px]'}`}>
+        {skeleton
+          ? <span className="inline-block w-16 h-4 bg-white/20 rounded animate-pulse" />
+          : value}
+      </div>
       {onEdit && (
         <button onClick={onEdit} className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-60 transition">
           <Pencil className="w-3 h-3 text-white" />
@@ -149,7 +153,7 @@ function Op({ children, compact = false }: { children: string; compact?: boolean
 // ─── FundOverview main ────────────────────────────────────────────────────────
 
 export default function FundOverview() {
-  const { store } = useApp();
+  const { store, loading } = useApp();
   const [metrics, setMetrics] = useKvState<MetricValues>('fin_metrics', DEFAULT_METRICS);
   const [cash,    setCash]    = useKvState<CashValues>('fin_cash', DEFAULT_CASH);
   const [expAgg] = useKvState<{ fundLife: number; sixMonths: number } | null>('fin_expenses_agg', null);
@@ -158,12 +162,18 @@ export default function FundOverview() {
   const setMetric = (k: MetricKey, v: number | null) => setMetrics({ ...metrics, [k]: v });
   const setCashVal = (k: CashKey, v: number | null) => setCash({ ...cash, [k]: v });
 
-  // Derived investible values — expenses come from ExpensesSection via KV
-  const sixMonthsExp = expAgg?.sixMonths ?? 1200000;
-  const fundLifeExp  = expAgg?.fundLife  ?? 8500000;
+  // True when KV data hasn't landed yet — show skeletons instead of hardcoded fallbacks
+  const isLoading = loading || !store.companies || !store.portfolioSnapshot;
 
-  const currentInvestible = (cash.called_capital ?? 0) + (cash.bank_balance ?? 0) - sixMonthsExp;
-  const fundLevelInvestible = (cash.called_capital ?? 0) + (cash.bank_balance ?? 0) + (cash.uncalled_capital ?? 0) - fundLifeExp;
+  // Derived investible values — expenses come from ExpensesSection via KV
+  // Only use expAgg values once KV has loaded; show skeleton before then
+  const sixMonthsExp = expAgg?.sixMonths ?? (isLoading ? null : 1200000);
+  const fundLifeExp  = expAgg?.fundLife  ?? (isLoading ? null : 8500000);
+
+  const currentInvestible = sixMonthsExp === null ? null
+    : (cash.called_capital ?? 0) + (cash.bank_balance ?? 0) - sixMonthsExp;
+  const fundLevelInvestible = fundLifeExp === null ? null
+    : (cash.called_capital ?? 0) + (cash.bank_balance ?? 0) + (cash.uncalled_capital ?? 0) - fundLifeExp;
 
   const cashMetrics: Array<{ key: CashKey; label: string }> = [
     { key: 'called_capital',   label: 'Called Capital' },
@@ -218,9 +228,13 @@ export default function FundOverview() {
                 onChange={v => setCashVal(key, v)} />
             ))}
             <Op>−</Op>
-            <GreenCard label="Expenses (Next 6 Months)" value={fmtCr(sixMonthsExp)} />
+            <GreenCard label="Expenses (Next 6 Months)"
+              value={fmtCr(sixMonthsExp)}
+              skeleton={sixMonthsExp === null} />
             <Op>=</Op>
-            <GreenCard label="Current Investible Funds" value={fmtCr(currentInvestible)} />
+            <GreenCard label="Current Investible Funds"
+              value={fmtCr(currentInvestible)}
+              skeleton={currentInvestible === null} />
           </div>
 
           {/* Row 2: Fund-life investible */}
@@ -230,9 +244,15 @@ export default function FundOverview() {
                 onChange={v => setCashVal(key, v)} compact />
             ))}
             <Op compact>−</Op>
-            <GreenCard label="Expenses (Fund Life)" value={fmtCr(fundLifeExp)} compact />
+            <GreenCard label="Expenses (Fund Life)"
+              value={fmtCr(fundLifeExp)}
+              skeleton={fundLifeExp === null}
+              compact />
             <Op compact>=</Op>
-            <GreenCard label="Investible at Fund Level" value={fmtCr(fundLevelInvestible)} compact />
+            <GreenCard label="Investible at Fund Level"
+              value={fmtCr(fundLevelInvestible)}
+              skeleton={fundLevelInvestible === null}
+              compact />
           </div>
         </section>
 
@@ -250,7 +270,17 @@ export default function FundOverview() {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: '#F8FAFC' }}>
-                  {store.lps.map(lp => (
+                  {isLoading
+                    ? Array.from({ length: 3 }).map((_, i) => (
+                        <tr key={i}>
+                          {Array.from({ length: 5 }).map((__, j) => (
+                            <td key={j} className="px-5 py-3">
+                              <span className="inline-block w-24 h-4 bg-gray-200 rounded animate-pulse" />
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    : (store.lps ?? []).map(lp => (
                     <tr key={lp.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="px-5 py-3 font-medium text-gray-800">{lp.name}</td>
                       <td className="px-5 py-3 text-gray-600">{lp.commitment}</td>
@@ -281,7 +311,17 @@ export default function FundOverview() {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: '#F8FAFC' }}>
-                  {store.companies.filter(c => c.status !== 'Exited').map(c => (
+                  {isLoading
+                    ? Array.from({ length: 5 }).map((_, i) => (
+                        <tr key={i}>
+                          {Array.from({ length: 8 }).map((__, j) => (
+                            <td key={j} className="px-4 py-3">
+                              <span className="inline-block w-20 h-4 bg-gray-200 rounded animate-pulse" />
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    : (store.companies ?? []).filter(c => c.status !== 'Exited').map(c => (
                     <tr key={c.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="px-4 py-3 font-semibold text-gray-800">{c.name}</td>
                       <td className="px-4 py-3">
