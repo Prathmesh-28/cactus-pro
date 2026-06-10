@@ -104,7 +104,7 @@ export default function Header() {
       {/* ── Main header ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50" style={{ backgroundColor: '#1C4B42', borderBottom: '3px solid #86CA0F' }}>
         <div className="max-w-screen-2xl mx-auto px-5 sm:px-8">
-          <div className="flex items-center h-16 gap-6">
+          <div className="flex items-center h-16 gap-3">
 
             {/* Logo + wordmark */}
             <Link to="/" className="flex items-center flex-shrink-0 group">
