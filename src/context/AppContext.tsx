@@ -278,7 +278,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Debounce timer for backend saves
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const sectorsMigrated = useRef(false);
 
   // ── Hydrate from PostgreSQL on mount (team-namespaced) ──────────────────────
   useEffect(() => {
@@ -324,17 +323,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        // Always enforce 3-sector scheme — overwrites any stale KV data
+        // Enforce 3-sector scheme — only write back to KV if something actually changed
+        const beforeNorm = mergedStore;
         mergedStore = normaliseSectors(mergedStore);
+        const needsSectorWrite = JSON.stringify(beforeNorm.sectors) !== JSON.stringify(mergedStore.sectors)
+          || JSON.stringify(beforeNorm.companies?.map(c => c.sectorId)) !== JSON.stringify(mergedStore.companies?.map(c => c.sectorId));
 
         setStoreRaw(mergedStore);
         localStorage.setItem(LS_KEY, JSON.stringify(mergedStore));
 
-        // Write normalised data back to KV
-        const buckets = splitStoreByNamespace(mergedStore);
-        kvSet('app', KV_KEY, buckets['app']).catch(() => {});
-        if (needsGapsBackfill) {
-          // gaps are in the app bucket, already written above
+        // Write back to KV only when something was actually migrated
+        if (needsGapsBackfill || needsSectorWrite) {
+          const buckets = splitStoreByNamespace(mergedStore);
+          kvSet('app', KV_KEY, buckets['app']).catch(() => {});
         }
 
         // Push finance data keys into localStorage for finance tab hooks
@@ -408,14 +409,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
-
-  // ── One-time sector normalisation — writes through to KV via setStore ────────
-  useEffect(() => {
-    if (!sectorsMigrated.current) {
-      sectorsMigrated.current = true;
-      setStore(normaliseSectors);
-    }
-  }, []); // eslint-disable-line
 
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
