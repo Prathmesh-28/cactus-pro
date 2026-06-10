@@ -97,12 +97,28 @@ const _CANONICAL_SECTORS = [
   { id: 's2', name: 'Technology',             color: '#2563EB', iconName: 'brain'    },
   { id: 's3', name: 'Consumer',               color: '#DB2777', iconName: 'sparkles' },
 ];
+// Name-based fallback: handles generated IDs from manually-created sectors
+const _NAME_TO_SECTOR: Record<string, string> = {
+  'advanced manufacturing':'s1','advance manufacturing':'s1',
+  'aerospace & defence':'s1','energy & sustainability':'s1','manufacturing & electronics':'s1',
+  'technology':'s2','mobility & smart city':'s2','saas & ai':'s2',
+  'semiconductors':'s2','health & insurtech':'s2','fintech':'s2',
+  'consumer':'s3','consumer (apparel)':'s3','consumer (ayurveda)':'s3','consumer (fashion)':'s3',
+};
 function normaliseSectors(s: AppStore): AppStore {
+  // Build id→newId map including generated IDs (resolved via old sector name)
+  const idMap: Record<string, string> = { ..._SECTOR_REMAP };
+  for (const sec of (s.sectors ?? [])) {
+    if (!idMap[sec.id]) {
+      const mapped = _NAME_TO_SECTOR[sec.name.toLowerCase().trim()];
+      if (mapped) idMap[sec.id] = mapped;
+    }
+  }
   return {
     ...s,
     sectors: _CANONICAL_SECTORS,
-    companies: s.companies?.map(c => ({ ...c, sectorId: _SECTOR_REMAP[c.sectorId] ?? c.sectorId })),
-    deals:     s.deals?.map(d => ({ ...d, sectorId: _SECTOR_REMAP[d.sectorId] ?? d.sectorId })),
+    companies: s.companies?.map(c => ({ ...c, sectorId: idMap[c.sectorId] ?? 's1' })),
+    deals:     s.deals?.map(d => ({ ...d, sectorId: idMap[d.sectorId] ?? 's2' })),
   };
 }
 
