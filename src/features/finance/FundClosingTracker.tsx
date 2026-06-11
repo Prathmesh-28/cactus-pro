@@ -222,8 +222,8 @@ function AddLpModal({ fundName, onSave, onClose }: AddLpModalProps) {
 
 interface CommitmentRowProps {
   commitment: LpCommitment;
-  onUpdate: (c: LpCommitment) => void;
-  onDelete: (id: string) => void;
+  onUpdate?: (c: LpCommitment) => void;
+  onDelete?: (id: string) => void;
 }
 
 function CommitmentRow({ commitment, onUpdate, onDelete }: CommitmentRowProps) {
@@ -237,7 +237,7 @@ function CommitmentRow({ commitment, onUpdate, onDelete }: CommitmentRowProps) {
   };
 
   const saveEdit = (field: keyof LpCommitment) => {
-    onUpdate({ ...commitment, [field]: amountDraft });
+    onUpdate?.({ ...commitment, [field]: amountDraft });
     setEditingAmount(null);
   };
 
@@ -298,7 +298,7 @@ function CommitmentRow({ commitment, onUpdate, onDelete }: CommitmentRowProps) {
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             <button
-              onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (window.confirm('Remove this LP?')) onDelete(commitment.id); }}
+              onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (onDelete && window.confirm('Remove this LP?')) onDelete(commitment.id); }}
               className="text-gray-300 hover:text-red-400 transition-colors"
             >
               <X className="w-4 h-4" />
@@ -379,7 +379,8 @@ function StatsCards({ commitments, target }: StatsCardsProps) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function FundClosingTracker() {
-  const { store, addLpCommitment, updateLpCommitment, deleteLpCommitment } = useApp();
+  const { store, addLpCommitment, updateLpCommitment, deleteLpCommitment, canEditFinance } = useApp();
+  const canEdit = canEditFinance();
 
   const commitments: LpCommitment[] = store.lpCommitments ?? [];
 
@@ -410,13 +411,13 @@ export default function FundClosingTracker() {
           <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide" style={{ color: '#1E293B' }}>
             Fund Closing Tracker
           </h1>
-          <button
+          {canEdit && <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm"
             style={{ backgroundColor: '#1E293B' }}
           >
             <Plus className="w-4 h-4" /> Add LP
-          </button>
+          </button>}
         </div>
 
         {/* Fund config row */}
@@ -505,8 +506,8 @@ export default function FundClosingTracker() {
                     <CommitmentRow
                       key={c.id}
                       commitment={c}
-                      onUpdate={updateLpCommitment}
-                      onDelete={deleteLpCommitment}
+                      onUpdate={canEdit ? updateLpCommitment : undefined}
+                      onDelete={canEdit ? deleteLpCommitment : undefined}
                     />
                   ))}
                 </tbody>
@@ -516,7 +517,7 @@ export default function FundClosingTracker() {
         </div>
       </div>
 
-      {showAddModal && (
+      {canEdit && showAddModal && (
         <AddLpModal
           fundName={fundName}
           onSave={addLpCommitment}

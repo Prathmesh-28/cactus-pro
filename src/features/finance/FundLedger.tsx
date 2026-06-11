@@ -709,7 +709,9 @@ export default function FundLedger() {
     addFundInvestment,
     updateFundInvestment,
     deleteFundInvestment,
+    canEditFinance,
   } = useApp();
+  const canEdit = canEditFinance();
 
   const investments: FundInvestment[] = store.fundInvestments ?? [];
   const companies = store.companies ?? [];
@@ -789,13 +791,13 @@ export default function FundLedger() {
             <h1 className="text-2xl font-bold" style={{ color: PRIMARY }}>Fund Investment Ledger</h1>
             <p className="text-sm text-gray-500 mt-0.5">Complete record of all Cactus fund investments, follow-ons, and performance</p>
           </div>
-          <button
+          {canEdit && <button
             onClick={() => setModalData(blankInvestment())}
             className="flex items-center gap-2 px-4 py-2 text-sm text-white rounded-lg shadow"
             style={{ background: PRIMARY }}
           >
             <Plus size={16} /> Add Investment
-          </button>
+          </button>}
         </div>
 
         {/* Top Stats Bar */}
@@ -1028,20 +1030,20 @@ export default function FundLedger() {
                             >
                               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                             </button>
-                            <button
+                            {canEdit && <button
                               onClick={() => setModalData(inv)}
                               className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-600"
                               title="Edit"
                             >
                               <Edit2 size={14} />
-                            </button>
-                            <button
+                            </button>}
+                            {canEdit && <button
                               onClick={() => setDeleteConfirm(inv.id)}
                               className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600"
                               title="Delete"
                             >
                               <Trash2 size={14} />
-                            </button>
+                            </button>}
                           </div>
                         </td>
                       </tr>
@@ -1132,7 +1134,7 @@ export default function FundLedger() {
       </div>
 
       {/* Delete Confirm */}
-      {deleteConfirm && (
+      {canEdit && deleteConfirm && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
             <div className="flex items-center gap-3 mb-3">
@@ -1182,7 +1184,7 @@ export default function FundLedger() {
       })()}
 
       {/* Add/Edit Modal */}
-      {modalData && (
+      {canEdit && modalData && (
         <InvestmentModal
           initial={modalData}
           companies={companies.map(c => ({ id: c.id, name: c.name, logoUrl: c.logoUrl }))}

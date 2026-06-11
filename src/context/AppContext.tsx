@@ -61,6 +61,8 @@ function fieldNamespace(field: string): string {
 function accessibleNamespaces(role: string): string[] {
   if (role === 'super_admin') return ['app','finance','portfolio','investment','operations','compliance'];
   if (role === 'finance_team')    return ['app','finance'];
+  if (role === 'finance_admin')   return ['app','finance'];
+  if (role === 'finance_viewer')  return ['app','finance'];
   if (role === 'portfolio_team')  return ['app','portfolio','operations','compliance'];
   if (role === 'investment_team') return ['app','investment','operations'];
   return ['app','operations','compliance'];
@@ -150,6 +152,7 @@ interface AppContextValue {
   canExport: () => boolean;
   canAddNotes: () => boolean;
   canEditPortfolio: () => boolean;  // portfolio team admin — edit company data, financial periods, fund view
+  canEditFinance: () => boolean;    // finance admin — edit all finance tab data
   visiblePortfolioTabs: () => string[];  // which portfolio sub-tabs the current role can see
   updateFirm: (f: FirmConfig) => void;
   addSector: (s: Sector) => void;
@@ -302,7 +305,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Super admin: default to super_admin on fresh load or if stuck in a non-super-admin role
       // (allows them to switch for testing, but resets on every login)
       const stored = localStorage.getItem(ROLE_KEY) as RoleName | null;
-      const validPreviewRoles: RoleName[] = ['super_admin','portfolio_team','finance_team','investment_team','portfolio_viewer'];
+      const validPreviewRoles: RoleName[] = ['super_admin','portfolio_team','finance_team','finance_admin','finance_viewer','investment_team','portfolio_viewer'];
       if (!stored || !validPreviewRoles.includes(stored)) {
         setCurrentRoleState('super_admin');
         localStorage.setItem(ROLE_KEY, 'super_admin');
@@ -538,6 +541,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const canExport  = () => isSuperAdmin || getRoleConfig().canExport;
   const canAddNotes = () => isSuperAdmin || getRoleConfig().canAddNotes;
   const canEditPortfolio = () => isSuperAdmin || !!(getRoleConfig().canEditPortfolio);
+  const canEditFinance   = () => isSuperAdmin || !!(getRoleConfig().canEditFinance);
   const visiblePortfolioTabs = (): string[] => {
     if (isSuperAdmin || currentRole === 'super_admin' || currentRole === 'portfolio_team') return []; // all visible
     return getRoleConfig().visiblePortfolioTabs ?? [];
@@ -872,7 +876,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value: AppContextValue = {
     store, loading, currentRole, setCurrentRole,
-    canAccess, canExport, canAddNotes, canEditPortfolio, visiblePortfolioTabs,
+    canAccess, canExport, canAddNotes, canEditPortfolio, canEditFinance, visiblePortfolioTabs,
     updateFirm,
     addSector, updateSector, deleteSector,
     addPerson, updatePerson, deletePerson,

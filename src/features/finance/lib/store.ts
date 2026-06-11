@@ -8,6 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { kvGet, kvSet, kvGetAll } from '../../../lib/api';
 import { getActiveFund } from './fund-context';
+import { useApp } from '../../../context/AppContext';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -89,12 +90,14 @@ export function genId(): string {
     : `id_${Math.random().toString(36).slice(2)}_${Date.now()}`;
 }
 
-// ─── Auth stub ────────────────────────────────────────────────────────────────
+// ─── Auth — wired to AppContext roles ─────────────────────────────────────────
 
 export function useAuth() {
+  const { canEditFinance } = useApp();
+  const canEdit = canEditFinance();
   return {
-    canEdit: true,
-    isAdmin: true,
+    canEdit,
+    isAdmin: canEdit,
     session: { user: { id: 'local' } },
     loading: false,
     rolesLoading: false,

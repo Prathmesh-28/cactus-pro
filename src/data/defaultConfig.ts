@@ -1287,6 +1287,28 @@ export const defaultConfig: AppStore = {
       accessibleTabs: ['finance', 'operations', 'toolkit', 'workspace'],
       canExport: true,
       canAddNotes: false,
+      canEditFinance: true,
+    },
+    {
+      // Finance admin — full edit control over all finance tab data + Finance Admin panel
+      role: 'finance_admin',
+      displayName: 'Finance Admin',
+      visibleTabs: ['portfolio', 'finance', 'investment', 'operations', 'toolkit', 'workspace'],
+      accessibleTabs: ['finance', 'operations', 'toolkit', 'workspace'],
+      canExport: true,
+      canAddNotes: true,
+      canEditFinance: true,
+    },
+    {
+      // Finance viewer — read-only access to finance tab; Finance Admin controls what they see
+      role: 'finance_viewer',
+      displayName: 'Finance Viewer',
+      visibleTabs: ['finance'],
+      accessibleTabs: ['finance'],
+      canExport: false,
+      canAddNotes: false,
+      canEditFinance: false,
+      visibleFinanceTabs: ['overview', 'expenses', 'compliances', 'capital_calls', 'valuations', 'lp_comms'],
     },
     {
       role: 'investment_team',

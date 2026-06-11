@@ -652,7 +652,8 @@ function CommRow({ comm, lpNames: _lpNames, onClick }: CommRowProps) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function LpCommHub() {
-  const { store, addLpCommunication, updateLpCommunication, deleteLpCommunication } = useApp();
+  const { store, addLpCommunication, updateLpCommunication, deleteLpCommunication, canEditFinance } = useApp();
+  const canEdit = canEditFinance();
 
   const comms: LpCommunication[] = store.lpCommunications ?? [];
   const lps = store.lps ?? [];
@@ -743,13 +744,13 @@ export default function LpCommHub() {
               Compose, manage and track all LP communications
             </p>
           </div>
-          <button
+          {canEdit && <button
             onClick={() => setShowCompose(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm"
             style={{ backgroundColor: '#1E293B' }}
           >
             <Plus className="w-4 h-4" /> New Communication
-          </button>
+          </button>}
         </div>
 
         {/* Stats bar */}
@@ -810,7 +811,7 @@ export default function LpCommHub() {
       {showCompose && (
         <ComposeModal
           lps={lps}
-          onSave={addLpCommunication}
+          onSave={canEdit ? addLpCommunication : () => {}}
           onClose={() => setShowCompose(false)}
         />
       )}
@@ -822,8 +823,8 @@ export default function LpCommHub() {
           lpNames={lpNames}
           firmName={store.firm?.name ?? 'Cactus Partners'}
           onClose={() => setSelectedId(null)}
-          onSend={handleSend}
-          onDelete={handleDelete}
+          onSend={canEdit ? handleSend : () => {}}
+          onDelete={canEdit ? handleDelete : () => {}}
         />
       )}
     </div>

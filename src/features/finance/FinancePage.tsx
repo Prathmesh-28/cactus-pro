@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { useApp } from '../../context/AppContext';
 import AccessRestricted from '../../components/layout/AccessRestricted';
-import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Scale, Target, BookOpen, Coins, RefreshCw as SyncIcon } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, Scale, Target, BookOpen, Coins, RefreshCw as SyncIcon, Settings2 } from 'lucide-react';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
@@ -17,22 +17,24 @@ import LpReconciliation from './LpReconciliation';
 import FundClosingTracker from './FundClosingTracker';
 import FundLedger from './FundLedger';
 import FundEconomics from './FundEconomics';
+import FinanceAdmin from './FinanceAdmin';
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 
-type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'lp_reconciliation' | 'fund_closing' | 'fund_ledger' | 'economics' | 'team_sync';
+type FinanceTab = 'overview' | 'expenses' | 'compliances' | 'capital_calls' | 'valuations' | 'lp_comms' | 'lp_reconciliation' | 'fund_closing' | 'fund_ledger' | 'economics' | 'team_sync' | 'finance_admin';
 
-const NAV: { key: FinanceTab; label: string; Icon: React.ElementType }[] = [
-  { key: 'overview',      label: 'Fund Overview',   Icon: LayoutDashboard },
-  { key: 'expenses',      label: 'Expenses',         Icon: Receipt },
-  { key: 'compliances',   label: 'Compliances',      Icon: CalendarCheck },
-  { key: 'capital_calls', label: 'Capital Calls',    Icon: PhoneCall },
-  { key: 'valuations',    label: 'Valuation Log',    Icon: TrendingUp },
-  { key: 'lp_comms',      label: 'LP Comms',         Icon: Mail },
+const ALL_NAV: { key: FinanceTab; label: string; Icon: React.ElementType; adminOnly?: boolean }[] = [
+  { key: 'overview',      label: 'Fund Overview',        Icon: LayoutDashboard },
+  { key: 'expenses',      label: 'Expenses',              Icon: Receipt },
+  { key: 'compliances',   label: 'Compliances',           Icon: CalendarCheck },
+  { key: 'capital_calls', label: 'Capital Calls',         Icon: PhoneCall },
+  { key: 'valuations',    label: 'Valuation Log',         Icon: TrendingUp },
+  { key: 'lp_comms',      label: 'LP Comms',              Icon: Mail },
   { key: 'lp_reconciliation', label: 'LP Reconciliation', Icon: Scale },
-  { key: 'fund_closing',  label: 'Fund Closing',     Icon: Target },
-  { key: 'fund_ledger',  label: 'Fund Ledger',      Icon: BookOpen },
-  { key: 'economics',    label: 'Fund Economics',   Icon: Coins },
-  { key: 'team_sync',   label: 'My Data Sync',     Icon: SyncIcon },
+  { key: 'fund_closing',  label: 'Fund Closing',          Icon: Target },
+  { key: 'fund_ledger',   label: 'Fund Ledger',           Icon: BookOpen },
+  { key: 'economics',     label: 'Fund Economics',        Icon: Coins },
+  { key: 'team_sync',     label: 'My Data Sync',          Icon: SyncIcon },
+  { key: 'finance_admin', label: 'Finance Admin',         Icon: Settings2, adminOnly: true },
 ];
 
 function FinanceExportMenu() {
@@ -51,10 +53,22 @@ function FinanceExportMenu() {
 }
 
 export default function FinancePage() {
-  const { canAccess } = useApp();
+  const { canAccess, canEditFinance, currentRole, store } = useApp();
   const [activeTab, setActiveTab] = useState<FinanceTab>('overview');
 
   if (!canAccess('finance')) return <AccessRestricted tab="finance" />;
+
+  const isFinanceViewer = currentRole === 'finance_viewer';
+  const canAdmin = canEditFinance() || currentRole === 'super_admin';
+
+  // For finance_viewer: only show tabs listed in their visibleFinanceTabs
+  const viewerVisible = store.roles.find(r => r.role === 'finance_viewer')?.visibleFinanceTabs ?? ['overview'];
+
+  const NAV = ALL_NAV.filter(({ key, adminOnly }) => {
+    if (adminOnly) return canAdmin;
+    if (isFinanceViewer) return key === 'overview' || viewerVisible.includes(key as import('../../data/types').FinanceSubTab);
+    return true;
+  });
 
   return (
     <FundProvider>
@@ -126,7 +140,7 @@ export default function FinancePage() {
           <FinanceExportMenu />
         </div>
 
-        {/* Mobile bottom nav — scrollable so all 9 tabs fit */}
+        {/* Mobile bottom nav — scrollable so all tabs fit */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t overflow-x-auto"
           style={{ backgroundColor: 'var(--sidebar)', borderColor: 'var(--sidebar-border)' }}>
           <div className="flex min-w-max">
@@ -147,17 +161,18 @@ export default function FinancePage() {
 
         {/* Content */}
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pb-16 md:pb-0">
-          {activeTab === 'overview'      && <FundOverviewPage />}
-          {activeTab === 'expenses'      && <ExpensesPage />}
-          {activeTab === 'compliances'   && <CompliancesPage />}
-          {activeTab === 'capital_calls' && <div className="p-6"><CapitalCallTracker /></div>}
-          {activeTab === 'valuations'    && <div className="p-6"><ValuationLog /></div>}
-          {activeTab === 'lp_comms'      && <div className="p-6"><LpCommHub /></div>}
+          {activeTab === 'overview'          && <FundOverviewPage />}
+          {activeTab === 'expenses'          && <ExpensesPage />}
+          {activeTab === 'compliances'       && <CompliancesPage />}
+          {activeTab === 'capital_calls'     && <div className="p-6"><CapitalCallTracker /></div>}
+          {activeTab === 'valuations'        && <div className="p-6"><ValuationLog /></div>}
+          {activeTab === 'lp_comms'          && <div className="p-6"><LpCommHub /></div>}
           {activeTab === 'lp_reconciliation' && <div className="p-6"><LpReconciliation /></div>}
-          {activeTab === 'fund_closing'  && <div className="p-6"><FundClosingTracker /></div>}
-          {activeTab === 'fund_ledger'   && <div className="p-6"><FundLedger /></div>}
-          {activeTab === 'economics'     && <div className="p-6"><FundEconomics /></div>}
-          {activeTab === 'team_sync'     && <div className="p-6"><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="finance" /></Suspense></div>}
+          {activeTab === 'fund_closing'      && <div className="p-6"><FundClosingTracker /></div>}
+          {activeTab === 'fund_ledger'       && <div className="p-6"><FundLedger /></div>}
+          {activeTab === 'economics'         && <div className="p-6"><FundEconomics /></div>}
+          {activeTab === 'team_sync'         && <div className="p-6"><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="finance" /></Suspense></div>}
+          {activeTab === 'finance_admin'     && <div className="p-0"><FinanceAdmin /></div>}
         </div>
       </div>
     </FundProvider>

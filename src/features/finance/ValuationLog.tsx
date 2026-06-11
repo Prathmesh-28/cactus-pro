@@ -413,7 +413,8 @@ function HistoryChart({ companyName, logoUrl, marks, onClose }: HistoryChartProp
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ValuationLog() {
-  const { store, addValuationMark, updateValuationMark } = useApp();
+  const { store, addValuationMark, updateValuationMark, canEditFinance } = useApp();
+  const canEdit = canEditFinance();
   const { companies, valuationMarks } = store;
 
   const activeCompanies = companies.filter(c => c.status !== 'Exited');
@@ -551,13 +552,13 @@ export default function ValuationLog() {
             </select>
           </div>
 
-          <button
+          {canEdit && <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
             <Plus size={15} />
             Add Mark
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -708,7 +709,7 @@ export default function ValuationLog() {
                             className={`py-3 px-3 text-center align-middle ${isCurrentQ ? 'bg-emerald-50' : ''}`}
                             onClick={e => {
                               e.stopPropagation();
-                              setEditingCell({ companyId: company.id, quarter: q });
+                              if (canEdit) setEditingCell({ companyId: company.id, quarter: q });
                             }}
                           >
                             {isEditing ? (
@@ -857,7 +858,7 @@ export default function ValuationLog() {
       </div>
 
       {/* Modals */}
-      {showAddForm && (
+      {canEdit && showAddForm && (
         <AddMarkForm
           companies={activeCompanies.map(c => ({ id: c.id, name: c.name }))}
           quarters={ALL_QUARTERS}

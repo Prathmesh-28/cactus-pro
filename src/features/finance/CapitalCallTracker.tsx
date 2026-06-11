@@ -161,8 +161,8 @@ function LpReceiptRow({ lpId, lpName, amount, receivedAt, onSave }: LpReceiptRow
 interface EventCardProps {
   event: CapitalEvent;
   lps: Array<{ id: string; name: string }>;
-  onUpdate: (e: CapitalEvent) => void;
-  onDelete: (id: string) => void;
+  onUpdate?: (e: CapitalEvent) => void;
+  onDelete?: (id: string) => void;
 }
 
 function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
@@ -182,7 +182,7 @@ function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
       ),
     };
     updated.status = deriveStatus(updated);
-    onUpdate(updated);
+    onUpdate?.(updated);
   };
 
   const totalAmount = parseCrore(event.amount);
@@ -234,12 +234,12 @@ function EventCard({ event, lps, onUpdate, onDelete }: EventCardProps) {
           </div>
         </div>
 
-        <button
+        {onDelete && <button
           onClick={e => { e.stopPropagation(); onDelete(event.id); }}
           className="ml-1 text-gray-300 hover:text-red-400 transition-colors"
         >
           <X className="w-4 h-4" />
-        </button>
+        </button>}
 
         {expanded
           ? <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" />
@@ -618,7 +618,8 @@ function SummaryCards({ events }: { events: CapitalEvent[] }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CapitalCallTracker() {
-  const { store, addCapitalEvent, updateCapitalEvent, deleteCapitalEvent } = useApp();
+  const { store, addCapitalEvent, updateCapitalEvent, deleteCapitalEvent, canEditFinance } = useApp();
+  const canEdit = canEditFinance();
 
   const events: CapitalEvent[] = store.capitalEvents ?? [];
   const lps = store.lps ?? [];
@@ -660,14 +661,14 @@ export default function CapitalCallTracker() {
               Track LP capital calls and fund distributions with receipt management
             </p>
           </div>
-          <button
+          {canEdit && <button
             onClick={() => setShowForm(v => !v)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm"
             style={{ backgroundColor: '#1E293B' }}
           >
             <Plus className="w-4 h-4" />
             {activeTab === 'capital_call' ? 'New Capital Call' : 'New Distribution'}
-          </button>
+          </button>}
         </div>
 
         {/* Tab switcher */}
@@ -702,7 +703,7 @@ export default function CapitalCallTracker() {
         <SummaryCards events={events} />
 
         {/* New event form */}
-        {showForm && (
+        {canEdit && showForm && (
           <NewEventForm
             type={activeTab}
             funds={fundsWithFallback}
@@ -744,8 +745,8 @@ export default function CapitalCallTracker() {
                   key={event.id}
                   event={event}
                   lps={lps}
-                  onUpdate={handleUpdate}
-                  onDelete={handleDelete}
+                  onUpdate={canEdit ? handleUpdate : undefined}
+                  onDelete={canEdit ? handleDelete : undefined}
                 />
               ))}
             </div>
