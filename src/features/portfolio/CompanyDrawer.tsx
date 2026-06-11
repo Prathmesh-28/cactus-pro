@@ -19,6 +19,7 @@ import { useApp } from '../../context/AppContext';
 import { parseCr } from '../../lib/money';
 import type { CompanyGap, CompanyGapType } from '../../data/types';
 import type { PortfolioCompany } from '../../data/types';
+import { defaultConfig } from '../../data/defaultConfig';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
 import AvatarChip from '../../components/ui/AvatarChip';
@@ -381,6 +382,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   // ── Tab: Overview ──────────────────────────────────────────────────────────
   const _overviewSector = store.sectors.find(s => s.id === company.sectorId);
   const _sectorName = _overviewSector?.name ?? 'Advanced Manufacturing';
+  const _sectorKpis = defaultConfig.companies.find(c => c.id === company.id)?.sectorKpis ?? [];
 
   function fmtKpi(val: number | null | undefined, unit: string): string {
     if (val === null || val === undefined) return '—';
@@ -465,7 +467,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       )}
 
       {/* ── Sector KPIs ── */}
-      {company.sectorKpis && company.sectorKpis.length > 0 && (
+      {_sectorKpis.length > 0 && (
         <Section title={`${_sectorName} KPIs`} icon={TrendingUp}>
           <div className="overflow-x-auto">
             <table className="w-full text-xs border-collapse">
@@ -480,7 +482,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {company.sectorKpis.map((kpi, i) => (
+                {_sectorKpis.map((kpi, i) => (
                   <tr key={i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
                     <td className="py-1.5 pr-3 text-gray-700 font-medium">{kpi.label}</td>
                     <td className="text-right py-1.5 px-2 text-gray-400">{fmtKpi(kpi.fy23, kpi.unit)}</td>
