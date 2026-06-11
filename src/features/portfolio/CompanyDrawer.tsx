@@ -458,7 +458,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       )}
 
       {/* ── Sector Metrics Framework — contextual KPI reference ── */}
-      <SectorMetricsPanel sectorId={_sectorId} sectorName={_sectorName} />
+      <SectorMetricsPanel sectorId={_sectorId} sectorName={_sectorName} kpis={company.sectorKpis} />
 
       {company.boardMemberIds.length > 0 && (
         <Section title="Cactus Board Members" icon={Users}>

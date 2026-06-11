@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
+import type { SectorKpiEntry } from '../../data/types';
 
 interface Metric {
   name: string;
@@ -402,9 +403,19 @@ type PanelTab = 'sector' | 'universal';
 interface Props {
   sectorId: string;
   sectorName: string;
+  kpis?: SectorKpiEntry[];
 }
 
-export default function SectorMetricsPanel({ sectorId, sectorName }: Props) {
+function fmt(val: number | null | undefined, unit: string): string {
+  if (val === null || val === undefined) return '—';
+  if (unit === '%') return `${val}%`;
+  if (unit === '₹Cr') return `₹${val}Cr`;
+  if (unit === '×') return `${val}×`;
+  if (unit === '₹') return `₹${val.toLocaleString('en-IN')}`;
+  return String(val);
+}
+
+export default function SectorMetricsPanel({ sectorId, sectorName, kpis }: Props) {
   const [activeTab, setActiveTab] = useState<PanelTab>('sector');
   const [open, setOpen] = useState(true);
 
@@ -444,6 +455,35 @@ export default function SectorMetricsPanel({ sectorId, sectorName }: Props) {
 
       {open && (
         <div className="p-4 space-y-4">
+          {/* ── KPI Data Table ── */}
+          {kpis && kpis.length > 0 && (
+            <div className="overflow-x-auto -mx-1">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-1.5 pr-3 text-gray-500 font-semibold w-36">Metric</th>
+                    <th className="text-right py-1.5 px-2 text-gray-400 font-semibold">FY23</th>
+                    <th className="text-right py-1.5 px-2 text-gray-400 font-semibold">FY24</th>
+                    <th className="text-right py-1.5 px-2 text-gray-700 font-semibold">FY25</th>
+                    <th className="text-right py-1.5 px-2 text-blue-500 font-semibold">FY26E</th>
+                    <th className="text-right py-1.5 pl-2 text-blue-500 font-semibold">FY27E</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {kpis.map((kpi, i) => (
+                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="py-1.5 pr-3 text-gray-700 font-medium">{kpi.label}</td>
+                      <td className="text-right py-1.5 px-2 text-gray-500">{fmt(kpi.fy23, kpi.unit)}</td>
+                      <td className="text-right py-1.5 px-2 text-gray-600">{fmt(kpi.fy24, kpi.unit)}</td>
+                      <td className="text-right py-1.5 px-2 text-gray-900 font-semibold">{fmt(kpi.fy25, kpi.unit)}</td>
+                      <td className="text-right py-1.5 px-2 text-blue-500 italic">{fmt(kpi.fy26e, kpi.unit)}</td>
+                      <td className="text-right py-1.5 pl-2 text-blue-500 italic">{fmt(kpi.fy27e, kpi.unit)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           {/* Tab switcher */}
           <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
             {([['sector', sectorLabel], ['universal', 'Universal']] as [PanelTab, string][]).map(([key, label]) => (

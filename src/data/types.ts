@@ -125,6 +125,16 @@ export interface CompanyKeyPerson {
   background: string;
 }
 
+export interface SectorKpiEntry {
+  label: string;
+  unit: string;  // '%', '₹Cr', '×', '₹'
+  fy23?: number | null;
+  fy24?: number | null;
+  fy25?: number | null;
+  fy26e?: number | null;
+  fy27e?: number | null;
+}
+
 export interface PortfolioCompany {
   id: string;
   name: string;
@@ -172,6 +182,7 @@ export interface PortfolioCompany {
   legalEntityName: string;
   cin: string;
   teamMembers: CompanyEmployee[];
+  sectorKpis?: SectorKpiEntry[];
 }
 
 // ─── Fund Metrics ─────────────────────────────────────────────────────────────

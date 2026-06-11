@@ -237,6 +237,14 @@ export const defaultConfig: AppStore = {
       ],
       companyGaps: SEED_GAPS,
       teamMembers: lohomTeam,
+      sectorKpis: [
+        { label: 'Revenue Growth', unit: '%', fy23: 192, fy24: 71, fy25: 58, fy26e: 45, fy27e: 35 },
+        { label: 'Gross Margin', unit: '%', fy23: 18, fy24: 22, fy25: 25, fy26e: 28, fy27e: 32 },
+        { label: 'EBITDA Margin', unit: '%', fy23: 7.9, fy24: 14.0, fy25: 12.0, fy26e: 16, fy27e: 20 },
+        { label: 'Asset Utilisation', unit: '%', fy23: 68, fy24: 74, fy25: 81, fy26e: 85, fy27e: 88 },
+        { label: 'Order Backlog', unit: '₹Cr', fy23: 280, fy24: 450, fy25: 680, fy26e: 950, fy27e: 1400 },
+        { label: 'R&D / Revenue', unit: '%', fy23: 5, fy24: 4, fy25: 3, fy26e: 3, fy27e: 2 },
+      ],
     },
 
     // ─── 2. BELLATRIX AEROSPACE ───────────────────────────────────────────────
@@ -321,6 +329,14 @@ export const defaultConfig: AppStore = {
       ],
       companyGaps: SEED_GAPS,
       teamMembers: bellatrixTeam,
+      sectorKpis: [
+        { label: 'Revenue Growth', unit: '%', fy23: null, fy24: null, fy25: null, fy26e: 400, fy27e: 250 },
+        { label: 'Gross Margin', unit: '%', fy23: null, fy24: null, fy25: -180, fy26e: 10, fy27e: 30 },
+        { label: 'EBITDA Margin', unit: '%', fy23: null, fy24: null, fy25: -820, fy26e: -80, fy27e: -5 },
+        { label: 'Asset Utilisation', unit: '%', fy23: 30, fy24: 45, fy25: 55, fy26e: 70, fy27e: 80 },
+        { label: 'Order Backlog', unit: '₹Cr', fy23: 8, fy24: 22, fy25: 48, fy26e: 120, fy27e: 280 },
+        { label: 'R&D / Revenue', unit: '%', fy23: null, fy24: null, fy25: 95, fy26e: 55, fy27e: 35 },
+      ],
     },
 
     // ─── 3. SHOWROOM B2B ──────────────────────────────────────────────────────
@@ -396,6 +412,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: showroomTeam,
+      sectorKpis: [
+        { label: 'Revenue', unit: '₹Cr', fy23: 32, fy24: 65, fy25: 100, fy26e: 168, fy27e: 260 },
+        { label: 'Revenue Growth', unit: '%', fy23: null, fy24: 103, fy25: 54, fy26e: 68, fy27e: 55 },
+        { label: 'Gross Margin', unit: '%', fy23: 22, fy24: 26, fy25: 29, fy26e: 32, fy27e: 35 },
+        { label: 'Buyer Retention', unit: '%', fy23: 45, fy24: 53, fy25: 62, fy26e: 70, fy27e: 77 },
+        { label: 'CAC', unit: '₹', fy23: 5800, fy24: 4500, fy25: 3600, fy26e: 2900, fy27e: 2400 },
+        { label: 'Contribution Margin', unit: '%', fy23: 12, fy24: 15, fy25: 18, fy26e: 22, fy27e: 26 },
+      ],
     },
 
     // ─── 4. INDIGRID TECHNOLOGY ───────────────────────────────────────────────
@@ -475,6 +499,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: indigridTeam,
+      sectorKpis: [
+        { label: 'Revenue Growth', unit: '%', fy23: 40, fy24: 52, fy25: 55, fy26e: 65, fy27e: 55 },
+        { label: 'Gross Margin', unit: '%', fy23: 22, fy24: 26, fy25: 29, fy26e: 33, fy27e: 37 },
+        { label: 'EBITDA Margin', unit: '%', fy23: 6, fy24: 10, fy25: 13, fy26e: 17, fy27e: 21 },
+        { label: 'Asset Utilisation', unit: '%', fy23: 62, fy24: 71, fy25: 77, fy26e: 82, fy27e: 87 },
+        { label: 'Order Backlog', unit: '₹Cr', fy23: 55, fy24: 90, fy25: 145, fy26e: 230, fy27e: 360 },
+        { label: 'R&D / Revenue', unit: '%', fy23: 12, fy24: 10, fy25: 8, fy26e: 7, fy27e: 6 },
+      ],
     },
 
     // ─── 5. BRANDWORKS TECHNOLOGIES ──────────────────────────────────────────
@@ -546,6 +578,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: brandworksTeam,
+      sectorKpis: [
+        { label: 'Revenue Growth', unit: '%', fy23: 28, fy24: 38, fy25: 45, fy26e: 40, fy27e: 35 },
+        { label: 'Gross Margin', unit: '%', fy23: 14, fy24: 17, fy25: 21, fy26e: 24, fy27e: 27 },
+        { label: 'EBITDA Margin', unit: '%', fy23: 5, fy24: 8, fy25: 11, fy26e: 14, fy27e: 17 },
+        { label: 'Asset Utilisation', unit: '%', fy23: 68, fy24: 73, fy25: 78, fy26e: 82, fy27e: 86 },
+        { label: 'Order Backlog', unit: '₹Cr', fy23: 95, fy24: 160, fy25: 240, fy26e: 330, fy27e: 440 },
+        { label: 'R&D / Revenue', unit: '%', fy23: 4, fy24: 3, fy25: 3, fy26e: 2, fy27e: 2 },
+      ],
     },
 
     // ─── 6. INTANGLES ─────────────────────────────────────────────────────────
@@ -631,6 +671,14 @@ export const defaultConfig: AppStore = {
       ],
       companyGaps: SEED_GAPS,
       teamMembers: intanglesTeam,
+      sectorKpis: [
+        { label: 'ARR', unit: '₹Cr', fy23: 18, fy24: 35, fy25: 65, fy26e: 115, fy27e: 185 },
+        { label: 'MoM Revenue Growth', unit: '%', fy23: 5.5, fy24: 7.2, fy25: 9.0, fy26e: 8.2, fy27e: 7.0 },
+        { label: 'NRR', unit: '%', fy23: 112, fy24: 118, fy25: 124, fy26e: 128, fy27e: 132 },
+        { label: 'Gross Churn', unit: '%', fy23: 2.8, fy24: 2.2, fy25: 1.6, fy26e: 1.2, fy27e: 1.0 },
+        { label: 'LTV / CAC', unit: '×', fy23: 3.2, fy24: 4.0, fy25: 5.0, fy26e: 5.8, fy27e: 6.8 },
+        { label: 'Burn Multiple', unit: '×', fy23: 2.4, fy24: 1.8, fy25: 1.2, fy26e: 0.8, fy27e: 0.5 },
+      ],
     },
 
     // ─── 7. KAPTURE CX ───────────────────────────────────────────────────────
@@ -708,6 +756,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: kaptureTeam,
+      sectorKpis: [
+        { label: 'ARR', unit: '₹Cr', fy23: 22, fy24: 38, fy25: 60, fy26e: 98, fy27e: 155 },
+        { label: 'MoM Revenue Growth', unit: '%', fy23: 4.5, fy24: 6.2, fy25: 8.0, fy26e: 8.8, fy27e: 7.5 },
+        { label: 'NRR', unit: '%', fy23: 108, fy24: 115, fy25: 120, fy26e: 125, fy27e: 130 },
+        { label: 'Gross Churn', unit: '%', fy23: 3.2, fy24: 2.6, fy25: 2.0, fy26e: 1.6, fy27e: 1.2 },
+        { label: 'LTV / CAC', unit: '×', fy23: 2.8, fy24: 3.5, fy25: 4.2, fy26e: 5.0, fy27e: 5.8 },
+        { label: 'Burn Multiple', unit: '×', fy23: 1.9, fy24: 1.5, fy25: 1.0, fy26e: 0.7, fy27e: 0.4 },
+      ],
     },
 
     // ─── 8. AURIC ─────────────────────────────────────────────────────────────
@@ -790,6 +846,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: auricTeam,
+      sectorKpis: [
+        { label: 'Revenue', unit: '₹Cr', fy23: 14, fy24: 58, fy25: 126, fy26e: 235, fy27e: 400 },
+        { label: 'Revenue Growth', unit: '%', fy23: null, fy24: 314, fy25: 117, fy26e: 87, fy27e: 70 },
+        { label: 'Gross Margin', unit: '%', fy23: 32, fy24: 36, fy25: 40, fy26e: 44, fy27e: 48 },
+        { label: 'Repeat Purchase Rate', unit: '%', fy23: 24, fy24: 30, fy25: 38, fy26e: 46, fy27e: 54 },
+        { label: 'CAC', unit: '₹', fy23: 420, fy24: 360, fy25: 295, fy26e: 250, fy27e: 210 },
+        { label: 'D2C Mix', unit: '%', fy23: 68, fy24: 62, fy25: 57, fy26e: 52, fy27e: 50 },
+      ],
     },
 
     // ─── 9. AMPM ──────────────────────────────────────────────────────────────
@@ -862,6 +926,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: [],
+      sectorKpis: [
+        { label: 'Revenue', unit: '₹Cr', fy23: 18, fy24: 29, fy25: 43, fy26e: 65, fy27e: 95 },
+        { label: 'Revenue Growth', unit: '%', fy23: null, fy24: 61, fy25: 48, fy26e: 51, fy27e: 46 },
+        { label: 'Gross Margin', unit: '%', fy23: 48, fy24: 52, fy25: 55, fy26e: 58, fy27e: 61 },
+        { label: 'Repeat Purchase Rate', unit: '%', fy23: 33, fy24: 39, fy25: 45, fy26e: 52, fy27e: 58 },
+        { label: 'CAC', unit: '₹', fy23: 720, fy24: 640, fy25: 560, fy26e: 490, fy27e: 420 },
+        { label: 'D2C Mix', unit: '%', fy23: 40, fy24: 48, fy25: 55, fy26e: 63, fy27e: 70 },
+      ],
     },
 
     // ─── 10. ANANANT SYSTEMS ──────────────────────────────────────────────────
@@ -936,6 +1008,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: ananantTeam,
+      sectorKpis: [
+        { label: 'ARR', unit: '₹Cr', fy23: 0, fy24: 0, fy25: 0, fy26e: 8, fy27e: 42 },
+        { label: 'MoM Revenue Growth', unit: '%', fy23: null, fy24: null, fy25: null, fy26e: null, fy27e: null },
+        { label: 'NRR', unit: '%', fy23: null, fy24: null, fy25: null, fy26e: 110, fy27e: 120 },
+        { label: 'Gross Churn', unit: '%', fy23: null, fy24: null, fy25: null, fy26e: 5.0, fy27e: 3.0 },
+        { label: 'LTV / CAC', unit: '×', fy23: null, fy24: null, fy25: null, fy26e: 2.5, fy27e: 4.0 },
+        { label: 'Burn Multiple', unit: '×', fy23: null, fy24: null, fy25: null, fy26e: 15.0, fy27e: 3.5 },
+      ],
     },
 
     // ─── 11. VITRAYA ──────────────────────────────────────────────────────────
@@ -1011,6 +1091,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: vitrayaTeam,
+      sectorKpis: [
+        { label: 'ARR', unit: '₹Cr', fy23: 7, fy24: 13, fy25: 22, fy26e: 40, fy27e: 68 },
+        { label: 'MoM Revenue Growth', unit: '%', fy23: 3.2, fy24: 5.0, fy25: 7.2, fy26e: 8.0, fy27e: 7.2 },
+        { label: 'NRR', unit: '%', fy23: 104, fy24: 110, fy25: 116, fy26e: 121, fy27e: 126 },
+        { label: 'Gross Churn', unit: '%', fy23: 4.5, fy24: 3.5, fy25: 2.5, fy26e: 1.8, fy27e: 1.4 },
+        { label: 'LTV / CAC', unit: '×', fy23: 2.5, fy24: 3.2, fy25: 4.2, fy26e: 5.0, fy27e: 6.0 },
+        { label: 'Burn Multiple', unit: '×', fy23: 2.8, fy24: 1.6, fy25: -0.3, fy26e: -0.6, fy27e: -0.9 },
+      ],
     },
 
     // ─── 12. PARKMATE ─────────────────────────────────────────────────────────
@@ -1073,6 +1161,14 @@ export const defaultConfig: AppStore = {
       patents: [],
       companyGaps: SEED_GAPS,
       teamMembers: parkMateTeam,
+      sectorKpis: [
+        { label: 'ARR', unit: '₹Cr', fy23: 1.2, fy24: 3.0, fy25: 6.0, fy26e: 14, fy27e: 30 },
+        { label: 'MoM Revenue Growth', unit: '%', fy23: 7.5, fy24: 10.2, fy25: 12.0, fy26e: 11.0, fy27e: 9.0 },
+        { label: 'NRR', unit: '%', fy23: 115, fy24: 121, fy25: 126, fy26e: 130, fy27e: 133 },
+        { label: 'Gross Churn', unit: '%', fy23: 2.2, fy24: 1.8, fy25: 1.3, fy26e: 1.0, fy27e: 0.8 },
+        { label: 'LTV / CAC', unit: '×', fy23: 3.8, fy24: 4.6, fy25: 5.5, fy26e: 6.5, fy27e: 7.5 },
+        { label: 'Burn Multiple', unit: '×', fy23: 3.5, fy24: 2.6, fy25: 1.7, fy26e: 1.0, fy27e: 0.5 },
+      ],
     },
 
     // ─── 13. RUBIX (EXITED) ───────────────────────────────────────────────────
@@ -1142,6 +1238,14 @@ export const defaultConfig: AppStore = {
       ],
       companyGaps: SEED_GAPS,
       teamMembers: [],
+      sectorKpis: [
+        { label: 'ARR', unit: '₹Cr', fy23: 15, fy24: 28, fy25: 50, fy26e: 85, fy27e: 140 },
+        { label: 'MoM Revenue Growth', unit: '%', fy23: 4.8, fy24: 6.5, fy25: 8.5, fy26e: 8.0, fy27e: 7.0 },
+        { label: 'NRR', unit: '%', fy23: 106, fy24: 112, fy25: 118, fy26e: 122, fy27e: 126 },
+        { label: 'Gross Churn', unit: '%', fy23: 3.5, fy24: 2.8, fy25: 2.2, fy26e: 1.8, fy27e: 1.4 },
+        { label: 'LTV / CAC', unit: '×', fy23: 2.6, fy24: 3.2, fy25: 4.0, fy26e: 4.8, fy27e: 5.8 },
+        { label: 'Burn Multiple', unit: '×', fy23: 2.2, fy24: 1.7, fy25: 1.2, fy26e: 0.8, fy27e: 0.5 },
+      ],
     },
   ],
 
