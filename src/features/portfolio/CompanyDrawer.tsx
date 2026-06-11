@@ -25,7 +25,6 @@ import AvatarChip from '../../components/ui/AvatarChip';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportCompanyPDF, exportCompanyExcel } from '../../lib/export';
 import RoundModeler from './RoundModeler';
-import SectorMetricsPanel from './SectorMetricsPanel';
 
 interface Props {
   company: PortfolioCompany | null;
@@ -381,8 +380,16 @@ export default function CompanyDrawer({ company, onClose }: Props) {
 
   // ── Tab: Overview ──────────────────────────────────────────────────────────
   const _overviewSector = store.sectors.find(s => s.id === company.sectorId);
-  const _sectorId   = _overviewSector ? company.sectorId : 's1';
   const _sectorName = _overviewSector?.name ?? 'Advanced Manufacturing';
+
+  function fmtKpi(val: number | null | undefined, unit: string): string {
+    if (val === null || val === undefined) return '—';
+    if (unit === '%') return `${val}%`;
+    if (unit === '₹Cr') return `₹${val}Cr`;
+    if (unit === '×') return `${val}×`;
+    if (unit === '₹') return `₹${Number(val).toLocaleString('en-IN')}`;
+    return String(val);
+  }
 
   const OverviewTab = () => (
     <div className="space-y-4">
@@ -457,8 +464,37 @@ export default function CompanyDrawer({ company, onClose }: Props) {
         </Section>
       )}
 
-      {/* ── Sector Metrics Framework — contextual KPI reference ── */}
-      <SectorMetricsPanel sectorId={_sectorId} sectorName={_sectorName} kpis={company.sectorKpis} />
+      {/* ── Sector KPIs ── */}
+      {company.sectorKpis && company.sectorKpis.length > 0 && (
+        <Section title={`${_sectorName} KPIs`} icon={TrendingUp}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-1.5 pr-3 text-gray-500 font-semibold">Metric</th>
+                  <th className="text-right py-1.5 px-2 text-gray-400 font-semibold">FY23</th>
+                  <th className="text-right py-1.5 px-2 text-gray-400 font-semibold">FY24</th>
+                  <th className="text-right py-1.5 px-2 text-gray-800 font-semibold">FY25</th>
+                  <th className="text-right py-1.5 px-2 text-blue-500 font-semibold">FY26E</th>
+                  <th className="text-right py-1.5 pl-2 text-blue-500 font-semibold">FY27E</th>
+                </tr>
+              </thead>
+              <tbody>
+                {company.sectorKpis.map((kpi, i) => (
+                  <tr key={i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
+                    <td className="py-1.5 pr-3 text-gray-700 font-medium">{kpi.label}</td>
+                    <td className="text-right py-1.5 px-2 text-gray-400">{fmtKpi(kpi.fy23, kpi.unit)}</td>
+                    <td className="text-right py-1.5 px-2 text-gray-500">{fmtKpi(kpi.fy24, kpi.unit)}</td>
+                    <td className="text-right py-1.5 px-2 text-gray-900 font-semibold">{fmtKpi(kpi.fy25, kpi.unit)}</td>
+                    <td className="text-right py-1.5 px-2 text-blue-500 italic">{fmtKpi(kpi.fy26e, kpi.unit)}</td>
+                    <td className="text-right py-1.5 pl-2 text-blue-500 italic">{fmtKpi(kpi.fy27e, kpi.unit)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+      )}
 
       {company.boardMemberIds.length > 0 && (
         <Section title="Cactus Board Members" icon={Users}>
