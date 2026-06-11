@@ -1,0 +1,29 @@
+{
+  "" : {
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary.dia",
+    "emit-module-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary-emit-module.dia",
+    "pch" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary.swiftdeps"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/browser/ios/Sources/BrowserPlugin/Browser.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.dia",
+    "index-unit-output-path" : "/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/browser/ios/Sources/BrowserPlugin/BrowserPlugin.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.dia",
+    "index-unit-output-path" : "/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin~partial.swiftmodule"
+  }
+}

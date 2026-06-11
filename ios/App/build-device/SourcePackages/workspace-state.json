@@ -1,0 +1,299 @@
+{
+  "object" : {
+    "artifacts" : [
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "capacitor-swift-pm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/ionic-team/capacitor-swift-pm.git",
+          "name" : "capacitor-swift-pm"
+        },
+        "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/artifacts/capacitor-swift-pm/Capacitor/Capacitor.xcframework",
+        "source" : {
+          "checksum" : "acba9b13179f5775f2124d47cb6689968eeb37c724392204ecf0deb9669d3324",
+          "type" : "remote",
+          "url" : "https://github.com/ionic-team/capacitor-swift-pm/releases/download/8.4.0/Capacitor.xcframework.zip"
+        },
+        "targetName" : "Capacitor"
+      },
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "capacitor-swift-pm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/ionic-team/capacitor-swift-pm.git",
+          "name" : "capacitor-swift-pm"
+        },
+        "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/artifacts/capacitor-swift-pm/Cordova/Cordova.xcframework",
+        "source" : {
+          "checksum" : "685b9d832d7e8b44e0da63366530708a5d70a4eba4a3271b47aa73f246d0eda7",
+          "type" : "remote",
+          "url" : "https://github.com/ionic-team/capacitor-swift-pm/releases/download/8.4.0/Cordova.xcframework.zip"
+        },
+        "targetName" : "Cordova"
+      }
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "app",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/app",
+          "name" : "app"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/app"
+        },
+        "subpath" : "app"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "browser",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/browser",
+          "name" : "browser"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/browser"
+        },
+        "subpath" : "browser"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "camera",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/camera",
+          "name" : "camera"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/camera"
+        },
+        "subpath" : "camera"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "capacitor-biometric-auth",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@aparajita/capacitor-biometric-auth",
+          "name" : "capacitor-biometric-auth"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@aparajita/capacitor-biometric-auth"
+        },
+        "subpath" : "capacitor-biometric-auth"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "capacitor-swift-pm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/ionic-team/capacitor-swift-pm.git",
+          "name" : "capacitor-swift-pm"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "44ae2505f54a80c5e559533950886d0644fc2fca",
+            "version" : "8.4.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "capacitor-swift-pm"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "capapp-spm",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/CapApp-SPM",
+          "name" : "CapApp-SPM"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/CapApp-SPM"
+        },
+        "subpath" : "capapp-spm"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "filesystem",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/filesystem",
+          "name" : "filesystem"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/filesystem"
+        },
+        "subpath" : "filesystem"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "haptics",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/haptics",
+          "name" : "haptics"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/haptics"
+        },
+        "subpath" : "haptics"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "ion-ios-camera",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/ionic-team/ion-ios-camera.git",
+          "name" : "ion-ios-camera"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "2cd4f06b0ece21b6458e23357280c51f94bfceb8",
+            "version" : "1.0.4"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "ion-ios-camera"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "ion-ios-filesystem",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/ionic-team/ion-ios-filesystem.git",
+          "name" : "ion-ios-filesystem"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "0d81e26e828ff9582807e2339112cedf2e0fab85",
+            "version" : "1.1.2"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "ion-ios-filesystem"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "keyboard",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/keyboard",
+          "name" : "keyboard"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/keyboard"
+        },
+        "subpath" : "keyboard"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "network",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/network",
+          "name" : "network"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/network"
+        },
+        "subpath" : "network"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "preferences",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/preferences",
+          "name" : "preferences"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/preferences"
+        },
+        "subpath" : "preferences"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "push-notifications",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/push-notifications",
+          "name" : "push-notifications"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/push-notifications"
+        },
+        "subpath" : "push-notifications"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "share",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/share",
+          "name" : "share"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/share"
+        },
+        "subpath" : "share"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "splash-screen",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/splash-screen",
+          "name" : "splash-screen"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/splash-screen"
+        },
+        "subpath" : "splash-screen"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "status-bar",
+          "kind" : "fileSystem",
+          "location" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/status-bar",
+          "name" : "status-bar"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/status-bar"
+        },
+        "subpath" : "status-bar"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

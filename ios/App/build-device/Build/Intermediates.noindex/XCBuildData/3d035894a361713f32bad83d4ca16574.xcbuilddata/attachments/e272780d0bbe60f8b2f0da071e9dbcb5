@@ -1,0 +1,4 @@
+module CAPNetworkPlugin {
+header "CAPNetworkPlugin-Swift.h"
+export *
+}

@@ -1,0 +1,659 @@
+{
+  "" : {
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCameraLib-primary.dia",
+    "emit-module-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCameraLib-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCameraLib-primary-emit-module.dia",
+    "pch" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCameraLib-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCameraLib-primary.swiftdeps"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/DerivedSources/resource_bundle_accessor.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/resource_bundle_accessor~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Extensions/IONCAMRFlowResultsDelegate+Default.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate+Default~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Extensions/IONCAMRMediaOptions+PickerAdapter.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions+PickerAdapter~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Extensions/UIImage+MediaOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+MediaOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRAssets.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRAssets~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRCameraManager.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraManager~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRCoordinator.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCoordinator~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMREditManager.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditManager~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRFactory.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFactory~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRFlowBehaviour.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowBehaviour~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRGalleryManager.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryManager~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/IONCAMRVideoManager.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoManager~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Editor/IONCAMRCropInternalView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropInternalView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Editor/IONCAMRCropThickEdgesView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickEdgesView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Editor/IONCAMRCropThickView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropThickView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Editor/IONCAMRCropView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCropView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Editor/IONCAMRImageEditorView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageEditorView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Editor/Model/IONCAMRSideModel.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSideModel~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Extensions/CGSize+Transformations.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/CGSize+Transformations~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Extensions/Data+Transformations.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/Data+Transformations~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Extensions/UIImage+Transformations.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/UIImage+Transformations~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/Extensions/URL+Transformations.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/URL+Transformations~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/IONCAMREditorBehaviour.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorBehaviour~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/IONCAMRGalleryBehaviour.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryBehaviour~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/IONCAMRMediaResultGenerator.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResultGenerator~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/IONCAMRPermissionsBehaviour.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsBehaviour~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/IONCAMRPickerBehaviour.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerBehaviour~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/IONCAMRPlayerBehaviour.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerBehaviour~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/PhotoLibrary/IONCAMRPHFetchResultCollection.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPHFetchResultCollection~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/PhotoLibrary/IONCAMRPhotoLibraryService.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryService~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/PhotoLibrary/IONCAMRPhotoLibraryView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Interfaces/PhotoLibrary/IONCAMRPhotoThumbnailView.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoThumbnailView~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMREditOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMREncodingType.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREncodingType~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRError.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRError~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRGalleryOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRMediaOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRMediaResult.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaResult~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRMediaType.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMediaType~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRMetadata.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadata~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRPlayVideoOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayVideoOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRPresentationStyle.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPresentationStyle~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRRecordVideoOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRRecordVideoOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRSize.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRSize~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Models/IONCAMRTakePhotoOptions.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRTakePhotoOptions~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRCallbackDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCallbackDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRCameraActionDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRCameraActionDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMREditActionDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditActionDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMREditorDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMREditorDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRFlowDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRFlowResultsDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRFlowResultsDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRGalleryActionDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryActionDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRGalleryDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRGalleryDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRImageFetcherDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRImageFetcherDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRMetadataGetterDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRMetadataGetterDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMROptionsDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMROptionsDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRPermissionsDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPermissionsDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRPhotoLibraryViewDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPhotoLibraryViewDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRPickerDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPickerDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRPlayerDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRPlayerDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRResultsDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRResultsDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRThumbnailGeneratorDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRThumbnailGeneratorDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRURLGeneratorDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRURLGeneratorDelegate~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/SourcePackages/checkouts/ion-ios-camera/Sources/IONCameraLib/Protocols/IONCAMRVideoActionDelegate.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.dia",
+    "index-unit-output-path" : "/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/IONCameraLib.build/Debug-iphoneos/IONCameraLib.build/Objects-normal/arm64/IONCAMRVideoActionDelegate~partial.swiftmodule"
+  }
+}

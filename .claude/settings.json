@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch *)",
+      "Bash(git rev-list *)",
+      "Bash(npm test *)",
+      "Bash(sed -n '/interface FundInvestment/,/^}/p;/interface LpCommitment/,/^}/p' src/data/types.ts)",
+      "Bash(sed -n '15,25p' src/features/finance/CapitalCallTracker.tsx)",
+      "Bash(sed -n '96,120p' src/lib/chatbot.ts)",
+      "Bash(sed -n '1,60p' src/features/finance/FundLedger.tsx)",
+      "Bash(sed -n '1,40p' src/features/finance/MetricCard.tsx)",
+      "Bash(sed -n '/interface FundFollowOn/,/^}/p' src/data/types.ts)",
+      "Bash(sed -n '1448,1490p' src/data/defaultConfig.ts)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(node -e \"console.log\\('node', process.version\\)\")",
+      "Bash(node --check backend/src/routes/ai.js)",
+      "Bash(node --check backend/src/server.js)",
+      "Bash(awk 'NR>=36 && /^  people: \\\\[/{s=NR} s && /^  \\\\],?$/{print \"people array: lines \"s\"-\"NR; exit}' src/data/defaultConfig.ts)",
+      "Bash(sed -n '36,140p' src/data/defaultConfig.ts)",
+      "Bash(npx cap *)",
+      "Bash(mkdir -p resources)",
+      "Bash(node -e ' *)",
+      "Bash(npx capacitor-assets *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" ./gradlew assembleDebug --no-daemon)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(export DEVELOPER_DIR=\"/Applications/Xcode.app/Contents/Developer\")",
+      "Bash(xcodebuild -version)",
+      "Bash(xcodebuild -showsdks)",
+      "Bash(export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer)",
+      "Bash(xcodebuild -list -project ios/App/App.xcodeproj)",
+      "Bash(xcrun simctl *)",
+      "Bash(git config *)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -list-avds)",
+      "Bash(brew install *)",
+      "Read(//opt/homebrew/share/android-commandlinetools/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//opt/homebrew/Caskroom/**)",
+      "Bash(export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer && xcodebuild -downloadPlatform iOS > /tmp/ios_runtime.log 2>&1; echo \"EXIT=$?\"; tail -5 /tmp/ios_runtime.log)",
+      "Bash(cp /tmp/ios_screen.png \"./iOS-Simulator.png\")",
+      "Bash(tail -c 200 /tmp/sysimg.log)",
+      "Bash(ls ~/Library/Android/sdk/system-images)",
+      "Bash(open -a Simulator)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}

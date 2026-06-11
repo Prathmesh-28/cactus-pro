@@ -1,0 +1,4 @@
+module IONCameraLib {
+header "IONCameraLib-Swift.h"
+export *
+}

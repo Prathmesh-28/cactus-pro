@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin-primary.dia",
+    "emit-module-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin-primary-emit-module.dia",
+    "pch" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin-primary.swiftdeps"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/app/ios/Sources/AppPlugin/AppPlugin.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.dia",
+    "index-unit-output-path" : "/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorApp.build/Debug-iphoneos/AppPlugin.build/Objects-normal/arm64/AppPlugin~partial.swiftmodule"
+  }
+}

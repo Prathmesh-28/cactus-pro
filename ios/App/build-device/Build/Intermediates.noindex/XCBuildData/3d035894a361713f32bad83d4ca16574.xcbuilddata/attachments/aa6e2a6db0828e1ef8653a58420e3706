@@ -1,0 +1,39 @@
+{
+  "" : {
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/CAPNetworkPlugin-primary.dia",
+    "emit-module-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/CAPNetworkPlugin-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/CAPNetworkPlugin-primary-emit-module.dia",
+    "pch" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/CAPNetworkPlugin-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/CAPNetworkPlugin-primary.swiftdeps"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/network/ios/Sources/NetworkPlugin/Network.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.dia",
+    "index-unit-output-path" : "/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Network~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/network/ios/Sources/NetworkPlugin/NetworkPlugin.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.dia",
+    "index-unit-output-path" : "/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/NetworkPlugin~partial.swiftmodule"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/network/ios/Sources/NetworkPlugin/Reachability.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.dia",
+    "index-unit-output-path" : "/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorNetwork.build/Debug-iphoneos/CAPNetworkPlugin.build/Objects-normal/arm64/Reachability~partial.swiftmodule"
+  }
+}

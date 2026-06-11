@@ -1,0 +1,4 @@
+module AparajitaCapacitorBiometricAuth {
+header "AparajitaCapacitorBiometricAuth-Swift.h"
+export *
+}

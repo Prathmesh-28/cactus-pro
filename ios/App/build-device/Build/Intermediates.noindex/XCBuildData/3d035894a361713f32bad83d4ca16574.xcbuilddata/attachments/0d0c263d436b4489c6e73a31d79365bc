@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin-primary.dia",
+    "emit-module-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin-primary-emit-module.dia",
+    "pch" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin-primary.swiftdeps"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@capacitor/share/ios/Sources/SharePlugin/SharePlugin.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.dia",
+    "index-unit-output-path" : "/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/CapacitorShare.build/Debug-iphoneos/SharePlugin.build/Objects-normal/arm64/SharePlugin~partial.swiftmodule"
+  }
+}

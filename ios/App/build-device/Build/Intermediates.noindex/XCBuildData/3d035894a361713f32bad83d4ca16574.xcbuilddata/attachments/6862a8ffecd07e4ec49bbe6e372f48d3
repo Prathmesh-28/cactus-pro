@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/AparajitaCapacitorBiometricAuth-primary.dia",
+    "emit-module-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/AparajitaCapacitorBiometricAuth-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/AparajitaCapacitorBiometricAuth-primary-emit-module.dia",
+    "pch" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/AparajitaCapacitorBiometricAuth-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/AparajitaCapacitorBiometricAuth-primary.swiftdeps"
+  },
+  "/Users/prathmeshwalimbe/Downloads/cactus pro/node_modules/@aparajita/capacitor-biometric-auth/ios/Sources/BiometricAuthNative/BiometricAuthNative.swift" : {
+    "const-values" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.swiftconstvalues",
+    "dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.d",
+    "diagnostics" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.dia",
+    "index-unit-output-path" : "/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.o",
+    "llvm-bc" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.bc",
+    "object" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.o",
+    "swift-dependencies" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative.swiftdeps",
+    "swiftmodule" : "/Users/prathmeshwalimbe/Downloads/cactus pro/ios/App/build-device/Build/Intermediates.noindex/AparajitaCapacitorBiometricAuth.build/Debug-iphoneos/AparajitaCapacitorBiometricAuth.build/Objects-normal/arm64/BiometricAuthNative~partial.swiftmodule"
+  }
+}
