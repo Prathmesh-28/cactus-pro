@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { X, Mail, Send, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useApp } from '../../context/AppContext';
 
 export interface MailComposerProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ const YEAR = now.getFullYear();
 
 type TemplateKey = 'Portfolio Update' | 'LP Quarterly' | 'Founder Check-in' | 'Co-investor Intro' | 'Board Pack' | 'Custom';
 
-const TEMPLATES: Record<TemplateKey, { subject: string; body: string }> = {
+const DEFAULT_TEMPLATES: Record<TemplateKey, { subject: string; body: string }> = {
   'Portfolio Update': {
     subject: `Portfolio Update — ${MONTH_YEAR}`,
     body: `Dear [Name],\n\nPlease find below the latest update from Cactus Partners.\n\n[Add update content here]\n\nBest regards,\nCactus Partners Team`,
@@ -50,7 +51,14 @@ const TEMPLATES: Record<TemplateKey, { subject: string; body: string }> = {
   },
 };
 
-const TEMPLATE_KEYS = Object.keys(TEMPLATES) as TemplateKey[];
+const TEMPLATE_KEYS = Object.keys(DEFAULT_TEMPLATES) as TemplateKey[];
+
+// Which MailComposer template maps to which admin-managed EmailTemplates key.
+// The admin editor stores body-only overrides; we overlay them onto the defaults.
+const ADMIN_TEMPLATE_MAP: Partial<Record<TemplateKey, 'lpReport' | 'capitalCall' | 'founderWelcome' | 'inviteUser'>> = {
+  'LP Quarterly': 'lpReport',
+  'Founder Check-in': 'founderWelcome',
+};
 
 type SendState = 'idle' | 'sending' | 'success' | 'error';
 
@@ -64,6 +72,20 @@ export default function MailComposer({
   initialBcc = '',
 }: MailComposerProps) {
   const { getAccessToken } = useAuth();
+  const { store } = useApp();
+
+  // Overlay admin-managed template bodies (store.emailTemplates) onto the defaults so
+  // edits made under Admin → Email Templates actually drive the composer.
+  const TEMPLATES = useMemo(() => {
+    const admin = store.emailTemplates;
+    if (!admin) return DEFAULT_TEMPLATES;
+    const merged = { ...DEFAULT_TEMPLATES };
+    for (const [tplKey, adminKey] of Object.entries(ADMIN_TEMPLATE_MAP) as [TemplateKey, keyof typeof admin][]) {
+      const body = admin[adminKey];
+      if (body && body.trim()) merged[tplKey] = { ...merged[tplKey], body };
+    }
+    return merged;
+  }, [store.emailTemplates]);
 
   const [to, setTo]           = useState(initialTo);
   const [cc, setCc]           = useState(initialCc);

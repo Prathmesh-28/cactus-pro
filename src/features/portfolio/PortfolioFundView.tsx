@@ -12,6 +12,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import type { FundInvestment, FundFollowOn } from '../../data/types';
 import { generateId } from '../../lib/utils';
+import { fundMultiples } from '../../lib/fundEconomics';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PRIMARY   = '#1C4B42';
@@ -708,11 +709,18 @@ function InvestmentModal({ initial, companies, onSave, onClose }: ModalProps) {
 export default function PortfolioFundView() {
   const {
     store,
-    addFundInvestment,
-    updateFundInvestment,
-    deleteFundInvestment,
+    addPortfolioFundView,
+    updatePortfolioFundView,
+    deletePortfolioFundView,
+    canEditPortfolio,
   } = useApp();
+  const canEdit = canEditPortfolio();   // read-only roles (portfolio_viewer) see no edit controls
 
+  // This view reads AND writes the portfolio-owned copy (portfolioFundView), which
+  // lives in the portfolio namespace. It must NOT use addFundInvestment/etc — those
+  // mutate the finance-namespace `fundInvestments`, which (a) this view never reads,
+  // so edits appear to do nothing, and (b) portfolio roles can't even persist, so the
+  // write is silently dropped. PortfolioAdmin already uses the portfolioFundView setters.
   const investments: FundInvestment[] = store.portfolioFundView ?? [];
   const companies = store.companies ?? [];
   const periods = store.financialPeriods ?? [];
@@ -742,14 +750,16 @@ export default function PortfolioFundView() {
   
   const distributions  = investments.reduce((s, i) => s + n(i.realizedValue), 0);
 
-  // ── Fund Overview metrics (mirrors Finance tab Fund Overview) ──────────────
+  // ── Fund Overview metrics — use the canonical fundMultiples() definition so
+  // DPI/TVPI/MOIC match the Finance Fund Ledger exactly (one formula, one source). ──
   const calledCapital  = totalInvested;               // Total capital deployed
   const nav            = totalAUM;                    // Unrealized fair market value
-  const tvpi           = totalInvested > 0 ? (nav + distributions) / totalInvested : 0;
+  const _mult          = fundMultiples({ paidIn: totalInvested, distributions, nav });
+  const tvpi           = _mult.tvpi;
   const grossIrr       = blendedIrr;
   const netIrr         = Math.max(0, blendedIrr - 2); // Gross IRR - 2% mgmt fee (approx)
-  const dpi            = totalInvested > 0 ? distributions / totalInvested : 0;
-  const moic           = blendedMoic;
+  const dpi            = _mult.dpi;
+  const moic           = _mult.rvpi || blendedMoic;   // RVPI (NAV/paid-in) = unrealised multiple
   const totalLpCommitment = (store.lps ?? []).reduce((s, lp) => {
     const v = parseFloat(lp.commitment?.replace(/[^0-9.]/g, '') ?? '0');
     return s + v;
@@ -782,15 +792,15 @@ export default function PortfolioFundView() {
 
   const handleSave = (inv: FundInvestment) => {
     if (inv.id) {
-      updateFundInvestment(inv);
+      updatePortfolioFundView(inv);
     } else {
-      addFundInvestment({ ...inv, id: generateId() });
+      addPortfolioFundView({ ...inv, id: generateId() });
     }
     setModalData(null);
   };
 
   const handleDelete = (id: string) => {
-    deleteFundInvestment(id);
+    deletePortfolioFundView(id);
     setDeleteConfirm(null);
   };
 
@@ -844,13 +854,15 @@ export default function PortfolioFundView() {
                 },
               ]}
             />
-            <button
-              onClick={() => setModalData(blankInvestment())}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-white rounded-lg shadow"
-              style={{ background: PRIMARY }}
-            >
-              <Plus size={16} /> Add Investment
-            </button>
+            {canEdit && (
+              <button
+                onClick={() => setModalData(blankInvestment())}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-white rounded-lg shadow"
+                style={{ background: PRIMARY }}
+              >
+                <Plus size={16} /> Add Investment
+              </button>
+            )}
           </div>
         </div>
 
@@ -1162,20 +1174,24 @@ export default function PortfolioFundView() {
                             >
                               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                             </button>
-                            <button
-                              onClick={() => setModalData(inv)}
-                              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-600"
-                              title="Edit"
-                            >
-                              <Edit2 size={14} />
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(inv.id)}
-                              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600"
-                              title="Delete"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            {canEdit && (
+                              <>
+                                <button
+                                  onClick={() => setModalData(inv)}
+                                  className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-600"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={14} />
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm(inv.id)}
+                                  className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>

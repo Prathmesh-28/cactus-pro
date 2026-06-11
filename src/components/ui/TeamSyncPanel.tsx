@@ -31,16 +31,16 @@ const TEAM_META: Record<string, {
     color: '#1C4B42',
     namespace: 'finance',
     description: 'Your finance data is stored in a private namespace — not visible to Portfolio or Investment teams.',
+    // Only kvKeys with a real backend transformer are offered. Cash Flows / Fund &
+    // IM Expenses are managed via the in-app Finance dynamic tables, not the store-blob
+    // sync, so they are intentionally NOT listed here (syncing them was a silent no-op).
     suggestedMappings: [
-      { label: 'Fund Metrics',         kvNamespace: 'finance', kvKey: 'fund_1::fund_metrics' },
-      { label: 'Cash Flows',           kvNamespace: 'finance', kvKey: 'fund_1::cash_flows' },
-      { label: 'Fund Expenses',        kvNamespace: 'finance', kvKey: 'et:fund_expenses' },
-      { label: 'IM Expenses',          kvNamespace: 'finance', kvKey: 'et:im_expenses' },
-      { label: 'Actual vs Budget',     kvNamespace: 'finance', kvKey: 'et:im_expenses_actual' },
-      { label: 'Portfolio Snapshot',   kvNamespace: 'finance', kvKey: 'pm:Portfolio' },
+      { label: 'Fund Metric Cards',    kvNamespace: 'app',     kvKey: 'fund_metric_cards' },
+      { label: 'Fund Investments',     kvNamespace: 'finance', kvKey: 'fund_investments' },
+      { label: 'Portfolio Snapshot',   kvNamespace: 'app',     kvKey: 'pm:Portfolio' },
       { label: 'Capital Calls',        kvNamespace: 'finance', kvKey: 'capital_calls' },
-      { label: 'LP Communications',    kvNamespace: 'finance', kvKey: 'lp_comms' },
-      { label: 'Valuation Log',        kvNamespace: 'finance', kvKey: 'valuation_log' },
+      { label: 'Valuation Log',        kvNamespace: 'app',     kvKey: 'valuation_log' },
+      { label: 'LP Summary',           kvNamespace: 'app',     kvKey: 'lp_summary' },
     ],
   },
   portfolio: {
@@ -54,6 +54,14 @@ const TEAM_META: Record<string, {
       { label: 'Financial Periods',    kvNamespace: 'portfolio', kvKey: 'financial_periods' },
       { label: 'Founder Contacts',     kvNamespace: 'portfolio', kvKey: 'founder_contacts' },
       { label: 'Research Library',     kvNamespace: 'portfolio', kvKey: 'research_docs' },
+      // Company-nested sheets write into companies[], which lives in the 'app'
+      // namespace — they MUST sync to 'app' or the merged companies array would be
+      // written to the wrong blob and clobber the real one on next hydrate.
+      { label: 'Sector KPIs',          kvNamespace: 'app', kvKey: 'sector_kpis' },
+      { label: 'Funding Rounds',       kvNamespace: 'app', kvKey: 'funding_rounds' },
+      { label: 'Cap Table',            kvNamespace: 'app', kvKey: 'cap_table' },
+      { label: 'Financial History',    kvNamespace: 'app', kvKey: 'financial_history' },
+      { label: 'Portfolio Fund View',  kvNamespace: 'portfolio', kvKey: 'portfolio_fund_view' },
     ],
   },
   investment: {
@@ -258,7 +266,7 @@ export default function TeamSyncPanel({ team }: Props) {
             </button>
           ) : (
             <a
-              href={`${BASE}/api/microsoft/connect`}
+              href={`${BASE}/api/microsoft/connect?token=${encodeURIComponent(localStorage.getItem('cactus_access') ?? '')}`}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white"
               style={{ backgroundColor: '#0078D4' }}
             >

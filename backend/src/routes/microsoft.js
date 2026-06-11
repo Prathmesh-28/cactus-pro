@@ -9,10 +9,15 @@
  */
 
 const express = require('express');
+const jwt     = require('jsonwebtoken');
 const router  = express.Router();
-const fetch   = require('node-fetch');
+// Node 18+ ships a global fetch. The previous `require('node-fetch')` resolved to an
+// ESM-only v3 transitive dep that is not callable under require(), so every Graph
+// call here threw "fetch is not a function" at runtime — the whole SharePoint sync
+// path was dead. Use the built-in fetch instead (no dependency needed).
 const { pool } = require('../db');
 const { authenticate } = require('../middleware/auth');
+const { ACCESS_SECRET } = require('../lib/secrets');
 
 const CLIENT_ID     = process.env.MICROSOFT_CLIENT_ID;
 const CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET;
@@ -100,17 +105,35 @@ async function downloadSharePointFile(sharingUrl) {
     throw new Error(`Graph API error ${graphRes.status}: ${errText.slice(0, 200)}`);
   }
 
-  const buf = await graphRes.buffer();
-  return buf;
+  // Global fetch's Response has no .buffer() (that was node-fetch); use arrayBuffer().
+  const arrayBuf = await graphRes.arrayBuffer();
+  return Buffer.from(arrayBuf);
 }
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
-// GET /api/microsoft/connect  → start OAuth flow (no auth middleware — browser redirect can't send headers)
+// GET /api/microsoft/connect  → start OAuth flow.
+// A browser redirect can't carry an Authorization header, so the initiating admin's
+// access token is passed as ?token=. We verify it (admin only) and mint a short-lived
+// signed `state` value to carry CSRF protection through the OAuth round-trip.
 router.get('/connect', (req, res) => {
   if (!CLIENT_ID || !TENANT_ID) {
     return res.status(500).json({ error: 'Microsoft OAuth not configured. Set MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_TENANT_ID in Render env vars.' });
   }
+  // Authenticate the initiator via the token query param.
+  const token = req.query.token;
+  if (!token) return res.redirect(`${FRONTEND_URL}?ms_error=${encodeURIComponent('Not signed in — open Data Sync and try again.')}`);
+  let payload;
+  try {
+    payload = jwt.verify(token, ACCESS_SECRET);
+  } catch {
+    return res.redirect(`${FRONTEND_URL}?ms_error=${encodeURIComponent('Session expired — sign in again.')}`);
+  }
+  if (payload.role !== 'super_admin') {
+    return res.redirect(`${FRONTEND_URL}?ms_error=${encodeURIComponent('Only an admin can connect Microsoft.')}`);
+  }
+  // CSRF state: a short-lived signed token bound to the initiating user.
+  const state = jwt.sign({ sub: payload.sub, t: 'ms_oauth' }, ACCESS_SECRET, { expiresIn: '10m' });
   const params = new URLSearchParams({
     client_id:     CLIENT_ID,
     response_type: 'code',
@@ -118,18 +141,26 @@ router.get('/connect', (req, res) => {
     scope:         SCOPES,
     response_mode: 'query',
     prompt:        'select_account',
+    state,
   });
   res.redirect(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${params}`);
 });
 
 // GET /api/microsoft/callback  → Microsoft redirects here after login
 router.get('/callback', async (req, res) => {
-  const { code, error, error_description } = req.query;
+  const { code, error, error_description, state } = req.query;
   if (error) {
     return res.redirect(`${FRONTEND_URL}?ms_error=${encodeURIComponent(error_description || error)}`);
   }
   if (!code) {
     return res.redirect(`${FRONTEND_URL}?ms_error=no_code`);
+  }
+  // Verify the CSRF state we minted in /connect — rejects forged/replayed callbacks.
+  try {
+    const s = jwt.verify(state, ACCESS_SECRET);
+    if (s.t !== 'ms_oauth') throw new Error('bad state');
+  } catch {
+    return res.redirect(`${FRONTEND_URL}?ms_error=${encodeURIComponent('Invalid or expired authorization state.')}`);
   }
 
   try {

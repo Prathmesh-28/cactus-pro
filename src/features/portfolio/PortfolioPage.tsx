@@ -188,8 +188,8 @@ export default function PortfolioPage() {
             <Layers className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h2 className="font-heading font-bold text-gray-900 text-base leading-tight">Portfolio Key Metrics</h2>
-            <p className="text-xs text-gray-400">Fund-level summary — {visibleMetrics.length} active metrics</p>
+            <h2 className="font-heading font-bold text-gray-900 text-base leading-tight">{store.contentConfig?.sectionHeaders?.portfolio || 'Portfolio Key Metrics'}</h2>
+            <p className="text-xs text-gray-400">{store.contentConfig?.pageDescriptions?.portfolio || `Fund-level summary — ${visibleMetrics.length} active metrics`}</p>
           </div>
         </div>
 

@@ -382,6 +382,131 @@ export const CSV_TEMPLATES: CsvTemplate[] = [
       ['Portfolio Manager', 'Arjun Verma', 'arjun.v@outlook.com', '+91 97654 32109', 'https://linkedin.com/in/arjunverma', 'Tata Capital', 'Senior Associate', '60 days', '2500000', '2000000', 'Mumbai', 'Referral', '', 'Referred by Tata Capital LP.'],
     ],
   },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // GAP-FILL TEMPLATES — every remaining numeric surface (seeded live, sync-overwritten)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'fund-metric-cards',
+    label: 'Fund Metric Cards (Homepage / Portfolio)',
+    team: 'global',
+    sheetName: 'Fund Metric Cards',
+    kvKey: 'fund_metric_cards',
+    description: 'The headline metric cards shown on the Home page and Portfolio header — Total AUM, Avg. MOIC, etc. Edit the value/delta here and they update everywhere.',
+    headers: ['ID', 'Label', 'Value', 'Delta', 'Delta Direction', 'Visible'],
+    exampleRows: [
+      ['fm1', 'Total AUM', '₹1,197 Cr', '+12.4%', 'up', 'TRUE'],
+      ['fm2', 'Avg. MOIC', '2.6x', '+0.3x', 'up', 'TRUE'],
+      ['fm3', 'Active Companies', '12', '+2', 'up', 'TRUE'],
+      ['fm4', 'Gross IRR', '33.8%', '+1.2%', 'up', 'TRUE'],
+    ],
+    notes: 'ID must stay stable to update an existing card. Delta Direction = up | down | neutral. Map to: Global → Fund Metric Cards in Data Sync.',
+  },
+
+  {
+    id: 'portfolio-snapshot',
+    label: 'Portfolio Snapshot',
+    team: 'finance',
+    sheetName: 'Portfolio Snapshot',
+    kvKey: 'pm:Portfolio',
+    description: 'The portfolio snapshot table — per-company invested, current value and multiple as shown on the Portfolio overview.',
+    headers: ['Company', 'Sector', 'Stage', 'Invested (₹Cr)', 'Current Value (₹Cr)', 'MOIC (x)', 'Ownership (%)', 'Status'],
+    exampleRows: [
+      ['Lohum', 'Advanced Manufacturing', 'Series B', '23', '137', '5.96', '2.92', 'Active'],
+      ['Auric', 'Consumer', 'Seed', '21', '166', '7.90', '16.95', 'Active'],
+    ],
+    notes: 'Map to: Finance → Portfolio Snapshot in Data Sync.',
+  },
+
+  {
+    id: 'fund-investments',
+    label: 'Fund Investments (Full Ledger)',
+    team: 'finance',
+    sheetName: 'Fund Investments',
+    kvKey: 'fund_investments',
+    description: 'The complete fund investment ledger — every operating + valuation number per holding shown in Fund Ledger and Operational Metrics.',
+    headers: ['ID', 'Company', 'Fund', 'Investment Date', 'Total Invested (₹Cr)', 'Current FMV (₹Cr)', 'Current Valuation (₹Cr)', 'MOIC (x)', 'IRR (%)', 'DPI (x)', 'Realized Value (₹Cr)', 'Unrealized Value (₹Cr)', 'Revenue (₹Cr)', 'ARR (₹Cr)', 'MRR (₹Cr)', 'Gross Margin (%)', 'EBITDA Margin (%)', 'Monthly Burn (₹Cr)', 'Cash (₹Cr)', 'Runway (mo)', 'Headcount', 'NRR (%)', 'Status'],
+    exampleRows: [
+      ['fi_c3', 'Lohum', 'Fund 1', '2021-08-01', '23', '137', '4700', '5.96', '62.3', '0', '0', '137', '835', '', '', '18', '-4', '8', '120', '15', '420', '', 'Active'],
+      ['fi_c1', 'Bellatrix', 'Fund 1', '2021-09-01', '14', '28', '836', '2.0', '24.1', '0', '0', '28', '1.75', '', '', '32', '-180', '2.5', '40', '16', '95', '', 'Active'],
+    ],
+    notes: 'ID must stay stable to update an existing holding. Map to: Finance → Fund Investments in Data Sync.',
+  },
+
+  {
+    id: 'portfolio-fund-view',
+    label: 'Portfolio Fund View',
+    team: 'portfolio',
+    sheetName: 'Portfolio Fund View',
+    kvKey: 'portfolio_fund_view',
+    description: 'The Portfolio team’s own copy of the fund investment numbers (independent of Finance). Same columns as Fund Investments.',
+    headers: ['ID', 'Company', 'Fund', 'Investment Date', 'Total Invested (₹Cr)', 'Current FMV (₹Cr)', 'Current Valuation (₹Cr)', 'MOIC (x)', 'IRR (%)', 'Realized Value (₹Cr)', 'Unrealized Value (₹Cr)', 'Revenue (₹Cr)', 'Headcount', 'Status'],
+    exampleRows: [
+      ['pf_fi_c3', 'Lohum', 'Fund 1', '2021-08-01', '23', '137', '4700', '5.96', '62.3', '0', '137', '835', '420', 'Active'],
+    ],
+    notes: 'Map to: Portfolio → Portfolio Fund View in Data Sync.',
+  },
+
+  {
+    id: 'sector-kpis',
+    label: 'Sector KPIs (per company)',
+    team: 'portfolio',
+    sheetName: 'Sector KPIs',
+    kvKey: 'sector_kpis',
+    description: 'Per-company sector KPI table shown on the company Overview tab — one row per KPI per company across FY23–FY27.',
+    headers: ['Company', 'Company ID', 'KPI Label', 'Unit', 'FY23', 'FY24', 'FY25', 'FY26E', 'FY27E'],
+    exampleRows: [
+      ['Lohum', 'c3', 'Revenue Growth', '%', '120', '180', '210', '160', '140'],
+      ['Lohum', 'c3', 'Gross Margin', '%', '14', '16', '18', '20', '22'],
+    ],
+    notes: 'Company ID is the KEY (rows replace existing KPIs for that company). Map to: Portfolio → Sector KPIs in Data Sync.',
+  },
+
+  {
+    id: 'funding-rounds',
+    label: 'Funding Rounds (per company)',
+    team: 'portfolio',
+    sheetName: 'Funding Rounds',
+    kvKey: 'funding_rounds',
+    description: 'Funding history shown on the company Funding tab — one row per round per company.',
+    headers: ['Company', 'Company ID', 'Date', 'Round', 'Amount (₹Cr)', 'Post-Money Valuation (₹Cr)', 'Lead Investors', 'All Investors'],
+    exampleRows: [
+      ['Lohum', 'c3', '2021-08-01', 'Series A', '23', '600', '360 ONE', '360 ONE, Cactus Partners'],
+      ['Lohum', 'c3', '2023-09-10', 'Series B', '15', '4500', 'Tata Capital', 'Tata Capital, Cactus Partners'],
+    ],
+    notes: 'Company ID is the KEY. Map to: Portfolio → Funding Rounds in Data Sync.',
+  },
+
+  {
+    id: 'cap-table',
+    label: 'Cap Table (per company)',
+    team: 'portfolio',
+    sheetName: 'Cap Table',
+    kvKey: 'cap_table',
+    description: 'Ownership cap table shown on the company Cap Table tab — one row per investor per company.',
+    headers: ['Company', 'Company ID', 'Investor', 'Category', 'Holding (%)', 'Investment (₹Cr)', 'Shares'],
+    exampleRows: [
+      ['Lohum', 'c3', 'Cactus Partners', 'VC', '2.92', '23', ''],
+      ['Lohum', 'c3', 'Founders', 'Founder', '45.0', '', ''],
+    ],
+    notes: 'Company ID is the KEY. Map to: Portfolio → Cap Table in Data Sync.',
+  },
+
+  {
+    id: 'financial-history',
+    label: 'Financial History (per company, annual)',
+    team: 'portfolio',
+    sheetName: 'Financial History',
+    kvKey: 'financial_history',
+    description: 'Annual financial history shown on the company Financials charts — one row per year per company.',
+    headers: ['Company', 'Company ID', 'Year', 'Revenue (₹Cr)', 'Net Profit (₹Cr)', 'EBITDA (₹Cr)', 'EBITDA Margin (%)', 'Total Assets (₹Cr)', 'Total Debt (₹Cr)', 'Employees'],
+    exampleRows: [
+      ['Lohum', 'c3', 'FY2023-24', '835', '12', '45', '5.4', '1200', '120', '420'],
+      ['Lohum', 'c3', 'FY2022-23', '298', '-8', '6', '2.0', '650', '90', '210'],
+    ],
+    notes: 'Company ID is the KEY. Map to: Portfolio → Financial History in Data Sync.',
+  },
 ];
 
 // ── Download helper ──────────────────────────────────────────────────────────
@@ -599,6 +724,119 @@ export const DATA_GENERATORS: Record<string, (store: Store) => string[][]> = {
       safe(c.noticePeriod), safe(c.expectedCTC), safe(c.currentCTC),
       safe(c.location), safe(c.source), safe(c.resumeUrl), safe(c.notes),
     ]);
+  },
+
+  // ── Gap-fill generators ────────────────────────────────────────────────────
+
+  'fund-metric-cards': (store) => {
+    const metrics: Store[] = store.fundMetrics ?? [];
+    return metrics.map(m => [
+      safe(m.id), safe(m.label), safe(m.value), safe(m.delta),
+      safe(m.deltaDirection), m.visible === false ? 'FALSE' : 'TRUE',
+    ]);
+  },
+
+  'portfolio-snapshot': (store) => {
+    const rows: Store[] = store.portfolioSnapshot ?? [];
+    if (rows.length) {
+      // Snapshot rows are free-form; emit their values in column order if present.
+      return rows.map(r => [
+        safe(r.company ?? r.name), safe(r.sector), safe(r.stage),
+        safe(r.invested ?? r.totalInvested), safe(r.currentValue ?? r.valueOfInvestment ?? r.currentFMV),
+        safe(r.moic), safe(r.ownershipPct ?? r.ownership), safe(r.status),
+      ]);
+    }
+    // Fall back to deriving a snapshot from companies if none stored yet.
+    const companies: Store[] = store.companies ?? [];
+    const sectors: Store[] = store.sectors ?? [];
+    const sMap = Object.fromEntries(sectors.map((s: Store) => [s.id, s.name]));
+    return companies.map(c => [
+      safe(c.name), sMap[c.sectorId] ?? safe(c.sectorId), safe(c.stage),
+      safe(c.cactusInvestment ?? c.totalInvested), safe(c.currentValuation),
+      safe(c.moic), safe(c.ownershipPct), safe(c.status),
+    ]);
+  },
+
+  'fund-investments': (store) => {
+    const invs: Store[] = store.fundInvestments ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return invs.map(i => [
+      safe(i.id), cMap[i.companyId] ?? safe(i.companyId), safe(i.fund), safe(i.investmentDate),
+      safe(i.totalInvested), safe(i.currentFMV), safe(i.currentValuation), safe(i.moic), safe(i.irr),
+      safe(i.dpi), safe(i.realizedValue), safe(i.unrealizedValue), safe(i.revenue), safe(i.arr), safe(i.mrr),
+      safe(i.grossMargin), safe(i.ebitdaMargin), safe(i.monthlyBurn), safe(i.cash), safe(i.runway),
+      safe(i.headcount), safe(i.nrr), safe(i.status),
+    ]);
+  },
+
+  'portfolio-fund-view': (store) => {
+    const invs: Store[] = store.portfolioFundView ?? [];
+    const companies: Store[] = store.companies ?? [];
+    const cMap = Object.fromEntries(companies.map((c: Store) => [c.id, c.name]));
+    return invs.map(i => [
+      safe(i.id), cMap[i.companyId] ?? safe(i.companyId), safe(i.fund), safe(i.investmentDate),
+      safe(i.totalInvested), safe(i.currentFMV), safe(i.currentValuation), safe(i.moic), safe(i.irr),
+      safe(i.realizedValue), safe(i.unrealizedValue), safe(i.revenue), safe(i.headcount), safe(i.status),
+    ]);
+  },
+
+  'sector-kpis': (store) => {
+    const companies: Store[] = store.companies ?? [];
+    const rows: string[][] = [];
+    companies.forEach((c: Store) => {
+      (c.sectorKpis ?? []).forEach((k: Store) => {
+        rows.push([
+          safe(c.name), safe(c.id), safe(k.label), safe(k.unit),
+          safe(k.fy23), safe(k.fy24), safe(k.fy25), safe(k.fy26e), safe(k.fy27e),
+        ]);
+      });
+    });
+    return rows;
+  },
+
+  'funding-rounds': (store) => {
+    const companies: Store[] = store.companies ?? [];
+    const rows: string[][] = [];
+    companies.forEach((c: Store) => {
+      (c.fundingRounds ?? []).forEach((r: Store) => {
+        rows.push([
+          safe(c.name), safe(c.id), safe(r.date), safe(r.roundName ?? r.round),
+          safe(r.amount), safe(r.postMoneyValuation ?? r.postMoneyVal),
+          safe(r.leadInvestors), safe(r.allInvestors),
+        ]);
+      });
+    });
+    return rows;
+  },
+
+  'cap-table': (store) => {
+    const companies: Store[] = store.companies ?? [];
+    const rows: string[][] = [];
+    companies.forEach((c: Store) => {
+      (c.capTable ?? []).forEach((e: Store) => {
+        rows.push([
+          safe(c.name), safe(c.id), safe(e.investor), safe(e.category),
+          safe(e.holdingPct ?? e.holding), safe(e.investment), safe(e.shares),
+        ]);
+      });
+    });
+    return rows;
+  },
+
+  'financial-history': (store) => {
+    const companies: Store[] = store.companies ?? [];
+    const rows: string[][] = [];
+    companies.forEach((c: Store) => {
+      (c.financialHistory ?? []).forEach((h: Store) => {
+        rows.push([
+          safe(c.name), safe(c.id), safe(h.year),
+          safe(h.revenue), safe(h.netProfit), safe(h.ebitda), safe(h.ebitdaMargin),
+          safe(h.totalAssets), safe(h.totalDebt), safe(h.employees),
+        ]);
+      });
+    });
+    return rows;
   },
 };
 

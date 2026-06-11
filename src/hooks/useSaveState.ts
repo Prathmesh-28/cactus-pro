@@ -26,8 +26,10 @@ export function markSaved() {
 }
 
 export function markError() {
+  // Sticky: a failed save means data may not have persisted, so keep the red indicator
+  // visible until the next save attempt (markSaving) rather than auto-hiding it.
+  if (_savedTimer) { clearTimeout(_savedTimer); _savedTimer = null; }
   setState('error');
-  _savedTimer = setTimeout(() => setState('idle'), 4000);
 }
 
 export function getSaveState(): SaveState { return _state; }

@@ -8,6 +8,21 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db');
+const { roleCanAccessNamespace } = require('../lib/namespaces');
+
+// ─── Namespace authorization ──────────────────────────────────────────────────
+// Every KV route is keyed by :namespace. Reject any access outside the namespaces
+// the authenticated user's role is allowed to touch. req.user is set by the
+// `authenticate` middleware mounted in server.js; role comes from the signed JWT,
+// never from the client, so this can't be bypassed by editing localStorage.
+router.use((req, res, next) => {
+  const ns = req.params.namespace || req.path.split('/').filter(Boolean)[0];
+  const role = req.user && req.user.role;
+  if (!ns || !roleCanAccessNamespace(role, ns)) {
+    return res.status(403).json({ error: 'Forbidden: namespace not accessible for this role' });
+  }
+  next();
+});
 
 // GET all keys in a namespace
 router.get('/:namespace', async (req, res) => {

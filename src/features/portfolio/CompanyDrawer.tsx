@@ -690,6 +690,10 @@ export default function CompanyDrawer({ company, onClose }: Props) {
                   const totalInv = parseFloat(inv.totalInvested || '0');
                   const totalFMV = parseFloat(inv.currentFMV || '0');
 
+                  // NOTE: there is no real per-round FMV, so these per-tranche figures
+                  // are ESTIMATES — current value is apportioned pro-rata to each cheque's
+                  // share of total invested, and IRR annualises that blended MOIC. They are
+                  // labelled "(est.)" below so they aren't read as true per-round returns.
                   function trancheMetrics(amount: number, dateStr: string) {
                     const currentVal = totalInv > 0 ? (amount / totalInv) * totalFMV : 0;
                     const moic = amount > 0 ? currentVal / amount : 0;
@@ -715,10 +719,10 @@ export default function CompanyDrawer({ company, onClose }: Props) {
                               <th className="text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide py-1.5 pr-2 whitespace-nowrap">Round</th>
                               <th className="text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide py-1.5 pr-2 whitespace-nowrap">Stake</th>
                               <th className={thCls}>Invested</th>
-                              <th className={thCls}>Current Value</th>
-                              <th className={thCls}>Gain / Loss</th>
-                              <th className={thCls}>MOIC</th>
-                              <th className={thCls}>IRR</th>
+                              <th className={thCls}>Current Value (est.)</th>
+                              <th className={thCls}>Gain / Loss (est.)</th>
+                              <th className={thCls} title="Pro-rata estimate — no true per-round FMV">MOIC (est.)</th>
+                              <th className={thCls} title="Annualised blended estimate — not a true per-round IRR">IRR (est.)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -782,6 +786,10 @@ export default function CompanyDrawer({ company, onClose }: Props) {
                           </tbody>
                         </table>
                       </div>
+                      <p className="text-[10px] text-gray-400 mt-2">
+                        Per-round Current Value, MOIC and IRR are estimates (current FMV apportioned
+                        pro-rata by cheque size); only the Total row reflects the actual recorded MOIC/IRR.
+                      </p>
                     </div>
                   );
                 })()}
