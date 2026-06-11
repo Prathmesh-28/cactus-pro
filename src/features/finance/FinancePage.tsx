@@ -5,6 +5,7 @@ import { LayoutDashboard, Receipt, CalendarCheck, PhoneCall, TrendingUp, Mail, S
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportFinancePDF, exportFinanceExcel } from '../../lib/export';
 import { cn } from '../../lib/utils';
+import { haptic } from '../../lib/native';
 import { FundProvider } from './lib/fund-context';
 import { Toaster } from 'sonner';
 import FundOverviewPage from './FundOverviewPage';
@@ -175,7 +176,7 @@ export default function FinancePage() {
           }}>
           <div className="flex min-w-max">
             {NAV.map(({ key, label, Icon }) => (
-              <button key={key} onClick={() => setActiveTab(key)}
+              <button key={key} onClick={() => { haptic('light'); setActiveTab(key); }}
                 className={cn('flex flex-col items-center gap-1 py-2.5 px-3 text-[10px] transition-colors whitespace-nowrap min-w-[68px]')}
                 style={{
                   color: 'rgba(255,255,255,' + (activeTab === key ? '1' : '0.7') + ')',

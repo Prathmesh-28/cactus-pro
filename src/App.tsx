@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import Header from './components/layout/Header';
@@ -9,6 +9,7 @@ import Chatbot from './components/ui/Chatbot';
 import SaveIndicator from './components/ui/SaveIndicator';
 import ConnectionBanner from './components/ui/ConnectionBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import BiometricGate from './components/ui/BiometricGate';
 
 // Eagerly loaded (tiny, needed immediately)
 import LoginPage from './pages/LoginPage';
@@ -66,8 +67,19 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 }
 
 function AppShell() {
+  const navigate = useNavigate();
+  // Deep links + notification taps dispatch 'cactus:navigate' (from nativeBridge).
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail;
+      if (path) navigate(path);
+    };
+    window.addEventListener('cactus:navigate', handler);
+    return () => window.removeEventListener('cactus:navigate', handler);
+  }, [navigate]);
+
   return (
-    <>
+    <BiometricGate>
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <div className="flex-1">
@@ -89,7 +101,7 @@ function AppShell() {
       <Chatbot />
       <SaveIndicator />
       <ConnectionBanner />
-    </>
+    </BiometricGate>
   );
 }
 

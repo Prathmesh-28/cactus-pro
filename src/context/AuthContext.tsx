@@ -3,10 +3,13 @@
  * Wraps the entire app. Every protected route checks useAuth().user.
  */
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { secureGet, secureSet, secureRemove } from '../lib/secureStore';
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const LS_ACCESS  = 'cactus_access';
 const LS_REFRESH = 'cactus_refresh';
+const isNativePlatform = Capacitor.isNativePlatform();
 
 export interface AuthUser {
   id: number;
@@ -46,21 +49,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getAccessToken = () => localStorage.getItem(LS_ACCESS);
 
+  // The refresh token (30-day, sensitive) lives in the device secure store on native
+  // (Keychain/Keystore) instead of localStorage; on web it falls back to localStorage.
+  const getRefreshToken = async () => (await secureGet(LS_REFRESH)) ?? localStorage.getItem(LS_REFRESH);
+  const setTokens = async (accessToken: string, refreshToken: string) => {
+    localStorage.setItem(LS_ACCESS, accessToken);
+    await secureSet(LS_REFRESH, refreshToken);
+    // Clean up any legacy plaintext refresh token left in localStorage on native.
+    if (isNativePlatform) localStorage.removeItem(LS_REFRESH);
+  };
+  const clearTokens = async () => {
+    localStorage.removeItem(LS_ACCESS);
+    localStorage.removeItem(LS_REFRESH);
+    await secureRemove(LS_REFRESH);
+  };
+
   // Auto-refresh access token using refresh token
   const refresh = useCallback(async (): Promise<boolean> => {
-    const rt = localStorage.getItem(LS_REFRESH);
+    const rt = await getRefreshToken();
     if (!rt) return false;
     try {
       const data = await apiFetch('/auth/refresh', {
         method: 'POST',
         body: JSON.stringify({ refreshToken: rt }),
       });
-      localStorage.setItem(LS_ACCESS,  data.accessToken);
-      localStorage.setItem(LS_REFRESH, data.refreshToken);
+      await setTokens(data.accessToken, data.refreshToken);
       return true;
     } catch {
-      localStorage.removeItem(LS_ACCESS);
-      localStorage.removeItem(LS_REFRESH);
+      await clearTokens();
       return false;
     }
   }, []);
@@ -141,13 +157,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    localStorage.setItem(LS_ACCESS,  data.accessToken);
-    localStorage.setItem(LS_REFRESH, data.refreshToken);
+    await setTokens(data.accessToken, data.refreshToken);
     setUser(data.user);
   };
 
   const logout = async () => {
-    const rt = localStorage.getItem(LS_REFRESH);
+    const rt = await getRefreshToken();
     try {
       await apiFetch('/auth/logout', {
         method: 'POST',
@@ -155,8 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ refreshToken: rt }),
       });
     } catch { /* ignore */ }
-    localStorage.removeItem(LS_ACCESS);
-    localStorage.removeItem(LS_REFRESH);
+    await clearTokens();
     setUser(null);
     window.location.href = '/login';
   };

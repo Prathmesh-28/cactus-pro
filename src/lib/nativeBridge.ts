@@ -44,5 +44,45 @@ export async function initNative(): Promise<void> {
         App.exitApp();
       }
     });
+
+    // Deep links / universal links: cactuspartners://... or an https app link opens the
+    // matching in-app route. We dispatch a window event the router listens for.
+    App.addListener('appUrlOpen', ({ url }) => {
+      try {
+        const u = new URL(url);
+        // Take the path after the scheme/host, e.g. cactuspartners://company/lohum → /company/lohum
+        const path = (u.pathname && u.pathname !== '/') ? u.pathname : ('/' + (u.host || ''));
+        if (path) window.dispatchEvent(new CustomEvent('cactus:navigate', { detail: path }));
+      } catch { /* malformed link — ignore */ }
+    });
   } catch { /* ignore */ }
+
+  // Push notifications: register for a device token and forward it to the backend so
+  // it can target this device. Tapping a notification deep-links via its `path` data.
+  // NOTE: requires APNs key (iOS) + Firebase (Android) configured — see MOBILE_FEATURES.md.
+  try {
+    const { PushNotifications } = await import('@capacitor/push-notifications');
+    const perm = await PushNotifications.requestPermissions();
+    if (perm.receive === 'granted') {
+      await PushNotifications.register();
+      PushNotifications.addListener('registration', async ({ value: token }) => {
+        // Send the device token to the backend (best-effort).
+        try {
+          const base = import.meta.env.VITE_API_URL || '';
+          const access = localStorage.getItem('cactus_access');
+          if (base && access) {
+            await fetch(`${base}/api/push/register`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${access}` },
+              body: JSON.stringify({ token, platform: Capacitor.getPlatform() }),
+            });
+          }
+        } catch { /* offline / not configured — ignore */ }
+      });
+      PushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
+        const path = notification.notification?.data?.path;
+        if (path) window.dispatchEvent(new CustomEvent('cactus:navigate', { detail: path }));
+      });
+    }
+  } catch { /* push plugin not configured — ignore */ }
 }

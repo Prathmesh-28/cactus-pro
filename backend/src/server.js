@@ -12,6 +12,7 @@ const syncRouter  = require('./routes/sync');
 const authRouter  = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const aiRouter    = require('./routes/ai');
+const pushRouter  = require('./routes/push');
 const { router: microsoftRouter } = require('./routes/microsoft');
 
 const app  = express();
@@ -91,6 +92,7 @@ app.use('/api/kv',    authenticate, kvRouter);
 app.use('/api/sync',  authenticate, syncRouter);
 app.use('/api/users', usersRouter);   // auth applied inside router
 app.use('/api/ai',    authenticate, aiRouter);
+app.use('/api/push',  pushRouter);    // auth applied inside router
 app.use('/api/microsoft', microsoftRouter);  // public callback + authenticated routes    // Claude-backed assistant proxy
 
 // ── Global error handler ──────────────────────────────────────────────────────

@@ -3,15 +3,45 @@
  * password. Works everywhere (web + iOS + Android), since it talks to the shared
  * backend via AuthContext.updateProfile / changePassword.
  */
-import { useState } from 'react';
-import { X, User, KeyRound, Check, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, User, KeyRound, Check, Loader2, Eye, EyeOff, Fingerprint } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { isNative } from '../../lib/native';
+import { biometricAvailable, isLockEnabled, setLockEnabled, verifyBiometric, setPin, clearPin } from '../../lib/biometric';
 
 const PRIMARY = '#1C4B42';
 
 export default function ProfileModal({ onClose }: { onClose: () => void }) {
   const { user, updateProfile, changePassword } = useAuth();
-  const [tab, setTab] = useState<'profile' | 'password'>('profile');
+  const [tab, setTab] = useState<'profile' | 'password' | 'security'>('profile');
+
+  // ── Security (biometric lock) — native only ──
+  const [bioAvail, setBioAvail] = useState(false);
+  const [lockOn, setLockOn] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [secMsg, setSecMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => {
+    if (!isNative) return;
+    biometricAvailable().then(setBioAvail);
+    isLockEnabled().then(setLockOn);
+  }, []);
+  const toggleLock = async () => {
+    setSecMsg(null);
+    if (!lockOn) {
+      const ok = await verifyBiometric('Enable app lock');
+      if (!ok) { setSecMsg({ ok: false, text: 'Verification failed — lock not enabled.' }); return; }
+      await setLockEnabled(true); setLockOn(true);
+      setSecMsg({ ok: true, text: 'App lock enabled. Cactus Pro will require Face ID / fingerprint to open.' });
+    } else {
+      await setLockEnabled(false); setLockOn(false); await clearPin();
+      setSecMsg({ ok: true, text: 'App lock disabled.' });
+    }
+  };
+  const savePinFallback = async () => {
+    if (!/^\d{6}$/.test(pinInput)) { setSecMsg({ ok: false, text: 'PIN must be 6 digits.' }); return; }
+    await setPin(pinInput); setPinInput('');
+    setSecMsg({ ok: true, text: 'Backup PIN saved.' });
+  };
 
   // Profile form
   const [name, setName] = useState(user?.name ?? '');
@@ -89,6 +119,13 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
             style={tab === 'password' ? { borderColor: PRIMARY } : {}}>
             <KeyRound className="w-4 h-4" /> Password
           </button>
+          {isNative && (
+            <button onClick={() => setTab('security')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium ${tab === 'security' ? 'text-gray-900 border-b-2' : 'text-gray-400'}`}
+              style={tab === 'security' ? { borderColor: PRIMARY } : {}}>
+              <Fingerprint className="w-4 h-4" /> Lock
+            </button>
+          )}
         </div>
 
         <div className="p-5 overflow-y-auto">
@@ -116,7 +153,7 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
                 {savingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} Save changes
               </button>
             </div>
-          ) : (
+          ) : tab === 'password' ? (
             <div className="space-y-4">
               <div>
                 <label className={label}>Current password</label>
@@ -149,6 +186,38 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
                 style={{ background: PRIMARY }}>
                 {savingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />} Change password
               </button>
+            </div>
+          ) : (
+            /* Security / app lock — native only */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-gray-200">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-800">App lock</p>
+                  <p className="text-[11px] text-gray-400">
+                    {bioAvail ? 'Require Face ID / fingerprint to open Cactus Pro.' : 'Biometrics unavailable on this device — use a backup PIN.'}
+                  </p>
+                </div>
+                <button onClick={toggleLock}
+                  className="w-12 h-7 rounded-full transition-colors shrink-0 relative"
+                  style={{ backgroundColor: lockOn ? PRIMARY : '#D1D5DB' }}>
+                  <span className="absolute top-0.5 w-6 h-6 rounded-full bg-white transition-all"
+                    style={{ left: lockOn ? '22px' : '2px' }} />
+                </button>
+              </div>
+              {lockOn && (
+                <div>
+                  <label className={label}>Backup PIN (6 digits)</label>
+                  <div className="flex gap-2">
+                    <input className={input} inputMode="numeric" maxLength={6} value={pinInput}
+                      onChange={e => setPinInput(e.target.value.replace(/\D/g, ''))} placeholder="Used if Face ID fails" />
+                    <button onClick={savePinFallback}
+                      className="px-3 rounded-lg text-white text-sm shrink-0" style={{ background: PRIMARY }}>Set</button>
+                  </div>
+                </div>
+              )}
+              {secMsg && (
+                <p className={`text-xs ${secMsg.ok ? 'text-emerald-600' : 'text-red-500'}`}>{secMsg.text}</p>
+              )}
             </div>
           )}
         </div>

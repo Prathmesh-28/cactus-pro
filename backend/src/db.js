@@ -103,6 +103,16 @@ async function initDb() {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      -- Push notification device tokens (APNs/FCM) per user
+      CREATE TABLE IF NOT EXISTS push_tokens (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token       TEXT NOT NULL UNIQUE,
+        platform    VARCHAR(20),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_push_tokens_user ON push_tokens(user_id);
+
       CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user  ON refresh_tokens(user_id);
       CREATE INDEX IF NOT EXISTS idx_reset_tokens_token   ON password_reset_tokens(token);
       CREATE INDEX IF NOT EXISTS idx_audit_user           ON audit_log(user_id);
