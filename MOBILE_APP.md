@@ -5,10 +5,29 @@ project lives in `android/`. This produces an installable `.apk` you can share
 directly — **no Play Store and no $25 fee required**.
 
 ## One-time setup (already done)
-- `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` installed
-- `capacitor.config.ts` — appId `in.cactuspartners.app`, webDir `dist`
+- `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, `@capacitor/ios` installed
+- Native plugins: `@capacitor/status-bar`, `@capacitor/splash-screen`,
+  `@capacitor/keyboard`, `@capacitor/app` (all v8, matching core)
+- `capacitor.config.ts` — appId `in.cactuspartners.app`, webDir `dist`, https scheme,
+  splash + status-bar + keyboard config
 - Backend CORS allows the app origins (`https://localhost`, `capacitor://localhost`)
-- `android/` native project generated
+- `android/` and `ios/` native projects generated
+
+## Native polish (already wired)
+These make the app render correctly on notched iPhones and modern Android:
+- **Safe areas** — `viewport-fit=cover` + `env(safe-area-inset-*)` so the header
+  clears the notch/Dynamic Island and floating UI (chatbot, save toast) clears the
+  home indicator. Status bar is dark green with light icons (does **not** overlay the
+  webview, so content can't hide under it).
+- **Splash** — green (`#1C4B42`) launch screen, hidden from JS once React mounts
+  (`src/lib/nativeBridge.ts`); iOS `LaunchScreen.storyboard` background is green too
+  (no white flash).
+- **Android back button** — navigates history; exits only at the root.
+- **Keyboard** — webview resizes natively when the keyboard opens.
+- All of the above are no-ops on the web build — same code runs everywhere.
+
+> After changing any web code: `npm run build && npx cap sync` re-copies the bundle
+> + native config into both platforms.
 
 ## Build the APK (do this on a Mac/PC with Android Studio installed)
 
@@ -50,11 +69,12 @@ unknown sources" → Install.
    android/app/build/outputs/apk/release/app-release.apk
    ```
 
-## App icon & splash (optional)
+## App icon & splash (already generated; re-run if you change `resources/`)
 ```bash
-npm install -D @capacitor/assets
-# put resources/icon.png (1024x1024) and resources/splash.png (2732x2732)
-npx capacitor-assets generate --android
+# resources/icon.png (1024x1024), resources/splash.png + splash-dark.png (2732x2732)
+npx capacitor-assets generate \
+  --iconBackgroundColor '#1C4B42' --iconBackgroundColorDark '#0A2321' \
+  --splashBackgroundColor '#1C4B42' --splashBackgroundColorDark '#0A2321'
 npx cap sync
 ```
 

@@ -107,8 +107,8 @@ export default function Chatbot() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-[150] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ background: open ? '#0A2321' : 'linear-gradient(135deg, #1C4B42, #254536)', border: '3px solid #86CA0F' }}
+        className="fixed right-6 z-[150] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+        style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))', background: open ? '#0A2321' : 'linear-gradient(135deg, #1C4B42, #254536)', border: '3px solid #86CA0F' }}
         aria-label="Open assistant"
       >
         {open
@@ -123,8 +123,8 @@ export default function Chatbot() {
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-[150] w-[360px] max-w-[calc(100vw-24px)] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
-          style={{ height: '520px', border: '1px solid #E3EDE9', backgroundColor: '#ffffff' }}>
+        <div className="fixed right-6 z-[150] w-[360px] max-w-[calc(100vw-24px)] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
+          style={{ bottom: 'calc(6rem + env(safe-area-inset-bottom, 0px))', height: 'min(520px, calc(100dvh - 7rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px)))', border: '1px solid #E3EDE9', backgroundColor: '#ffffff' }}>
 
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3.5 shrink-0"

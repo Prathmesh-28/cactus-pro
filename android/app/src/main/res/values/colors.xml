@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cactus Partners palette. colorPrimaryDark drives the Android status bar. -->
+    <color name="colorPrimary">#1C4B42</color>
+    <color name="colorPrimaryDark">#1C4B42</color>
+    <color name="colorAccent">#86CA0F</color>
+    <color name="splash_background">#1C4B42</color>
+</resources>
