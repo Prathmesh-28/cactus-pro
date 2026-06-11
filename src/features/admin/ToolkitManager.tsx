@@ -226,12 +226,10 @@ export default function ToolkitManager() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {tool.isCustom && (
-                      <button onClick={() => deleteToolkitTool(tool.id)}
-                        className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                    <button onClick={() => deleteToolkitTool(tool.id)}
+                      className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                 </tr>
               );
