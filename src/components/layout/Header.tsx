@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, Menu, X, LogOut, User, ChevronDown, Shield, Mail, ExternalLink, RefreshCw } from 'lucide-react';
+import { Bell, Menu, X, LogOut, User, UserCog, ChevronDown, Shield, Mail, ExternalLink, RefreshCw, Sun, Moon } from 'lucide-react';
+import ProfileModal from '../ui/ProfileModal';
 import { getSyncSources, runSync } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -28,6 +29,7 @@ export default function Header() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [showMailComposer, setShowMailComposer] = useState(false);
   const [showLinkedIn, setShowLinkedIn] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -35,6 +37,14 @@ export default function Header() {
   const [syncConfirm, setSyncConfirm] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
+
+  // ── Dark / light mode ──────────────────────────────────────────────────────
+  // Uses the html.dark CSS invert trick (index.css). Persisted in localStorage.
+  const [dark, setDark] = useState(() => localStorage.getItem('cactus_theme') === 'dark');
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+    localStorage.setItem('cactus_theme', dark ? 'dark' : 'light');
+  }, [dark]);
 
   const handleSyncAll = async () => {
     setSyncing(true);
@@ -152,6 +162,14 @@ export default function Header() {
 
             {/* Right side */}
             <div className="ml-auto flex items-center gap-1 xl:gap-2">
+              {/* Dark / light toggle */}
+              <button
+                onClick={() => setDark(d => !d)}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
               {/* Notification bell */}
               {activeAnnouncements.length > 0 && (
                 <div className="relative" ref={bellRef}>
@@ -329,6 +347,16 @@ export default function Header() {
                       <span className="text-xs font-mono text-gray-400">#{authUser?.id ?? '—'}</span>
                     </div>
 
+                    {/* Manage profile */}
+                    <button
+                      onClick={() => { setProfileOpen(false); setShowProfile(true); }}
+                      className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors border-b"
+                      style={{ borderColor: '#F2F7F1' }}
+                    >
+                      <UserCog className="w-4 h-4 text-gray-500" />
+                      Manage profile &amp; password
+                    </button>
+
                     {/* Logout */}
                     <button
                       onClick={() => { setProfileOpen(false); logout(); }}
@@ -393,6 +421,11 @@ export default function Header() {
                 style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: '#70B5F9' }}>
                 <ExternalLink className="w-3.5 h-3.5" /> LinkedIn
               </button>
+              <button onClick={() => setDark(d => !d)}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}>
+                {dark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />} {dark ? 'Light' : 'Dark'}
+              </button>
             </div>
           </div>
         )}
@@ -417,6 +450,7 @@ export default function Header() {
         isOpen={showLinkedIn}
         onClose={() => setShowLinkedIn(false)}
       />
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </>
   );
 }

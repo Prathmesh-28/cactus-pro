@@ -260,20 +260,22 @@ export default function AdminPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
         <aside className="lg:w-56 flex-shrink-0">
-          <nav className="flex lg:flex-col gap-0.5 overflow-x-auto lg:overflow-x-hidden lg:overflow-y-auto lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] pb-2 lg:pb-4 scrollbar-thin scrollbar-thumb-gray-200">
+          {/* Always a vertical, LABELLED list (icon + text + group headers) — on mobile
+              too, so admins read what each tab is instead of guessing from icons. */}
+          <nav className="flex flex-col gap-0.5 lg:overflow-y-auto lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] pb-2 lg:pb-4 scrollbar-thin scrollbar-thumb-gray-200">
             {(() => {
               const groups = ['Platform', 'Portfolio', 'Finance', 'Investment', 'Operations'];
               return groups.map(group => {
                 const groupTabs = TABS.filter(t => t.group === group);
                 return (
                   <div key={group} className="mb-1">
-                    <p className="hidden lg:block text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-3 py-1 mt-2">{group}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-3 py-1 mt-2">{group}</p>
                     {groupTabs.map(({ key, label, Icon }) => (
                       <button
                         key={key}
                         onClick={() => setActiveTab(key)}
                         className={cn(
-                          'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap text-left flex-shrink-0',
+                          'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left',
                           activeTab === key
                             ? 'text-white shadow-sm'
                             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -281,7 +283,7 @@ export default function AdminPage() {
                         style={activeTab === key ? { backgroundColor: store.firm.primaryColor } : {}}
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline lg:inline">{label}</span>
+                        <span>{label}</span>
                       </button>
                     ))}
                   </div>

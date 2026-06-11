@@ -39,7 +39,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: 'linear-gradient(135deg, #0A2321 0%, #1C4B42 60%, #254536 100%)' }}>
+      style={{
+        background: 'linear-gradient(135deg, #0A2321 0%, #1C4B42 60%, #254536 100%)',
+        // Fill the notch/status-bar area with the gradient itself so it blends with the
+        // bezel and there's no white seam under the status bar.
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}>
 
       {/* Card */}
       <div className="w-full max-w-md">

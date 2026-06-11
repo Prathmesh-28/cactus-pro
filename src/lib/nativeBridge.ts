@@ -19,11 +19,12 @@ export async function initNative(): Promise<void> {
   // at runtime too so a theme/route change can't leave it wrong).
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar');
+    // Non-overlay + explicit green: iOS/Android paint the status-bar strip itself in
+    // the brand green with light icons. This guarantees NO white strip above the
+    // header (the webview never has to fill the notch area). Header sits right below.
+    await StatusBar.setOverlaysWebView({ overlay: false });
     await StatusBar.setStyle({ style: Style.Light });
-    if (Capacitor.getPlatform() === 'android') {
-      await StatusBar.setBackgroundColor({ color: '#1C4B42' });
-      await StatusBar.setOverlaysWebView({ overlay: false });
-    }
+    await StatusBar.setBackgroundColor({ color: '#1C4B42' }).catch(() => {}); // Android-only API; no-op on iOS
   } catch { /* plugin unavailable — ignore */ }
 
   // Hide the splash now that React has mounted and styles are applied.

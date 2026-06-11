@@ -73,7 +73,10 @@ body {
   overflow-x: clip;
   display: flex;
   flex-direction: column;
-  background-color: #F6FAF7;
+  /* Brand green (NOT white): with an overlaying status bar this is what shows in the
+     notch/status-bar strip, so it blends seamlessly with the dark-green header and the
+     login gradient — no white seam line. Light pages set their own bg on their wrapper. */
+  background-color: #1C4B42;
   /* Respect left/right insets in landscape (notch side) */
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
