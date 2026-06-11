@@ -14,6 +14,7 @@ const https = require('https');
 const http = require('http');
 const XLSX = require('xlsx');
 const { pool } = require('../db');
+const { downloadSharePointFile } = require('./microsoft');
 
 // ─── Helper: follow redirects and download file buffer ────────────────────────
 
@@ -83,16 +84,33 @@ function parseExcel(buffer) {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
+// ─── Smart fetch: uses Graph API for SharePoint, direct download for others ────
+async function smartFetch(url) {
+  const isSharePoint = url.includes('sharepoint.com') || url.includes('onedrive.live.com') || url.includes('1drv.ms');
+  if (isSharePoint) {
+    // Try Graph API first (org-restricted files); fall back to direct download
+    try {
+      return await downloadSharePointFile(url);
+    } catch (graphErr) {
+      // If not connected to MS, fall through to direct download attempt
+      if (graphErr.message.includes('not connected')) throw graphErr;
+      // Graph failed for another reason — try direct download as fallback
+      const directUrl = toDirectDownloadUrl(url);
+      return await downloadBuffer(directUrl);
+    }
+  }
+  const directUrl = toDirectDownloadUrl(url);
+  return await downloadBuffer(directUrl);
+}
+
 // POST /api/sync/fetch  { url }  → parse Excel, return sheets preview
 router.post('/fetch', async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'url required' });
   try {
-    const downloadUrl = toDirectDownloadUrl(url.trim());
-    const buffer = await downloadBuffer(downloadUrl);
+    const buffer = await smartFetch(url.trim());
     const { sheetData } = parseExcel(buffer);
     const sheets = Object.keys(sheetData);
-    // Return preview: sheet names + first 5 rows each
     const preview = {};
     sheets.forEach(s => { preview[s] = sheetData[s].slice(0, 5); });
     res.json({ sheets, preview, rowCounts: Object.fromEntries(sheets.map(s => [s, sheetData[s].length])) });
@@ -186,8 +204,7 @@ router.post('/sources/:id/run', async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: 'Source not found' });
     source = rows[0];
 
-    const downloadUrl = toDirectDownloadUrl(source.url);
-    const buffer = await downloadBuffer(downloadUrl);
+    const buffer = await smartFetch(source.url);
     const { sheetData } = parseExcel(buffer);
 
     const mappings = source.sheet_mappings || [];

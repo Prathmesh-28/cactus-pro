@@ -4,7 +4,7 @@
  * Finance team → finance/* KV. Portfolio → portfolio/*. Investment → investment/*.
  */
 import { useState, useEffect } from 'react';
-import { RefreshCw, Plus, Trash2, ExternalLink, CheckCircle2, AlertCircle, Clock, X, Check } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, ExternalLink, CheckCircle2, AlertCircle, Clock, X, Check, Link2, Link2Off } from 'lucide-react';
 import CsvTemplateLibrary from './CsvTemplateLibrary';
 import TeamGuide from './TeamGuide';
 import {
@@ -12,6 +12,12 @@ import {
   runSync, fetchExcelPreview,
   type SyncSource,
 } from '../../lib/api';
+
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
+  const token = localStorage.getItem('cactus_access');
+  return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extra };
+}
 
 const TEAM_META: Record<string, {
   label: string;
@@ -103,6 +109,8 @@ export default function TeamSyncPanel({ team }: Props) {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState('');
   const [mappings, setMappings] = useState<SheetMapping[]>([]);
+  const [msStatus, setMsStatus] = useState<{ connected: boolean; expiresAt?: string } | null>(null);
+  const [msDisconnecting, setMsDisconnecting] = useState(false);
 
   useEffect(() => {
     // Filter sync sources for this team's namespace
@@ -114,7 +122,30 @@ export default function TeamSyncPanel({ team }: Props) {
       setSources(teamSources);
       setLoading(false);
     });
+    // Check Microsoft connection status
+    fetch(`${BASE}/api/microsoft/status`, { headers: authHeaders() })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setMsStatus(d))
+      .catch(() => {});
+    // Handle OAuth redirect params
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('ms_connected')) {
+      setMsStatus({ connected: true });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (params.get('ms_error')) {
+      alert('Microsoft connection failed: ' + decodeURIComponent(params.get('ms_error')!));
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, [team]);
+
+  const disconnectMicrosoft = async () => {
+    if (!confirm('Disconnect Microsoft account? SharePoint sync will stop working.')) return;
+    setMsDisconnecting(true);
+    await fetch(`${BASE}/api/microsoft/disconnect`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+    setMsStatus({ connected: false });
+    setMsDisconnecting(false);
+  };
 
   const loadPreview = async () => {
     if (!form.url.trim()) return;
@@ -187,6 +218,54 @@ export default function TeamSyncPanel({ team }: Props) {
           <p className="text-xs text-blue-500 mt-1">
             KV namespace: <code className="bg-blue-100 px-1 rounded">{meta.namespace}</code> — isolated from other teams.
           </p>
+        </div>
+      </div>
+
+      {/* Microsoft Account Connection */}
+      <div className={`rounded-xl border p-4 flex items-center justify-between gap-4 ${
+        msStatus?.connected ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'
+      }`}>
+        <div className="flex items-start gap-3 min-w-0">
+          {msStatus?.connected
+            ? <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+            : <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+          }
+          <div className="min-w-0">
+            <p className={`text-sm font-semibold ${msStatus?.connected ? 'text-emerald-800' : 'text-amber-800'}`}>
+              {msStatus?.connected ? 'Microsoft Account Connected' : 'Microsoft Account Not Connected'}
+            </p>
+            <p className={`text-xs mt-0.5 ${msStatus?.connected ? 'text-emerald-600' : 'text-amber-600'}`}>
+              {msStatus?.connected
+                ? 'SharePoint files restricted by your org policy can be synced via Microsoft Graph API.'
+                : 'Connect your Microsoft 365 account to sync SharePoint files that require org login (not just "Anyone with link").'}
+            </p>
+            {msStatus?.connected && msStatus.expiresAt && (
+              <p className="text-[10px] text-emerald-500 mt-0.5">
+                Token valid until {new Date(msStatus.expiresAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="shrink-0">
+          {msStatus?.connected ? (
+            <button
+              onClick={disconnectMicrosoft}
+              disabled={msDisconnecting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-white border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50"
+            >
+              <Link2Off className="w-3.5 h-3.5" />
+              {msDisconnecting ? 'Disconnecting…' : 'Disconnect'}
+            </button>
+          ) : (
+            <a
+              href={`${BASE}/api/microsoft/connect`}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white"
+              style={{ backgroundColor: '#0078D4' }}
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              Connect Microsoft
+            </a>
+          )}
         </div>
       </div>
 

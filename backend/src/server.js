@@ -12,6 +12,7 @@ const syncRouter  = require('./routes/sync');
 const authRouter  = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const aiRouter    = require('./routes/ai');
+const { router: microsoftRouter } = require('./routes/microsoft');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -78,7 +79,8 @@ app.use('/api/files', authenticate, filesRouter); // upload/delete/list still au
 app.use('/api/kv',    authenticate, kvRouter);
 app.use('/api/sync',  authenticate, syncRouter);
 app.use('/api/users', usersRouter);   // auth applied inside router
-app.use('/api/ai',    authenticate, aiRouter);    // Claude-backed assistant proxy
+app.use('/api/ai',    authenticate, aiRouter);
+app.use('/api/microsoft', microsoftRouter);  // public callback + authenticated routes    // Claude-backed assistant proxy
 
 // ── Global error handler ──────────────────────────────────────────────────────
 app.use((err, _req, res, _next) => {
