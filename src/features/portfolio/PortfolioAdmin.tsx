@@ -7,6 +7,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
 import DocTemplateManager from '../admin/DocTemplateManager';
+import CsvImportPanel from './CsvImportPanel';
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 import type {
   PortfolioCompany, CompanyFinancialPeriod, FundInvestment,
@@ -1074,8 +1075,8 @@ export default function PortfolioAdmin() {
             Portfolio Admin — your private workspace.
           </p>
           <p className="text-xs text-blue-600 mt-0.5">
-            Changes sync to your team's PostgreSQL namespace only. Finance and Investment teams cannot see this data.
-            <span className="ml-2 text-blue-500">Super Admin can view all team data from the Admin panel.</span>
+            Super Admin and Portfolio Admin share full edit access to all portfolio data — both see the same numbers, linked sheets, and doc templates.
+            <span className="ml-2 text-blue-500">Finance and Investment teams have separate namespaces and cannot see portfolio data.</span>
           </p>
         </div>
       </div>
@@ -1110,23 +1111,18 @@ export default function PortfolioAdmin() {
         {/* ── Per-tab guide banners ──────────────────────────────────────────── */}
         {activeTab === 'sync' && (
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-3">
-            <p className="text-sm font-bold text-emerald-800">📂 Data Sync — How it works for Portfolio Team</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <p className="text-sm font-bold text-emerald-800">Data Sync — two ways to update portfolio data</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 {
-                  step: '1. Download template',
-                  detail: 'Scroll down → CSV Templates section → click "Export Data" next to Financial Periods, Portfolio Updates, or Company Health. File downloads with your current data already filled in.',
-                  color: '#1C4B42',
-                },
-                {
-                  step: '2. Edit in Excel / Sheets',
-                  detail: 'Add new rows at the bottom. Update existing values. Column headers must stay exactly as they are — these are the mapping keys.',
-                  color: '#0891B2',
-                },
-                {
-                  step: '3. Upload to SharePoint + Sync',
-                  detail: 'Save file to your SharePoint/OneDrive folder → Share → "Anyone with link" → copy URL → paste in "Add SharePoint Source" above → Preview → Save → Sync Now.',
+                  step: 'Option A — Direct CSV Import (instant)',
+                  detail: 'Download a template below → fill in Excel or Google Sheets → paste or upload. Data is live immediately. No SharePoint link needed.',
                   color: '#7C3AED',
+                },
+                {
+                  step: 'Option B — SharePoint Auto-Sync',
+                  detail: 'Upload your filled sheet to SharePoint/OneDrive → share with "Anyone with link" → paste URL in the SharePoint panel below → Save → Sync Now. Repeatable on demand.',
+                  color: '#1C4B42',
                 },
               ].map(s => (
                 <div key={s.step} className="bg-white rounded-lg p-3 border border-emerald-100">
@@ -1135,21 +1131,9 @@ export default function PortfolioAdmin() {
                 </div>
               ))}
             </div>
-            <div className="rounded-lg bg-white border border-emerald-100 p-3 text-xs space-y-1">
-              <p className="font-semibold text-gray-700">What each CSV maps to in the portal:</p>
-              {[
-                { csv: 'FY Revenue & Ops',  maps: 'Portfolio → Company → Funding tab → FY/CY quarterly table. Shows Revenue, ARR, MOIC, IRR, Burn, Runway per quarter.', key: 'financial_periods' },
-                { csv: 'Portfolio Updates',  maps: 'Operations → Portfolio Updates tab. Monthly founder check-ins.', key: 'portfolio_updates' },
-                { csv: 'Company Health',     maps: 'Portfolio → Health Dashboard tab. Traffic-light signals per company per quarter.', key: 'health_dashboard' },
-                { csv: 'Founder Contacts',   maps: 'Portfolio → Founder Directory tab. All founder contact info.', key: 'founder_contacts' },
-              ].map(r => (
-                <div key={r.csv} className="flex items-start gap-2 py-1 border-t border-gray-50">
-                  <code className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded shrink-0 font-mono">{r.csv}</code>
-                  <span className="text-gray-600">{r.maps}</span>
-                  <code className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded shrink-0 ml-auto">{r.key}</code>
-                </div>
-              ))}
-            </div>
+            <p className="text-xs text-emerald-700">
+              Both Super Admin and Portfolio Admin see the same linked sheets and imported data — changes sync to the shared portfolio namespace.
+            </p>
           </div>
         )}
 
@@ -1325,7 +1309,30 @@ export default function PortfolioAdmin() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           {activeTab === 'sync' && (
-            <Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="portfolio" /></Suspense>
+            <div className="space-y-8">
+              {/* ── Section A: Direct CSV Import ── */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <BarChart2 size={16} style={{ color: PRIMARY }} />
+                  <h3 className="text-sm font-semibold text-gray-800">CSV Import — paste, upload, done</h3>
+                </div>
+                <CsvImportPanel />
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* ── Section B: SharePoint Auto-Sync ── */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <RefreshCw size={16} style={{ color: PRIMARY }} />
+                  <h3 className="text-sm font-semibold text-gray-800">SharePoint / OneDrive Auto-Sync</h3>
+                  <span className="text-xs text-gray-400">Link a live sheet → sync on demand</span>
+                </div>
+                <Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}>
+                  <TeamSyncPanel team="portfolio" />
+                </Suspense>
+              </div>
+            </div>
           )}
           {activeTab === 'metrics' && (
             <div>

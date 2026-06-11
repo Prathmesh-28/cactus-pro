@@ -15,7 +15,7 @@ import type {
   IntroRequest, LpCommunication, LpCommitment, FirmEvent,
   ResearchDocument, FounderPortalAccess,
   JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
-  CompanyFinancialPeriod,
+  CompanyFinancialPeriod, CompanyStatus,
   NavTabConfig, RecruitmentAppConfig, OpsAppConfig, FundInvestment,
   DocTemplate, CompanyDocLink,
 } from '../data/types';
@@ -216,6 +216,13 @@ interface AppContextValue {
   updateFinancialPeriod: (x: CompanyFinancialPeriod) => void;
   deleteFinancialPeriod: (id: string) => void;
   upsertFinancialPeriod: (x: CompanyFinancialPeriod) => void; // add or update by composite key
+  // Batch CSV import — single store write for bulk upserts
+  batchUpsertFinancialPeriods: (rows: CompanyFinancialPeriod[]) => void;
+  batchUpsertCompanyHealth: (rows: CompanyHealth[]) => void;
+  batchUpsertPortfolioUpdates: (rows: PortfolioUpdate[]) => void;
+  batchUpsertFounderContacts: (rows: FounderContact[]) => void;
+  batchUpsertValuationMarks: (rows: ValuationMark[]) => void;
+  batchUpdateCompanyMetrics: (patches: Array<{ id: string; revenue?: string; currentValuation?: string; moic?: number; irr?: number; ownershipPct?: number; status?: CompanyStatus; ceoName?: string; hqCity?: string; employees?: number; ebitda?: string }>) => void;
   // Fund investment ledger (Finance team — finance namespace)
   addFundInvestment: (x: FundInvestment) => void;
   updateFundInvestment: (x: FundInvestment) => void;
@@ -750,6 +757,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateTaxonomy         = (t: CompanyTaxonomy)             => setStore(s => ({ ...s, taxonomy: t }));
   const updatePortfolioSnapshot= (rows: PortfolioSnapshotRow[])   => setStore(s => ({ ...s, portfolioSnapshot: rows }));
 
+  // ── Batch CSV import (single setStore call per import) ───────────────────
+  const batchUpsertFinancialPeriods = (rows: CompanyFinancialPeriod[]) => setStore(s => {
+    const key = (p: CompanyFinancialPeriod) =>
+      `${p.companyId}__${p.yearStyle}__${p.fiscalYear}__${p.periodType}__${p.quarter ?? 'annual'}`;
+    const map = new Map((s.financialPeriods ?? []).map(p => [key(p as CompanyFinancialPeriod), p as CompanyFinancialPeriod]));
+    rows.forEach(r => map.set(key(r), { ...(map.get(key(r)) ?? {}), ...r, id: map.get(key(r))?.id ?? r.id }));
+    return { ...s, financialPeriods: Array.from(map.values()) };
+  });
+
+  const batchUpsertCompanyHealth = (rows: CompanyHealth[]) => setStore(s => {
+    const key = (h: CompanyHealth) => `${h.companyId}__${h.quarter}`;
+    const map = new Map((s.companyHealth ?? []).map(h => [key(h as CompanyHealth), h as CompanyHealth]));
+    rows.forEach(r => map.set(key(r), { ...(map.get(key(r)) ?? {}), ...r, id: map.get(key(r))?.id ?? r.id }));
+    return { ...s, companyHealth: Array.from(map.values()) };
+  });
+
+  const batchUpsertPortfolioUpdates = (rows: PortfolioUpdate[]) => setStore(s => {
+    const key = (u: PortfolioUpdate) => `${u.companyId}__${u.month}`;
+    const map = new Map((s.portfolioUpdates ?? []).map(u => [key(u as PortfolioUpdate), u as PortfolioUpdate]));
+    rows.forEach(r => map.set(key(r), { ...(map.get(key(r)) ?? {}), ...r, id: map.get(key(r))?.id ?? r.id }));
+    return { ...s, portfolioUpdates: Array.from(map.values()) };
+  });
+
+  const batchUpsertFounderContacts = (rows: FounderContact[]) => setStore(s => {
+    const key = (f: FounderContact) => f.email ? `${f.companyId}__${f.email}` : `${f.companyId}__${f.name}`;
+    const map = new Map((s.founderContacts ?? []).map(f => [key(f as FounderContact), f as FounderContact]));
+    rows.forEach(r => map.set(key(r), { ...(map.get(key(r)) ?? {}), ...r, id: map.get(key(r))?.id ?? r.id }));
+    return { ...s, founderContacts: Array.from(map.values()) };
+  });
+
+  const batchUpsertValuationMarks = (rows: ValuationMark[]) => setStore(s => {
+    const key = (v: ValuationMark) => `${v.companyId}__${v.quarter}`;
+    const map = new Map((s.valuationMarks ?? []).map(v => [key(v as ValuationMark), v as ValuationMark]));
+    rows.forEach(r => map.set(key(r), { ...(map.get(key(r)) ?? {}), ...r, id: map.get(key(r))?.id ?? r.id }));
+    return { ...s, valuationMarks: Array.from(map.values()) };
+  });
+
+  const batchUpdateCompanyMetrics = (patches: Array<{ id: string; revenue?: string; currentValuation?: string; moic?: number; irr?: number; ownershipPct?: number; status?: CompanyStatus; ceoName?: string; hqCity?: string; employees?: number; ebitda?: string }>) =>
+    setStore(s => {
+      const pMap = new Map(patches.map(p => [p.id, p]));
+      return {
+        ...s,
+        companies: s.companies.map(c => {
+          const p = pMap.get(c.id);
+          if (!p) return c;
+          return {
+            ...c,
+            ...(p.revenue !== undefined         && { revenue: p.revenue }),
+            ...(p.currentValuation !== undefined && { currentValuation: p.currentValuation }),
+            ...(p.moic !== undefined             && { moic: p.moic }),
+            ...(p.irr !== undefined              && { irr: p.irr }),
+            ...(p.ownershipPct !== undefined     && { ownershipPct: p.ownershipPct }),
+            ...(p.status !== undefined           && { status: p.status }),
+            ...(p.ceoName !== undefined          && { ceoName: p.ceoName }),
+            ...(p.hqCity !== undefined           && { hqCity: p.hqCity }),
+            ...(p.employees !== undefined        && { employees: p.employees }),
+            ...(p.ebitda !== undefined           && { ebitda: p.ebitda }),
+          };
+        }),
+      };
+    });
+
   // ── Reset ─────────────────────────────────────────────────────────────────
   const resetToDefaults = () => {
     setStoreRaw(defaultConfig);
@@ -800,6 +869,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addOfferLetter, updateOfferLetter, deleteOfferLetter,
     addOnboardingTask, updateOnboardingTask, deleteOnboardingTask,
     addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
+    batchUpsertFinancialPeriods, batchUpsertCompanyHealth, batchUpsertPortfolioUpdates,
+    batchUpsertFounderContacts, batchUpsertValuationMarks, batchUpdateCompanyMetrics,
     addFundInvestment, updateFundInvestment, deleteFundInvestment,
     addPortfolioFundView, updatePortfolioFundView, deletePortfolioFundView,
     addDocTemplate, updateDocTemplate, deleteDocTemplate,

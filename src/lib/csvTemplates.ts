@@ -139,6 +139,25 @@ export const CSV_TEMPLATES: CsvTemplate[] = [
   // ══════════════════════════════════════════════════════════════════════════
 
   {
+    id: 'company-metrics',
+    label: 'Company Metrics (Top-Level)',
+    team: 'portfolio',
+    sheetName: 'Company Metrics',
+    kvKey: 'company_metrics',
+    description: 'Update top-level company numbers: revenue, valuation, MOIC, IRR, ownership %, status, CEO, HQ, employees',
+    headers: ['Company Name', 'Revenue (₹Cr)', 'Valuation (₹Cr)', 'MOIC', 'IRR (%)', 'Ownership %', 'Status', 'CEO Name', 'HQ City', 'Employees', 'EBITDA (₹Cr)'],
+    exampleRows: [
+      ['Lohum', '835', '4700', '2.92', '38', '2.92', 'Active', 'Kartik Hajela', 'Delhi', '520', ''],
+      ['Auric', '126', '977', '3.4', '42', '16.95', 'Active', 'Deepak Agarwal', 'Mumbai', '130', '13'],
+      ['Bellatrix Aerospace', '1.75', '836', '3.6', '44', '3.41', 'Active', 'Rohan Ganapathy', 'Bangalore', '180', ''],
+      ['Kapture CRM', '52', '446', '3.1', '38', '8.52', 'Active', 'Sheshgiri Kamath', 'Bangalore', '200', '9'],
+      ['Vitraya', '20', '280', '3.5', '40', '8.07', 'Active', 'Mrinal Sinha', 'Delhi', '95', '3'],
+      ['AMPM', '43', '83', '1.2', '18', '30.12', 'Watch', 'Arun Bothra', 'Mumbai', '65', ''],
+    ],
+    notes: 'Status must be: Active | Watch | Exited. Company Name must match portal exactly. Empty cells are skipped (existing value preserved).',
+  },
+
+  {
     id: 'financial-periods',
     label: 'Financial Periods (FY/CY Quarterly)',
     team: 'portfolio',
