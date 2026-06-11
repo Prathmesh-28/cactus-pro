@@ -171,7 +171,7 @@ export async function createSyncSource(data: { name: string; url: string; sheet_
   try {
     const res = await fetch(`${BASE}/api/sync/sources`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
     });
     if (!res.ok) return null;
@@ -183,19 +183,19 @@ export async function updateSyncSource(id: number, data: Partial<SyncSource>): P
   try {
     await fetch(`${BASE}/api/sync/sources/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
     });
   } catch {}
 }
 
 export async function deleteSyncSource(id: number): Promise<void> {
-  try { await fetch(`${BASE}/api/sync/sources/${id}`, { method: 'DELETE' }); } catch {}
+  try { await fetch(`${BASE}/api/sync/sources/${id}`, { method: 'DELETE', headers: authHeaders() }); } catch {}
 }
 
 export async function runSync(sourceId: number): Promise<{ success: boolean; stored?: unknown[]; error?: string }> {
   try {
-    const res = await fetch(`${BASE}/api/sync/sources/${sourceId}/run`, { method: 'POST' });
+    const res = await fetch(`${BASE}/api/sync/sources/${sourceId}/run`, { method: 'POST', headers: authHeaders() });
     return res.json();
   } catch (e: unknown) {
     return { success: false, error: e instanceof Error ? e.message : 'Network error' };
@@ -211,7 +211,7 @@ export async function fetchExcelPreview(url: string): Promise<{
   try {
     const res = await fetch(`${BASE}/api/sync/fetch`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ url }),
     });
     const data = await res.json();
