@@ -382,7 +382,9 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   // ── Tab: Overview ──────────────────────────────────────────────────────────
   const _overviewSector = store.sectors.find(s => s.id === company.sectorId);
   const _sectorName = _overviewSector?.name ?? 'Advanced Manufacturing';
-  const _sectorKpis = defaultConfig.companies.find(c => c.id === company.id)?.sectorKpis ?? [];
+  const _sectorKpis = company.sectorKpis?.length
+    ? company.sectorKpis
+    : (defaultConfig.companies.find(c => c.id === company.id)?.sectorKpis ?? []);
 
   function fmtKpi(val: number | null | undefined, unit: string): string {
     if (val === null || val === undefined) return '—';

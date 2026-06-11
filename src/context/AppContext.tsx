@@ -461,6 +461,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [setStore]);
 
+  // v1: backfill sectorKpis from defaultConfig for any company missing it
+  useEffect(() => {
+    const KEY = 'cactus_kpis_v1';
+    if (!localStorage.getItem(KEY)) {
+      localStorage.setItem(KEY, '1');
+      const kpisMap = new Map(defaultConfig.companies.map(c => [c.id, c.sectorKpis]));
+      setStore(s => ({
+        ...s,
+        companies: s.companies?.map(c => ({
+          ...c,
+          sectorKpis: c.sectorKpis?.length ? c.sectorKpis : (kpisMap.get(c.id) ?? []),
+        })),
+      }));
+    }
+  }, [setStore]);
+
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
     if (user?.role && user.role !== 'super_admin') return;
