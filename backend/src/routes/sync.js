@@ -52,9 +52,15 @@ function downloadBuffer(url, maxRedirects = 8) {
   });
 }
 
-// ─── Convert SharePoint sharing URL to a direct download URL ─────────────────
+// ─── Convert sharing URL to a direct download URL ────────────────────────────
 
 function toDirectDownloadUrl(url) {
+  // Google Sheets — convert any /edit, /view, /pub URL to xlsx export
+  // Works as long as the sheet is shared with "Anyone with the link can view"
+  const gsMatch = url.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (gsMatch) {
+    return `https://docs.google.com/spreadsheets/d/${gsMatch[1]}/export?format=xlsx`;
+  }
   // OneDrive/SharePoint "share" URLs → append &download=1
   if (url.includes('sharepoint.com') || url.includes('onedrive.live.com') || url.includes('1drv.ms')) {
     const sep = url.includes('?') ? '&' : '?';
@@ -153,7 +159,26 @@ router.delete('/sources/:id', async (req, res) => {
   }
 });
 
-// POST /api/sync/sources/:id/run  → fetch + store data in kv_store
+// Map from kvKey → the field name inside the app's store blob
+// The app reads {namespace}/store as one JSON blob — so synced data must land there.
+const KV_KEY_TO_STORE_FIELD = {
+  'financial_periods':  'financialPeriods',
+  'health_dashboard':   'companyHealth',
+  'portfolio_updates':  'portfolioUpdates',
+  'founder_contacts':   'founderContacts',
+  'research_docs':      'researchDocs',
+  'fund_metrics':       'fundMetrics',
+  'capital_calls':      'capitalEvents',
+  'lp_comms':           'lpCommunications',
+  'valuation_log':      'valuationLogs',
+  'ic_memos':           'icMemos',
+  'dd_checklists':      'ddChecklists',
+  'tasks':              'tasks',
+  'meeting_notes':      'meetingNotes',
+  'firm_events':        'firmEvents',
+};
+
+// POST /api/sync/sources/:id/run  → fetch + merge into namespace store blob
 router.post('/sources/:id/run', async (req, res) => {
   let source;
   try {
@@ -168,18 +193,36 @@ router.post('/sources/:id/run', async (req, res) => {
     const mappings = source.sheet_mappings || [];
     const stored = [];
 
+    // Group mappings by namespace so we do one store read+write per namespace
+    const byNamespace = {};
     for (const mapping of mappings) {
       const { sheet, kvNamespace, kvKey } = mapping;
-      const data = sheetData[sheet];
-      if (!data) continue;
+      if (!sheetData[sheet]) continue;
+      if (!byNamespace[kvNamespace]) byNamespace[kvNamespace] = [];
+      byNamespace[kvNamespace].push({ sheet, kvKey, data: sheetData[sheet] });
+    }
 
+    for (const [ns, items] of Object.entries(byNamespace)) {
+      // Read the current store blob for this namespace
+      const { rows: storeRows } = await pool.query(
+        `SELECT value FROM kv_store WHERE namespace=$1 AND key='store'`, [ns]
+      );
+      const currentStore = storeRows.length ? (storeRows[0].value || {}) : {};
+
+      // Merge each sheet's data into the correct field
+      for (const { sheet, kvKey, data } of items) {
+        const storeField = KV_KEY_TO_STORE_FIELD[kvKey] || kvKey;
+        currentStore[storeField] = data;
+        stored.push({ sheet, kvNamespace: ns, kvKey, storeField, rows: data.length });
+      }
+
+      // Write the merged store blob back
       await pool.query(
         `INSERT INTO kv_store (namespace, key, value, updated_at)
-         VALUES ($1, $2, $3, NOW())
-         ON CONFLICT (namespace, key) DO UPDATE SET value=$3, updated_at=NOW()`,
-        [kvNamespace, kvKey, JSON.stringify(data)]
+         VALUES ($1, 'store', $2, NOW())
+         ON CONFLICT (namespace, key) DO UPDATE SET value=$2, updated_at=NOW()`,
+        [ns, JSON.stringify(currentStore)]
       );
-      stored.push({ sheet, kvNamespace, kvKey, rows: data.length });
     }
 
     await pool.query(
