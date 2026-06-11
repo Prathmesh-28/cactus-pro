@@ -380,6 +380,10 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   const lightColor = store.firm.lightColor;
 
   // ── Tab: Overview ──────────────────────────────────────────────────────────
+  const _overviewSector = store.sectors.find(s => s.id === company.sectorId);
+  const _sectorId   = _overviewSector ? company.sectorId : 's1';
+  const _sectorName = _overviewSector?.name ?? 'Advanced Manufacturing';
+
   const OverviewTab = () => (
     <div className="space-y-4">
       <Section title="Key Metrics" icon={BarChart2}>
@@ -454,13 +458,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
       )}
 
       {/* ── Sector Metrics Framework — contextual KPI reference ── */}
-      {(() => {
-        const sector = store.sectors.find(s => s.id === company.sectorId);
-        // Fallback: if sectorId not in store yet, use name-based or default to mfg
-        const sectorId = sector ? company.sectorId : 's1';
-        const sectorName = sector?.name ?? 'Advanced Manufacturing';
-        return <SectorMetricsPanel sectorId={sectorId} sectorName={sectorName} />;
-      })()}
+      <SectorMetricsPanel sectorId={_sectorId} sectorName={_sectorName} />
 
       {company.boardMemberIds.length > 0 && (
         <Section title="Cactus Board Members" icon={Users}>
