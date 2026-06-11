@@ -178,7 +178,6 @@ router.delete('/sources/:id', async (req, res) => {
 });
 
 // Map from kvKey → the field name inside the app's store blob
-// The app reads {namespace}/store as one JSON blob — so synced data must land there.
 const KV_KEY_TO_STORE_FIELD = {
   'financial_periods':  'financialPeriods',
   'health_dashboard':   'companyHealth',
@@ -196,6 +195,87 @@ const KV_KEY_TO_STORE_FIELD = {
   'firm_events':        'firmEvents',
 };
 
+// Normalize a CSV column header for fuzzy matching:
+// strip content in parens, strip non-ASCII, lowercase, collapse spaces
+function normalizeCol(s) {
+  return s.replace(/\(.*?\)/g, '').replace(/[^\x00-\x7F]/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+// CSV column → CompanyFinancialPeriod field mapping (normalized keys)
+const FP_COL_MAP = {
+  'company id':           'companyId',
+  'year style':           'yearStyle',
+  'period':               'periodLabel',
+  'period type':          'periodType',
+  'fiscal year':          'fiscalYear',
+  'quarter':              'quarter',
+  'revenue':              'revenue',
+  'arr':                  'arr',
+  'mrr':                  'mrr',
+  'gmv':                  'gmv',
+  'revenue growth yoy %': 'revenueGrowthYoY',
+  'arr growth yoy %':     'arrGrowthYoY',
+  'nrr %':                'nrr',
+  'churn % monthly':      'churnPct',
+  'gross margin %':       'grossMarginPct',
+  'ebitda margin %':      'ebitdaMarginPct',
+  'net margin %':         'netMarginPct',
+  'valuation fmv':        'currentValuation',
+  'moic':                 'moic',
+  'irr %':                'irr',
+  'valuation methodology':'methodology',
+  'headcount':            'headcount',
+  'monthly burn':         'monthlyBurn',
+  'cash balance':         'cash',
+  'runway':               'runway',
+  'cac':                  'cac',
+  'ltv':                  'ltv',
+  'ltv:cac':              'ltvCacRatio',
+  'notes':                'notes',
+  'source':               'source',
+  'updated by':           'updatedBy',
+  'updated at':           'updatedAt',
+};
+
+// Transform raw CSV rows into CompanyFinancialPeriod objects
+function transformFinancialPeriods(rawRows) {
+  if (!rawRows.length) return [];
+  // Build a col-name → field map for the actual headers in this file
+  const sampleKeys = Object.keys(rawRows[0]);
+  const colMap = {};
+  for (const key of sampleKeys) {
+    const norm = normalizeCol(key);
+    if (FP_COL_MAP[norm]) colMap[key] = FP_COL_MAP[norm];
+  }
+
+  return rawRows
+    .filter(row => row['Company ID'] || row[sampleKeys.find(k => normalizeCol(k) === 'company id')])
+    .map(row => {
+      const out = {};
+      for (const [csvCol, storeField] of Object.entries(colMap)) {
+        out[storeField] = row[csvCol] ?? '';
+      }
+      // Generate a stable id from companyId + periodLabel
+      const cid = out.companyId || '';
+      const pl  = out.periodLabel || '';
+      out.id = `fp_${cid}_${pl.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+      // Ensure headcount is a number
+      if (out.headcount !== undefined) out.headcount = Number(out.headcount) || 0;
+      // Ensure yearStyle defaults to FY
+      if (!out.yearStyle) out.yearStyle = 'FY';
+      out.createdAt = out.updatedAt || new Date().toISOString();
+      return out;
+    })
+    .filter(r => r.companyId && r.periodLabel);
+}
+
+// For financialPeriods: merge by companyId — replace rows for synced companies, keep others
+function mergeFinancialPeriods(existing, incoming) {
+  const incomingCompanyIds = new Set(incoming.map(r => r.companyId));
+  const kept = (existing || []).filter(r => !incomingCompanyIds.has(r.companyId));
+  return [...kept, ...incoming];
+}
+
 // POST /api/sync/sources/:id/run  → fetch + merge into namespace store blob
 router.post('/sources/:id/run', async (req, res) => {
   let source;
@@ -210,7 +290,6 @@ router.post('/sources/:id/run', async (req, res) => {
     const mappings = source.sheet_mappings || [];
     const stored = [];
 
-    // Group mappings by namespace so we do one store read+write per namespace
     const byNamespace = {};
     for (const mapping of mappings) {
       const { sheet, kvNamespace, kvKey } = mapping;
@@ -220,20 +299,24 @@ router.post('/sources/:id/run', async (req, res) => {
     }
 
     for (const [ns, items] of Object.entries(byNamespace)) {
-      // Read the current store blob for this namespace
       const { rows: storeRows } = await pool.query(
         `SELECT value FROM kv_store WHERE namespace=$1 AND key='store'`, [ns]
       );
       const currentStore = storeRows.length ? (storeRows[0].value || {}) : {};
 
-      // Merge each sheet's data into the correct field
       for (const { sheet, kvKey, data } of items) {
         const storeField = KV_KEY_TO_STORE_FIELD[kvKey] || kvKey;
-        currentStore[storeField] = data;
-        stored.push({ sheet, kvNamespace: ns, kvKey, storeField, rows: data.length });
+
+        let transformed = data;
+        if (kvKey === 'financial_periods') {
+          const fp = transformFinancialPeriods(data);
+          transformed = mergeFinancialPeriods(currentStore[storeField], fp);
+        }
+
+        currentStore[storeField] = transformed;
+        stored.push({ sheet, kvNamespace: ns, kvKey, storeField, rows: Array.isArray(transformed) ? transformed.length : 1 });
       }
 
-      // Write the merged store blob back
       await pool.query(
         `INSERT INTO kv_store (namespace, key, value, updated_at)
          VALUES ($1, 'store', $2, NOW())
