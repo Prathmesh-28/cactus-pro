@@ -19,13 +19,13 @@ import { useApp } from '../../context/AppContext';
 import { parseCr } from '../../lib/money';
 import type { CompanyGap, CompanyGapType } from '../../data/types';
 import type { PortfolioCompany } from '../../data/types';
-import { defaultConfig } from '../../data/defaultConfig';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
 import AvatarChip from '../../components/ui/AvatarChip';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportCompanyPDF, exportCompanyExcel } from '../../lib/export';
 import RoundModeler from './RoundModeler';
+
 
 interface Props {
   company: PortfolioCompany | null;
@@ -384,7 +384,7 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   const _sectorName = _overviewSector?.name ?? 'Advanced Manufacturing';
   const _sectorKpis = company.sectorKpis?.length
     ? company.sectorKpis
-    : (defaultConfig.companies.find(c => c.id === company.id)?.sectorKpis ?? []);
+    : (defaultConfig.companies.find(c => c.name === company.name)?.sectorKpis ?? []);
 
   function fmtKpi(val: number | null | undefined, unit: string): string {
     if (val === null || val === undefined) return '—';
