@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { Info, RefreshCw, Users } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { defaultConfig } from '../../data/defaultConfig';
 import type { FinanceSubTab } from '../../data/types';
 
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
@@ -26,13 +27,9 @@ const FINANCE_SUB_TABS: { key: FinanceSubTab; label: string; desc: string }[] = 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ViewerSettingsTab({ updateRole }: { updateRole: (r: any) => void }) {
   const { store } = useApp();
-  const viewerRole = store.roles.find(r => r.role === 'finance_viewer');
-
-  if (!viewerRole) return (
-    <div className="text-center py-8 text-gray-400 text-sm">
-      Finance Viewer role not found. Contact Super Admin.
-    </div>
-  );
+  // Fall back to defaultConfig if the role hasn't been migrated into the store yet
+  const viewerRole = store.roles.find(r => r.role === 'finance_viewer')
+    ?? defaultConfig.roles.find(r => r.role === 'finance_viewer')!;
 
   const visible = viewerRole.visibleFinanceTabs ?? [];
 

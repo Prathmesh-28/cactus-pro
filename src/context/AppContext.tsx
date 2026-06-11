@@ -525,6 +525,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [setStore]);
 
+  // v3: merge any roles added to defaultConfig that are missing from the store
+  // (e.g. finance_admin, finance_viewer, portfolio_admin, portfolio_viewer added after initial seed)
+  useEffect(() => {
+    const KEY = 'cactus_roles_v3';
+    if (!localStorage.getItem(KEY)) {
+      localStorage.setItem(KEY, '1');
+      setStore(s => {
+        const existing = new Set(s.roles.map(r => r.role));
+        const missing = defaultConfig.roles.filter(r => !existing.has(r.role));
+        if (!missing.length) return s;
+        return { ...s, roles: [...s.roles, ...missing] };
+      });
+    }
+  }, [setStore]);
+
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
     if (user?.role && user.role !== 'super_admin') return;
