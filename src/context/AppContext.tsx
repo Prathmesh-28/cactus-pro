@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { defaultConfig } from '../data/defaultConfig';
@@ -23,24 +23,32 @@ import type {
 
 const LS_KEY   = 'cactus_store';
 const ROLE_KEY = 'cactus_role';
-const KV_NS    = 'app';
 const KV_KEY   = 'store';
 
 // ─── Team data isolation ──────────────────────────────────────────────────────
 // Each team's private fields live in their own KV namespace.
 // Super admin reads & writes all. Other roles only touch their namespace.
 
+// NOTE: a field must appear in EXACTLY ONE set. fieldNamespace() is first-match-wins,
+// so a field listed in two sets routes to the earlier namespace — and any role that
+// can't write that namespace silently loses the write. firmEvents and introRequests
+// are both authored only from Operations features (EventCalendar, IntroTracker), so
+// they live in OPERATIONS_FIELDS alone.
 const FINANCE_FIELDS = new Set([
-  'capitalEvents','valuationMarks','lpCommunications','lpCommitments',
-  'financeData','fundInvestments','opsConfig','firmEvents',
+  'capitalEvents','lpCommunications','lpCommitments',
+  'financeData','fundInvestments','opsConfig',
 ]);
 const PORTFOLIO_FIELDS = new Set([
   'founderContacts','companyHealth','newsItems','portfolioUpdates',
   'financialPeriods','researchDocs','founderPortalAccess',
   'portfolioFundView', // Portfolio team's independent copy of fund investment data
 ]);
+// NOTE: valuationMarks is intentionally in NO set → it routes to the shared 'app'
+// namespace. It is read from the Finance tab (ValuationLog) but written from the
+// Portfolio CSV import panel, so neither a finance-only nor a portfolio-only namespace
+// works — both teams must read+write it. (Was in finance → portfolio import was lost.)
 const INVESTMENT_FIELDS = new Set([
-  'icMemos','ddChecklists','referenceChecks','coInvestors','introRequests',
+  'icMemos','ddChecklists','referenceChecks','coInvestors',
 ]);
 const OPERATIONS_FIELDS = new Set([
   'tasks','meetingNotes','signingDocs','firmEvents',
@@ -57,24 +65,34 @@ function fieldNamespace(field: string): string {
   return 'app'; // global — shared
 }
 
-// Fields accessible to a given role
+// Fields accessible to a given role.
+// Finance roles include 'operations' because the Finance personas all have the
+// Operations tab (see defaultConfig roles) — shared collections like tasks,
+// meetingNotes and firmEvents live in the operations namespace, so without it those
+// writes would be silently dropped. Keep this in sync with the server matrix in
+// backend/src/lib/namespaces.js.
 function accessibleNamespaces(role: string): string[] {
   if (role === 'super_admin') return ['app','finance','portfolio','investment','operations','compliance'];
-  if (role === 'finance_team')    return ['app','finance'];
-  if (role === 'finance_admin')   return ['app','finance'];
-  if (role === 'finance_viewer')  return ['app','finance'];
+  if (role === 'finance_team')    return ['app','finance','operations'];
+  if (role === 'finance_admin')   return ['app','finance','operations'];
+  if (role === 'finance_viewer')  return ['app','finance','operations'];
   if (role === 'portfolio_team')  return ['app','portfolio','operations','compliance'];
+  if (role === 'portfolio_admin') return ['app','portfolio','operations','compliance'];
+  if (role === 'portfolio_viewer')return ['app','portfolio','operations','compliance'];
   if (role === 'investment_team') return ['app','investment','operations'];
   return ['app','operations','compliance'];
 }
 
-// Split a store object into per-namespace buckets
+// Split a store object into per-namespace buckets.
+// Buckets are created lazily so a field mapped to a namespace not pre-listed here
+// (e.g. a future 'compliance') can never hit `undefined[k] = v` and crash the save.
 function splitStoreByNamespace(store: AppStore): Record<string, Partial<AppStore>> {
   const buckets: Record<string, Partial<AppStore>> = {
     app: {}, finance: {}, portfolio: {}, investment: {}, operations: {},
   };
   for (const [k, v] of Object.entries(store)) {
     const ns = fieldNamespace(k);
+    if (!buckets[ns]) buckets[ns] = {};
     (buckets[ns] as Record<string, unknown>)[k] = v;
   }
   return buckets;
@@ -319,6 +337,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Grace period: skip polling merges for 3s after any user write so the
   // debounced KV write (400ms) has time to complete before the poll overwrites.
   const lastUserWriteRef = useRef<number>(0);
+  // Last poll's merged-blob JSON, so an unchanged poll can short-circuit before
+  // setState + full re-render + localStorage rewrite (the 5s polling hot path).
+  const lastPollRaw = useRef<string>('');
 
   // ── Hydrate from PostgreSQL on mount (team-namespaced) ──────────────────────
   useEffect(() => {
@@ -335,7 +356,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       if (Object.keys(merged).length > 0) {
+        // Base preference: prior localStorage cache, else the seed defaults. (We only
+        // reach here when at least one namespace returned data, so `merged` overlays it.)
         let mergedStore = { ...(loadLocal() ?? defaultConfig), ...merged } as AppStore;
+
+        // Sanitize fund-investment records so the UI never crashes on a missing
+        // followOns array (CSV/sync-imported, hand-edited KV, or legacy records).
+        const withFollowOns = <T extends { followOns?: unknown }>(arr: T[] | undefined): T[] =>
+          (arr ?? []).map(r => (Array.isArray(r.followOns) ? r : { ...r, followOns: [] }));
+        if (mergedStore.fundInvestments)  mergedStore.fundInvestments  = withFollowOns(mergedStore.fundInvestments);
+        if (mergedStore.portfolioFundView) mergedStore.portfolioFundView = withFollowOns(mergedStore.portfolioFundView);
 
         // Seed portfolioFundView from fundInvestments if empty (first load)
         if ((!mergedStore.portfolioFundView || mergedStore.portfolioFundView.length === 0)
@@ -408,6 +438,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           // Skip merge if user wrote data within the last 3s — prevents the poll
           // from clobbering a change that hasn't reached KV yet.
           if (Date.now() - lastUserWriteRef.current < 3000) return;
+          // Short-circuit when the server returned the same blob as last poll: no
+          // setState, no re-render of 83 consumers, no localStorage rewrite.
+          const rawMerged = JSON.stringify(merged);
+          if (rawMerged === lastPollRaw.current) return;
+          lastPollRaw.current = rawMerged;
           setStoreRaw(prev => {
             let next = { ...prev, ...merged } as AppStore;
             // Backfill companyGaps if KV data predates the field
@@ -421,6 +456,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 })),
               };
             }
+            // Sanitize fund records so a missing followOns can't crash the Fund View.
+            if (next.fundInvestments?.some(r => !Array.isArray(r.followOns)))
+              next = { ...next, fundInvestments: next.fundInvestments.map(r => Array.isArray(r.followOns) ? r : { ...r, followOns: [] }) };
+            if (next.portfolioFundView?.some(r => !Array.isArray(r.followOns)))
+              next = { ...next, portfolioFundView: next.portfolioFundView.map(r => Array.isArray(r.followOns) ? r : { ...r, followOns: [] }) };
             // Keep sectors normalized to 3-sector scheme
             next = normaliseSectors(next);
             try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
@@ -434,17 +474,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(id);
   }, []); // eslint-disable-line
 
-  // ── Save to localStorage immediately + PostgreSQL debounced (team-namespaced)
+  // ── Save: React state is the synchronous source of truth; localStorage and the
+  // PostgreSQL write are both debounced (400ms) so rapid mutations (e.g. typing in a
+  // bound input) don't JSON.stringify the whole ~280KB store on every keystroke.
+  // Cold-boot reads localStorage, which is always >400ms after the last edit, so the
+  // debounce loses nothing in practice.
   const setStore = useCallback((updater: AppStore | ((prev: AppStore) => AppStore)) => {
     setStoreRaw(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      // Instant local cache
-      try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
       // Mark write time so polling skips the merge for the next 3s
       lastUserWriteRef.current = Date.now();
-      // Debounced backend save — split by namespace, write each separately
+      // Debounced persistence — both the local cache and the backend save.
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
         const role = (localStorage.getItem(ROLE_KEY) as string) ?? 'super_admin';
         const accessible = new Set(accessibleNamespaces(role));
         const buckets = splitStoreByNamespace(next);
@@ -458,11 +501,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // ── Migration safety gate ────────────────────────────────────────────────
+  // These one-time, localStorage-flagged migrations re-seed from the compiled-in
+  // defaultConfig and persist to the SHARED server store. If they ran on any fresh
+  // browser they would resurrect deleted/edited data for everyone. So only run them
+  // after hydration completed (so we operate on real server data, not the bootstrap
+  // fallback) AND only for the super_admin (the only role that owns global config).
+  const migrationsReady = !loading && (user?.role === 'super_admin' || (currentRole as string) === 'super_admin');
+
   // ── One-time sector migration v5 — fixes double-mapping corruption ───────────
   // v4 only remapped non-canonical IDs. v5 additionally corrects companies that
   // got the wrong canonical ID (e.g. Technology→Consumer) from the pre-idempotency
   // bug by using defaultConfig sector assignments as ground truth.
   useEffect(() => {
+    if (!migrationsReady) return;
     const V5_KEY = 'cactus_sectors_v5';
     if (!localStorage.getItem(V5_KEY)) {
       localStorage.setItem(V5_KEY, '1');
@@ -481,10 +533,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })),
       }));
     }
-  }, [setStore]);
+  }, [setStore, migrationsReady]);
 
   // v1: backfill sectorKpis from defaultConfig for any company missing it
   useEffect(() => {
+    if (!migrationsReady) return;
     const KEY = 'cactus_kpis_v1';
     if (!localStorage.getItem(KEY)) {
       localStorage.setItem(KEY, '1');
@@ -497,10 +550,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })),
       }));
     }
-  }, [setStore]);
+  }, [setStore, migrationsReady]);
 
   // v1: backfill docTemplates + companyDocLinks from defaultConfig for stores that lack them
   useEffect(() => {
+    if (!migrationsReady) return;
     const KEY = 'cactus_doctpl_v1';
     if (!localStorage.getItem(KEY)) {
       localStorage.setItem(KEY, '1');
@@ -510,10 +564,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         companyDocLinks: s.companyDocLinks?.length ? s.companyDocLinks : defaultConfig.companyDocLinks,
       }));
     }
-  }, [setStore]);
+  }, [setStore, migrationsReady]);
 
   // v2: seed toolkitTools from defaultConfig for stores that lack them
   useEffect(() => {
+    if (!migrationsReady) return;
     const KEY = 'cactus_toolkit_tools_v1';
     if (!localStorage.getItem(KEY)) {
       localStorage.setItem(KEY, '1');
@@ -523,11 +578,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toolkitTools:    s.toolkitTools?.length ? s.toolkitTools : defaultConfig.toolkitTools,
       }));
     }
-  }, [setStore]);
+  }, [setStore, migrationsReady]);
 
   // v3: merge any roles added to defaultConfig that are missing from the store
   // (e.g. finance_admin, finance_viewer, portfolio_admin, portfolio_viewer added after initial seed)
   useEffect(() => {
+    if (!migrationsReady) return;
     const KEY = 'cactus_roles_v3';
     if (!localStorage.getItem(KEY)) {
       localStorage.setItem(KEY, '1');
@@ -538,7 +594,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return { ...s, roles: [...s.roles, ...missing] };
       });
     }
-  }, [setStore]);
+  }, [setStore, migrationsReady]);
 
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
@@ -883,13 +939,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
 
   // ── Reset ─────────────────────────────────────────────────────────────────
+  // Reset every namespace, not just 'app'. Previously this dumped the WHOLE store into
+  // the 'app' blob (cross-contaminating it) and left finance/portfolio/investment/
+  // operations blobs stale, so those teams' data reverted on the next poll. Mirror the
+  // normal save path: split defaults by namespace and write each (that the role owns).
   const resetToDefaults = () => {
     setStoreRaw(defaultConfig);
     localStorage.setItem(LS_KEY, JSON.stringify(defaultConfig));
-    kvSet(KV_NS, KV_KEY, defaultConfig).catch(() => {});
+    const role = (localStorage.getItem(ROLE_KEY) as string) ?? 'super_admin';
+    const accessible = new Set(accessibleNamespaces(role));
+    const buckets = splitStoreByNamespace(defaultConfig);
+    for (const [ns, data] of Object.entries(buckets)) {
+      if (Object.keys(data).length > 0 && accessible.has(ns)) {
+        kvSet(ns, KV_KEY, data).catch(() => {});
+      }
+    }
   };
 
-  const value: AppContextValue = {
+  // Memoize the context value so its object identity only changes when the reactive
+  // inputs do. Without this, a new value object (with ~150 fresh closures) was created
+  // on every render, forcing all 83 useApp() consumers to re-render even when nothing
+  // they read changed. The mutator closures capture only the stable setStore/setStoreRaw;
+  // the data + permission helpers depend on store/currentRole/user, which are the deps.
+  const value: AppContextValue = useMemo(() => ({
     store, loading, currentRole, setCurrentRole,
     canAccess, canExport, canAddNotes, canEditPortfolio, canEditFinance, visiblePortfolioTabs,
     updateFirm,
@@ -945,7 +1017,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateDealStages, updateKpiThresholds, updateHomepage,
     updateFinanceConfig, updateTaxonomy, updatePortfolioSnapshot,
     resetToDefaults,
-  };
+  }), [store, loading, currentRole, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

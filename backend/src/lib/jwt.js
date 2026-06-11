@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
+const { ACCESS_SECRET, REFRESH_SECRET } = require('./secrets');
 
-const ACCESS_SECRET  = process.env.JWT_SECRET  || 'cactus-access-secret-change-in-prod';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'cactus-refresh-secret-change-in-prod';
 const ACCESS_EXPIRY  = '15m';   // short-lived access token
 const REFRESH_EXPIRY = '30d';   // long-lived refresh token
 

@@ -10,6 +10,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import type { FundInvestment, FundFollowOn } from '../../data/types';
 import { generateId } from '../../lib/utils';
+import { fundMultiples } from '../../lib/fundEconomics';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PRIMARY   = '#1E293B';
@@ -166,9 +167,13 @@ function FundSummaryCard({ fund, investments }: FundSummaryCardProps) {
   const avgIrr        = investments.length
     ? investments.reduce((s, i) => s + n(i.irr), 0) / investments.length
     : 0;
-  const dpi = totalInvested > 0 ? totalRealized / totalInvested : 0;
-  const rvpi = totalInvested > 0 ? (totalFMV - totalRealized) / totalInvested : 0;
-  const tvpi = dpi + rvpi;
+  // Canonical multiples (one definition, shared with PortfolioFundView). Here NAV is the
+  // residual FMV net of realised proceeds, matching this view's prior behaviour.
+  const { dpi, tvpi } = fundMultiples({
+    paidIn: totalInvested,
+    distributions: totalRealized,
+    nav: totalFMV - totalRealized,
+  });
 
   const rows: Array<[string, string]> = [
     ['Investments', String(investments.length)],

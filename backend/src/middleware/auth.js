@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
-
-const ACCESS_SECRET = process.env.JWT_SECRET || 'cactus-access-secret-change-in-prod';
+const { ACCESS_SECRET } = require('../lib/secrets');
 
 // Attach req.user if valid JWT present
 async function authenticate(req, res, next) {

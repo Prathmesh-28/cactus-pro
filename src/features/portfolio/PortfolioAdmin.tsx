@@ -7,6 +7,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { defaultConfig } from '../../data/defaultConfig';
 import { generateId } from '../../lib/utils';
+import { currentQuarter as currentHealthQuarter } from '../../lib/quarter';
 import DocTemplateManager from '../admin/DocTemplateManager';
 import CsvImportPanel from './CsvImportPanel';
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
@@ -35,16 +36,10 @@ const TABS: Tab[] = [
   { id: 'viewer', label: 'Viewer Settings',    icon: <LayoutDashboard size={15} /> },
 ];
 
-// ─── Helper: current quarter string ──────────────────────────────────────────
-function currentQuarter(): string {
-  const now = new Date();
-  const m   = now.getMonth() + 1; // 1-indexed
-  const y   = now.getFullYear();
-  const q   = m <= 3 ? 'Q4' : m <= 6 ? 'Q1' : m <= 9 ? 'Q2' : 'Q3';
-  // Indian FY: Q1=Apr-Jun (year N), Q2=Jul-Sep (N), Q3=Oct-Dec (N), Q4=Jan-Mar (N+1)
-  const fy = m <= 3 ? y : y + 1;
-  return `FY${fy}-${q}`;
-}
+// ─── Helper: current quarter string (for HEALTH reviews) ─────────────────────
+// Uses the SAME canonical calendar format ("Q2 2026") the Health Dashboard joins on.
+// Previously emitted "FY2026-Q1", so reviews saved here never matched there.
+const currentQuarter = currentHealthQuarter;
 
 // ─── Health signal badge ──────────────────────────────────────────────────────
 const SIGNAL_COLORS: Record<HealthSignal, string> = {

@@ -20,30 +20,28 @@ const PRESET_SOURCES: Array<{
 }> = [
   {
     name: 'Cactus Master Sheet',
-    description: 'All data — Fund Metrics, Cash Flows, Expenses, Financial Periods, LP Summary',
+    description: 'All data — Metric Cards, Financial Periods, Valuation Log, LP Summary, Snapshot',
     team: 'All Teams',
     sheets: [
-      { sheetName: 'Fund Metrics',         label: 'Fund Metrics',       kvNamespace: 'finance',   kvKey: 'fund_1::fund_metrics' },
-      { sheetName: 'Cash Flows',           label: 'Cash Flows',         kvNamespace: 'finance',   kvKey: 'fund_1::cash_flows' },
-      { sheetName: 'Fund Expenses',        label: 'Fund Expenses',      kvNamespace: 'finance',   kvKey: 'et:fund_expenses' },
-      { sheetName: 'IM Expenses',          label: 'IM Expenses',        kvNamespace: 'finance',   kvKey: 'et:im_expenses' },
+      // NOTE: Fund Metric Cards / Snapshot / Valuation Log / LP all sync to the shared
+      // 'app' namespace (that's where those collections live). Cash Flows & Expenses are
+      // managed in-app (Finance tab dynamic tables), not via the store-blob sync.
+      { sheetName: 'Fund Metric Cards',    label: 'Fund Metric Cards',  kvNamespace: 'app',       kvKey: 'fund_metric_cards' },
       { sheetName: 'FY Revenue & Ops',     label: 'Financial Periods',  kvNamespace: 'portfolio', kvKey: 'financial_periods' },
-      { sheetName: 'FY Returns (MOIC-IRR)',label: 'Valuation Log',      kvNamespace: 'finance',   kvKey: 'valuation_log' },
+      { sheetName: 'Valuation Log',        label: 'Valuation Log',      kvNamespace: 'app',       kvKey: 'valuation_log' },
       { sheetName: 'LP Summary',           label: 'LP Summary',         kvNamespace: 'app',       kvKey: 'lp_summary' },
-      { sheetName: 'Fund Summary',         label: 'Portfolio Snapshot', kvNamespace: 'finance',   kvKey: 'pm:Portfolio' },
+      { sheetName: 'Portfolio Snapshot',   label: 'Portfolio Snapshot', kvNamespace: 'app',       kvKey: 'pm:Portfolio' },
     ],
   },
   {
     name: 'Finance Team Data',
-    description: 'Fund Metrics, Expenses, Capital Calls, Valuation Log',
+    description: 'Fund Metric Cards, Fund Investments, Capital Calls, Valuation Log',
     team: 'Finance',
     sheets: [
-      { sheetName: 'Fund Metrics',   label: 'Fund Metrics',    kvNamespace: 'finance', kvKey: 'fund_1::fund_metrics' },
-      { sheetName: 'Cash Flows',     label: 'Cash Flows',      kvNamespace: 'finance', kvKey: 'fund_1::cash_flows' },
-      { sheetName: 'Fund Expenses',  label: 'Fund Expenses',   kvNamespace: 'finance', kvKey: 'et:fund_expenses' },
-      { sheetName: 'IM Expenses',    label: 'IM Expenses',     kvNamespace: 'finance', kvKey: 'et:im_expenses' },
-      { sheetName: 'Capital Calls',  label: 'Capital Calls',   kvNamespace: 'finance', kvKey: 'capital_calls' },
-      { sheetName: 'Valuation Log',  label: 'Valuation Log',   kvNamespace: 'finance', kvKey: 'valuation_log' },
+      { sheetName: 'Fund Metric Cards', label: 'Fund Metric Cards', kvNamespace: 'app',     kvKey: 'fund_metric_cards' },
+      { sheetName: 'Fund Investments',  label: 'Fund Investments',  kvNamespace: 'finance', kvKey: 'fund_investments' },
+      { sheetName: 'Capital Calls',     label: 'Capital Calls',     kvNamespace: 'finance', kvKey: 'capital_calls' },
+      { sheetName: 'Valuation Log',     label: 'Valuation Log',     kvNamespace: 'app',     kvKey: 'valuation_log' },
     ],
   },
   {
@@ -80,19 +78,34 @@ const PRESET_SOURCES: Array<{
     ],
   },
   {
+    name: 'Fund Ledger & Metric Cards',
+    description: 'Full fund investment ledger + the homepage/portfolio metric cards',
+    team: 'Finance',
+    sheets: [
+      { sheetName: 'Fund Investments',  label: 'Fund Investments',  kvNamespace: 'finance', kvKey: 'fund_investments' },
+      { sheetName: 'Fund Metric Cards', label: 'Fund Metric Cards', kvNamespace: 'finance', kvKey: 'fund_metric_cards' },
+      { sheetName: 'Portfolio Snapshot',label: 'Portfolio Snapshot',kvNamespace: 'finance', kvKey: 'pm:Portfolio' },
+    ],
+  },
+  {
+    name: 'Company Detail Sheets',
+    description: 'Per-company Sector KPIs, Funding Rounds, Cap Table, Financial History + Fund View',
+    team: 'Portfolio',
+    sheets: [
+      // Company-nested sheets write companies[] which lives in the 'app' namespace.
+      { sheetName: 'Sector KPIs',         label: 'Sector KPIs',         kvNamespace: 'app',       kvKey: 'sector_kpis' },
+      { sheetName: 'Funding Rounds',      label: 'Funding Rounds',      kvNamespace: 'app',       kvKey: 'funding_rounds' },
+      { sheetName: 'Cap Table',           label: 'Cap Table',           kvNamespace: 'app',       kvKey: 'cap_table' },
+      { sheetName: 'Financial History',   label: 'Financial History',   kvNamespace: 'app',       kvKey: 'financial_history' },
+      { sheetName: 'Portfolio Fund View', label: 'Portfolio Fund View', kvNamespace: 'portfolio', kvKey: 'portfolio_fund_view' },
+    ],
+  },
+  {
     name: 'LP Investors',
     description: 'LP commitments, called capital, distributions, NAV',
     team: 'Finance',
     sheets: [
       { sheetName: 'LP Summary', label: 'LP Investors', kvNamespace: 'app', kvKey: 'lp_summary' },
-    ],
-  },
-  {
-    name: 'Compliance Calendar',
-    description: 'Regulatory deadlines, compliance events',
-    team: 'Finance',
-    sheets: [
-      { sheetName: 'Compliance Events', label: 'Compliance Events', kvNamespace: 'compliance', kvKey: 'events' },
     ],
   },
 ];

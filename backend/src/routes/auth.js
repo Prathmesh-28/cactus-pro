@@ -5,7 +5,7 @@ const router   = express.Router();
 const { pool } = require('../db');
 const { signAccess, signRefresh, verifyRefresh, revokeRefresh, revokeAllRefresh } = require('../lib/jwt');
 const { sendInvite, sendPasswordReset } = require('../lib/email');
-const { authenticate, audit } = require('../middleware/auth');
+const { authenticate, requireAdmin, audit } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -15,9 +15,17 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true,
 });
+// Throttle reset/invite email generation to stop email-bombing and provider-quota abuse.
+const resetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-// ── GET /auth/test-email — test SMTP config (super_admin only) ───────────────
-router.post('/test-email', authenticate, async (req, res) => {
+// ── POST /auth/test-email — test SMTP config (super_admin only) ──────────────
+router.post('/test-email', authenticate, requireAdmin, async (req, res) => {
   const { to } = req.body;
   if (!to) return res.status(400).json({ error: 'to email required' });
   try {
@@ -25,7 +33,9 @@ router.post('/test-email', authenticate, async (req, res) => {
     await spw({ to, token: 'test-token-123' });
     res.json({ success: true, message: `Test email sent to ${to}` });
   } catch (err) {
-    res.status(500).json({ error: err.message, code: err.code, command: err.command });
+    // Log details server-side; don't leak SMTP code/command to the client.
+    console.error('test-email failed:', err.message, err.code, err.command);
+    res.status(500).json({ error: 'Failed to send test email. Check SMTP settings.' });
   }
 });
 
@@ -90,7 +100,7 @@ router.get('/me', authenticate, (req, res) => {
 });
 
 // ── POST /auth/forgot-password ────────────────────────────────────────────────
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', resetLimiter, async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
   try {
@@ -116,7 +126,7 @@ router.post('/forgot-password', async (req, res) => {
 
 // ── POST /auth/set-password ───────────────────────────────────────────────────
 // Used for both invite acceptance and password reset
-router.post('/set-password', async (req, res) => {
+router.post('/set-password', resetLimiter, async (req, res) => {
   const { token, password } = req.body;
   if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
   if (password.length < 8)  return res.status(400).json({ error: 'Password must be at least 8 characters' });

@@ -61,25 +61,29 @@ const METRICS: MetricDef[] = [
 type MetricValues = Record<MetricKey, number | null>;
 type CashValues   = Record<CashKey,   number | null>;
 
+// Currency values are stored in ₹Cr — the SAME unit as the rest of the app (lib/money,
+// PortfolioFundView, FundLedger). Previously these were raw rupees displayed via /1e7,
+// which made the same metric read 1e7× different across screens. Inputs are labelled
+// in ₹Cr (see EditableGreenCard) so entry matches storage.
 const DEFAULT_METRICS: MetricValues = {
-  called_capital: 85000000, nav: 142000000, tvpi: 1.67, gross_irr: 24.5, net_irr: 21.2, dpi: 0.38, moic: 2.1,
+  called_capital: 8.5, nav: 14.2, tvpi: 1.67, gross_irr: 24.5, net_irr: 21.2, dpi: 0.38, moic: 2.1,
 };
 const DEFAULT_CASH: CashValues = {
-  called_capital: 85000000, bank_balance: 12000000, uncalled_capital: 65000000,
+  called_capital: 8.5, bank_balance: 1.2, uncalled_capital: 6.5,
 };
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
 function fmt(val: number | null, type: MetricDef['type']): string {
   if (val === null || val === undefined) return '—';
-  if (type === 'currency') return `₹${(val / 1e7).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`;
-  if (type === 'percent')  return `${Number(val).toLocaleString()}%`;
+  if (type === 'currency') return `₹${Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`;
+  if (type === 'percent')  return `${Number(val).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
   return Number(val).toLocaleString(undefined, { maximumFractionDigits: 4 });
 }
 
 function fmtCr(val: number | null): string {
   if (val === null || val === undefined) return '—';
-  return `₹${(val / 1e7).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`;
+  return `₹${Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`;
 }
 
 // ─── Green gradient card ──────────────────────────────────────────────────────
@@ -388,7 +392,7 @@ function EditableCashCard({ label, value, onChange, compact = false }:
       ) : (
         <div className={`font-serif font-bold leading-none tabular-nums cursor-text ${compact ? 'mt-1.5 text-base' : 'mt-2 text-2xl md:text-[26px]'}`}
           onClick={() => { setDraft(value === null ? '' : String(value)); setEditing(true); }}>
-          {value === null ? '—' : `₹${(value / 1e7).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`}
+          {value === null ? '—' : `₹${Number(value).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`}
         </div>
       )}
       {!editing && <Pencil className="w-3 h-3 absolute top-2 right-2 text-white opacity-0 group-hover:opacity-60 transition" />}

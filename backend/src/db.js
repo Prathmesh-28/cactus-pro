@@ -94,6 +94,15 @@ async function initDb() {
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      -- Microsoft Graph (SharePoint/OneDrive) OAuth tokens — single org-wide row
+      CREATE TABLE IF NOT EXISTS ms_tokens (
+        id SERIAL PRIMARY KEY,
+        access_token TEXT NOT NULL,
+        refresh_token TEXT NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
       CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user  ON refresh_tokens(user_id);
       CREATE INDEX IF NOT EXISTS idx_reset_tokens_token   ON password_reset_tokens(token);
       CREATE INDEX IF NOT EXISTS idx_audit_user           ON audit_log(user_id);

@@ -41,10 +41,12 @@ app.use(express.json({ limit: '10mb' }));
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 app.use('/auth', authRouter);         // /auth/login, /auth/refresh, etc.
 
-// File downloads are public — images must load without a JWT
-// (upload/delete/list still require auth via filesRouter internal checks)
+// File downloads: IMAGES are public (logos/avatars must render in <img> tags that
+// can't send a JWT). Non-image files (PDFs, term sheets, cap tables, signed docs)
+// require authentication — they were previously served to anyone who could guess a
+// sequential file id (IDOR). The authenticated route lives in filesRouter.
 const { pool: _p } = require('./db');
-app.get('/api/files/download/:fileId', async (req, res) => {
+app.get('/api/files/download/:fileId', async (req, res, next) => {
   try {
     const { rows } = await _p.query(
       'SELECT original_name, mime_type, file_data FROM files WHERE id=$1',
@@ -52,12 +54,21 @@ app.get('/api/files/download/:fileId', async (req, res) => {
     );
     if (!rows.length) return res.status(404).json({ error: 'File not found' });
     const file = rows[0];
-    res.setHeader('Content-Type', file.mime_type);
-    res.setHeader('Content-Disposition', `inline; filename="${file.original_name}"`);
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
-    res.send(file.file_data);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    // Only images are public here. Anything else falls through to the
+    // authenticated /api/files router below.
+    if (!file.mime_type || !file.mime_type.startsWith('image/')) {
+      return authenticate(req, res, () => sendFile(res, file));
+    }
+    sendFile(res, file);
+  } catch (err) { next(err); }
 });
+
+function sendFile(res, file) {
+  res.setHeader('Content-Type', file.mime_type);
+  res.setHeader('Content-Disposition', `inline; filename="${file.original_name}"`);
+  res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
+  res.send(file.file_data);
+}
 
 // ── Generic email send endpoint ───────────────────────────────────────────────
 const { sendGeneric } = require('./lib/email');

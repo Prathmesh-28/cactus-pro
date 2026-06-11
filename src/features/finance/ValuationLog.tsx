@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
+import { quarterSortKey } from '../../lib/quarter';
 import type { ValuationMark } from '../../data/types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -286,14 +287,7 @@ interface HistoryChartProps {
 }
 
 function HistoryChart({ companyName, logoUrl, marks, onClose }: HistoryChartProps) {
-  const sorted = [...marks].sort((a, b) => {
-    // Sort by quarter string chronologically
-    const parseQ = (q: string) => {
-      const [qPart, yearPart] = q.split(' ');
-      return parseInt(yearPart) * 4 + parseInt(qPart.replace('Q', ''));
-    };
-    return parseQ(a.quarter) - parseQ(b.quarter);
-  });
+  const sorted = [...marks].sort((a, b) => quarterSortKey(a.quarter) - quarterSortKey(b.quarter));
 
   const data = sorted.map(m => ({
     quarter: m.quarter,
@@ -479,13 +473,7 @@ export default function ValuationLog() {
   const getLatestMark = (companyId: string): ValuationMark | null => {
     const marks = valuationMarks
       .filter(m => m.companyId === companyId)
-      .sort((a, b) => {
-        const parseQ = (q: string) => {
-          const [qP, yP] = q.split(' ');
-          return parseInt(yP) * 4 + parseInt(qP.replace('Q', ''));
-        };
-        return parseQ(b.quarter) - parseQ(a.quarter);
-      });
+      .sort((a, b) => quarterSortKey(b.quarter) - quarterSortKey(a.quarter));
     return marks[0] ?? null;
   };
 

@@ -17,10 +17,12 @@ function parseCrore(val: string): number {
   return isNaN(n) ? 0 : n;
 }
 
+// Amounts are stored and entered in Lakhs (forms say "₹L"). Format CONSISTENTLY in
+// Lakhs — do NOT switch units at the 100 boundary, which made ₹99L and ₹101L render
+// in different units (₹99L vs ₹1.01Cr) and corrupted summary cards/progress bars.
 function fmtCr(val: string | number): string {
   const n = typeof val === 'string' ? parseCrore(val) : val;
-  if (n >= 100) return `₹${(n / 100).toFixed(2)}Cr`;
-  return `₹${n.toFixed(2)}L`;
+  return `₹${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}L`;
 }
 
 function inFY(dateStr: string): boolean {

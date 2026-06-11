@@ -73,6 +73,26 @@ export default function Header() {
   const visibleTabs   = authUser?.role === 'super_admin'
     ? NAV_ITEMS.map(n => n.tab)
     : (roleConfig?.visibleTabs ?? []);
+
+  // Apply the admin's Navigation customization (store.navConfig): order, custom label,
+  // and hide toggle. Falls back to the built-in NAV_ITEMS when no config exists.
+  // Role visibility (visibleTabs) is still the hard gate — navConfig only reorders/
+  // relabels/optionally hides among the tabs the role may already see.
+  const navConfig = store.navConfig ?? [];
+  const navItems = (() => {
+    if (!navConfig.length) return NAV_ITEMS;
+    const byTab = new Map(NAV_ITEMS.map(n => [n.tab, n]));
+    const ordered = navConfig
+      .filter(c => c.visible !== false && byTab.has(c.key as TabName))
+      .map(c => {
+        const base = byTab.get(c.key as TabName)!;
+        return { ...base, label: c.customLabel?.trim() || c.label?.trim() || base.label };
+      });
+    // Append any NAV_ITEMS not present in navConfig (newly added tabs) so they aren't lost.
+    const inConfig = new Set(navConfig.map(c => c.key));
+    for (const n of NAV_ITEMS) if (!inConfig.has(n.tab)) ordered.push(n);
+    return ordered;
+  })();
   const activeAnnouncements = announcements.filter(
     a => a.targetRoles.includes(currentRole) && new Date(a.expiryDate) >= new Date()
   );
@@ -107,7 +127,7 @@ export default function Header() {
 
             {/* Desktop nav */}
             <nav className="hidden md:flex items-center gap-0.5 flex-1">
-              {NAV_ITEMS.filter(item => visibleTabs.includes(item.tab)).map(item => {
+              {navItems.filter(item => visibleTabs.includes(item.tab)).map(item => {
                 const active     = isActive(item.path);
                 const accessible = canAccess(item.tab);
                 return (
@@ -339,7 +359,7 @@ export default function Header() {
         {mobileOpen && (
           <div className="md:hidden border-t px-5 py-3 flex flex-col gap-1"
             style={{ borderColor: 'rgba(255,255,255,0.15)', backgroundColor: '#154038' }}>
-            {NAV_ITEMS.filter(item => visibleTabs.includes(item.tab)).map(item => (
+            {navItems.filter(item => visibleTabs.includes(item.tab)).map(item => (
               <Link
                 key={item.tab}
                 to={item.path}

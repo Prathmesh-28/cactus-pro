@@ -7,30 +7,15 @@ import {
   ChevronLeft, ChevronRight, X, Download,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { currentQuarter, lastQuarters, normalizeQuarter } from '../../lib/quarter';
 import type { CompanyHealth, HealthSignal, PortfolioCompany } from '../../data/types';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+// Quarter parsing/formatting is centralised in lib/quarter so reviews saved from
+// Portfolio Admin (which used to emit "FY2026-Q1") match the dashboard's "Q2 2026".
 
-function getCurrentQuarter(): string {
-  const now = new Date();
-  const q = Math.ceil((now.getMonth() + 1) / 3);
-  return `Q${q} ${now.getFullYear()}`;
-}
-
-function getLast4Quarters(current: string): string[] {
-  const match = current.match(/Q(\d) (\d{4})/);
-  if (!match) return [current];
-  let q = parseInt(match[1]);
-  let y = parseInt(match[2]);
-  const quarters: string[] = [];
-  for (let i = 3; i >= 0; i--) {
-    let qi = q - i;
-    let yi = y;
-    while (qi <= 0) { qi += 4; yi -= 1; }
-    quarters.push(`Q${qi} ${yi}`);
-  }
-  return quarters;
-}
+const getCurrentQuarter = () => currentQuarter();
+const getLast4Quarters = (current: string) => lastQuarters(current, 4);
 
 function signalDotClass(signal: HealthSignal): string {
   switch (signal) {
@@ -361,7 +346,7 @@ interface TrendChartProps {
 
 function TrendChart({ quarters, healthRecords, companyCount }: TrendChartProps) {
   const data = quarters.map((q) => {
-    const records = healthRecords.filter((h) => h.quarter === q);
+    const records = healthRecords.filter((h) => normalizeQuarter(h.quarter) === q);
     const green = records.filter((h) => h.overallSignal === 'green').length;
     const amber = records.filter((h) => h.overallSignal === 'amber').length;
     const red   = records.filter((h) => h.overallSignal === 'red').length;
@@ -414,7 +399,7 @@ export default function HealthDashboard() {
   const healthMap = useMemo(() => {
     const map = new Map<string, CompanyHealth>();
     allHealth
-      .filter((h) => h.quarter === quarter)
+      .filter((h) => normalizeQuarter(h.quarter) === normalizeQuarter(quarter))
       .forEach((h) => map.set(h.companyId, h));
     return map;
   }, [allHealth, quarter]);
