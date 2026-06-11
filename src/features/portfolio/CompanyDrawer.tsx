@@ -23,6 +23,7 @@ import type { DocTemplate, DocTemplateCategory, DocTemplateFrequency, CompanyDoc
 import { defaultConfig } from '../../data/defaultConfig';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
+import CompanyTabLinkStrip from './CompanyTabLinkStrip';
 import AvatarChip from '../../components/ui/AvatarChip';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportCompanyPDF, exportCompanyExcel } from '../../lib/export';
@@ -1629,15 +1630,15 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   };
 
   const TAB_CONTENT: Record<DrawerTab, React.ReactNode> = {
-    overview:   <OverviewTab />,
-    financials: <FinancialsTab />,
-    funding:    <FundingTab />,
-    captable:   <CapTableTab />,
-    patents:    <PatentsTab />,
-    people:     <PeopleTab />,
-    calendar:   <CalendarTab />,
-    docs:       <DocsTab />,
-    gaps:       <GapsTab />,
+    overview:   <><CompanyTabLinkStrip companyId={company.id} tab="overview"   tabLabel="Overview / Sector KPIs" /><OverviewTab /></>,
+    financials: <><CompanyTabLinkStrip companyId={company.id} tab="financials" tabLabel="Financials" /><FinancialsTab /></>,
+    funding:    <><CompanyTabLinkStrip companyId={company.id} tab="funding"    tabLabel="Funding & Rounds" /><FundingTab /></>,
+    captable:   <><CompanyTabLinkStrip companyId={company.id} tab="captable"   tabLabel="Cap Table" /><CapTableTab /></>,
+    patents:    <><CompanyTabLinkStrip companyId={company.id} tab="patents"    tabLabel="Patents" /><PatentsTab /></>,
+    people:     <><CompanyTabLinkStrip companyId={company.id} tab="people"     tabLabel="People" /><PeopleTab /></>,
+    calendar:   <><CompanyTabLinkStrip companyId={company.id} tab="calendar"   tabLabel="Calendar" /><CalendarTab /></>,
+    docs:       <><CompanyTabLinkStrip companyId={company.id} tab="docs"       tabLabel="Documents" /><DocsTab /></>,
+    gaps:       <><CompanyTabLinkStrip companyId={company.id} tab="gaps"       tabLabel="Gaps & Actions" /><GapsTab /></>,
   };
 
   return (

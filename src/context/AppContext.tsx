@@ -18,6 +18,7 @@ import type {
   CompanyFinancialPeriod, CompanyStatus,
   NavTabConfig, RecruitmentAppConfig, OpsAppConfig, FundInvestment,
   DocTemplate, CompanyDocLink,
+  CompanyTabLink, ToolkitTool,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -235,6 +236,12 @@ interface AppContextValue {
   addDocTemplate: (x: DocTemplate) => void;           updateDocTemplate: (x: DocTemplate) => void;           deleteDocTemplate: (id: string) => void;
   upsertCompanyDocLink: (x: CompanyDocLink) => void;  // add or replace by companyId+templateId
   deleteCompanyDocLink: (id: string) => void;
+  // Per-company per-tab data-source sheet links
+  upsertCompanyTabLink: (x: CompanyTabLink) => void;
+  deleteCompanyTabLink: (id: string) => void;
+  // VC Toolkit tools (built-in + custom)
+  upsertToolkitTool: (x: ToolkitTool) => void;
+  deleteToolkitTool: (id: string) => void;
   // Shared config setters (synced to PostgreSQL for all users)
   setNavConfig: (cfg: NavTabConfig[]) => void;
   updateToolkitLinks: (links: Record<string, string>) => void;
@@ -502,6 +509,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [setStore]);
 
+  // v2: seed toolkitTools from defaultConfig for stores that lack them
+  useEffect(() => {
+    const KEY = 'cactus_toolkit_tools_v1';
+    if (!localStorage.getItem(KEY)) {
+      localStorage.setItem(KEY, '1');
+      setStore(s => ({
+        ...s,
+        companyTabLinks: s.companyTabLinks ?? [],
+        toolkitTools:    s.toolkitTools?.length ? s.toolkitTools : defaultConfig.toolkitTools,
+      }));
+    }
+  }, [setStore]);
+
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
     if (user?.role && user.role !== 'super_admin') return;
@@ -739,6 +759,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
   const deleteCompanyDocLink = (id: string) => setStore(s => ({ ...s, companyDocLinks: (s.companyDocLinks??[]).filter((i:any)=>i.id!==id) }));
 
+  const upsertCompanyTabLink = (x: CompanyTabLink) => setStore(s => {
+    const match = (l: CompanyTabLink) => l.companyId === x.companyId && l.tab === x.tab;
+    const existing = (s.companyTabLinks??[]).find((l: any) => match(l));
+    if (existing) {
+      return { ...s, companyTabLinks: (s.companyTabLinks??[]).map((l: any) => match(l) ? { ...l, ...x, id: l.id } : l) };
+    }
+    return { ...s, companyTabLinks: [...(s.companyTabLinks??[]), x] };
+  });
+  const deleteCompanyTabLink = (id: string) => setStore(s => ({ ...s, companyTabLinks: (s.companyTabLinks??[]).filter((i:any)=>i.id!==id) }));
+
+  const upsertToolkitTool = (x: ToolkitTool) => setStore(s => {
+    const list = s.toolkitTools ?? defaultConfig.toolkitTools;
+    const idx = list.findIndex((t: any) => t.id === x.id);
+    if (idx >= 0) {
+      const next = [...list]; next[idx] = { ...list[idx], ...x };
+      return { ...s, toolkitTools: next };
+    }
+    return { ...s, toolkitTools: [...list, x] };
+  });
+  const deleteToolkitTool = (id: string) => setStore(s => ({
+    ...s,
+    toolkitTools: (s.toolkitTools ?? defaultConfig.toolkitTools).filter((t: any) => t.id !== id),
+  }));
+
   // ── Shared config (all users see same values via PostgreSQL) ─────────────
   const setNavConfig         = (cfg: NavTabConfig[])         => setStore(s => ({ ...s, navConfig: cfg }));
   const updateToolkitLinks    = (links: Record<string, string>) => setStore(s => ({ ...s, toolkitLinks: links }));
@@ -875,6 +919,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addPortfolioFundView, updatePortfolioFundView, deletePortfolioFundView,
     addDocTemplate, updateDocTemplate, deleteDocTemplate,
     upsertCompanyDocLink, deleteCompanyDocLink,
+    upsertCompanyTabLink, deleteCompanyTabLink,
+    upsertToolkitTool, deleteToolkitTool,
     setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData,
     updateToolkitLinks, updateEmailTemplates, updateContentConfig,
     updateDealStages, updateKpiThresholds, updateHomepage,

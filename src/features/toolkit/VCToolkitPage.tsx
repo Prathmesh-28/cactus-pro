@@ -248,17 +248,29 @@ function CatIcon({ id }: { id: CatId }) {
 export default function VCToolkitPage() {
   const { store } = useApp();
   const adminLinks: Record<string, string> = store.toolkitLinks ?? {};
+  const storedTools = store.toolkitTools ?? [];
 
   const [activeSection, setActiveSection] = useState<string>('suite');
   const [activeCat, setActiveCat] = useState<CatId>('all');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [launchedId, setLaunchedId] = useState<string | null>(null);
 
-  // Merge admin-set URLs over static defaults
-  const FRAMEWORKS_WITH_LINKS = FW.map((fw: typeof FW[0]) => ({
-    ...fw,
-    url: adminLinks[fw.id] || fw.url,
-  }));
+  // Merge admin-set URLs + tag overrides from store, then append custom tools
+  const FRAMEWORKS_WITH_LINKS = [
+    ...FW.map((fw: typeof FW[0]) => {
+      const stored = storedTools.find(t => t.id === fw.id);
+      return { ...fw, url: adminLinks[fw.id] || stored?.externalUrl || fw.url, tag: stored?.tag ?? fw.tag };
+    }),
+    // custom tools added via ToolkitManager (not in FW)
+    ...storedTools
+      .filter(t => t.isCustom)
+      .map(t => ({
+        id: t.id, cat: t.catId as CatId, name: t.name, tag: t.tag,
+        desc: t.description ?? '',
+        inputs: [] as string[], outputs: [] as string[],
+        url: adminLinks[t.id] || t.externalUrl || '',
+      })),
+  ];
 
   const section = TOOLKIT_SECTIONS.find(s => s.id === activeSection)!;
 

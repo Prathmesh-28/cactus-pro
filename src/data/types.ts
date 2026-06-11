@@ -490,6 +490,10 @@ export interface AppStore {
   // ── Document Templates & SharePoint Links ─────────────────────────────────
   docTemplates:        DocTemplate[];           // admin-managed template registry
   companyDocLinks:     CompanyDocLink[];        // company × template SharePoint links
+  // ── Per-company per-tab data-source links (sheet/SharePoint per drawer tab) ─
+  companyTabLinks:     CompanyTabLink[];        // company × drawer-tab sheet URL registry
+  // ── VC Toolkit custom tools ───────────────────────────────────────────────
+  toolkitTools:        ToolkitTool[];           // admin-managed toolkit tools (built-in + custom)
 }
 
 // ── Shared config types ───────────────────────────────────────────────────────
@@ -1082,6 +1086,40 @@ export interface CompanyDocLink {
   lastSyncedAt?: string;      // ISO timestamp of last verification
   syncStatus: 'linked' | 'pending' | 'broken';
   notes?: string;
+}
+
+// ─── Per-company per-tab data-source links ───────────────────────────────────
+
+export type CompanyDrawerTab =
+  | 'overview' | 'financials' | 'funding' | 'captable'
+  | 'patents' | 'people' | 'calendar' | 'docs' | 'gaps';
+
+export interface CompanyTabLink {
+  id: string;
+  companyId: string;
+  tab: CompanyDrawerTab;
+  label: string;             // e.g. "Sector KPIs", "Financial History"
+  url: string;               // Google Sheets / SharePoint / OneDrive URL
+  syncStatus: 'linked' | 'pending' | 'broken';
+  lastSyncedAt?: string;     // ISO timestamp
+  notes?: string;
+}
+
+// ─── VC Toolkit tools (built-in + admin-added custom) ────────────────────────
+
+export interface ToolkitTool {
+  id: string;
+  name: string;
+  category: string;          // display category e.g. "Fundraising"
+  catId: string;             // slug e.g. "fundraising"
+  description?: string;
+  tag: 'Built' | 'To build';
+  externalUrl?: string;      // admin-set external link
+  inputs?: string[];
+  outputs?: string[];
+  isCustom?: boolean;        // true = admin-added, not built-in
+  sortOrder: number;
+  createdAt?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
