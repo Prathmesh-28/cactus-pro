@@ -10,7 +10,7 @@ const { sendInvite } = require('../lib/email');
 const { authenticate, requireAdmin, audit } = require('../middleware/auth');
 const { revokeAllRefresh } = require('../lib/jwt');
 
-const VALID_ROLES = ['super_admin', 'portfolio_team', 'finance_team', 'investment_team'];
+const VALID_ROLES = ['super_admin', 'portfolio_team', 'finance_team', 'investment_team', 'portfolio_admin', 'portfolio_viewer', 'finance_admin', 'finance_viewer'];
 
 // All routes require authentication
 router.use(authenticate);

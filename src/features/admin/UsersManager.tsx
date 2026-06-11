@@ -3,7 +3,7 @@ import { Plus, Pencil, Trash2, RefreshCw, Mail, Check, X, ShieldCheck, AlertCirc
 import { useApp } from '../../context/AppContext';
 import { authFetch } from '../../context/AuthContext';
 
-type Role = 'super_admin' | 'portfolio_team' | 'finance_team' | 'investment_team';
+type Role = 'super_admin' | 'portfolio_team' | 'finance_team' | 'investment_team' | 'portfolio_admin' | 'portfolio_viewer' | 'finance_admin' | 'finance_viewer';
 
 interface User {
   id: number; email: string; name: string; role: Role;
@@ -12,17 +12,25 @@ interface User {
 }
 
 const ROLE_LABELS: Record<Role, string> = {
-  super_admin:    'Super Admin',
-  portfolio_team: 'Portfolio Team',
-  finance_team:   'Finance Team',
-  investment_team:'Investment Team',
+  super_admin:      'Super Admin',
+  portfolio_team:   'Portfolio Team',
+  finance_team:     'Finance Team',
+  investment_team:  'Investment Team',
+  portfolio_admin:  'Portfolio Admin',
+  portfolio_viewer: 'Portfolio Viewer',
+  finance_admin:    'Finance Admin',
+  finance_viewer:   'Finance Viewer',
 };
 
 const ROLE_COLORS: Record<Role, string> = {
-  super_admin:    '#1C4B42',
-  portfolio_team: '#1D4ED8',
-  finance_team:   '#6D28D9',
-  investment_team:'#B45309',
+  super_admin:      '#1C4B42',
+  portfolio_team:   '#1D4ED8',
+  finance_team:     '#6D28D9',
+  investment_team:  '#B45309',
+  portfolio_admin:  '#0E7490',
+  portfolio_viewer: '#64748B',
+  finance_admin:    '#7C3AED',
+  finance_viewer:   '#9CA3AF',
 };
 
 const ic = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white';
