@@ -75,7 +75,7 @@ export default function FinancePage() {
       {/* Finance dashboard CSS variables injected inline so they don't bleed into cactus-pro */}
       <style>{`
         .fin-shell {
-          --background: #F8FAFC;
+          --background: #ffffff;
           --foreground: #0F172A;
           --card: #ffffff;
           --card-foreground: #0F172A;
@@ -88,12 +88,18 @@ export default function FinancePage() {
           --border: #E2E8F0;
           --input: #E2E8F0;
           --ring: #2D6A4F;
-          --sidebar: #1E293B;
-          --sidebar-foreground: #F1F5F9;
-          --sidebar-accent: rgba(255,255,255,0.10);
-          --sidebar-border: #334155;
+          --sidebar: #111827;
+          --sidebar-foreground: #94A3B8;
+          --sidebar-accent: rgba(45,106,79,0.18);
+          --sidebar-active-text: #4ADE80;
+          --sidebar-border: #1F2937;
           --gradient-primary: linear-gradient(135deg, #1E3A2F, #2D6A4F);
-          --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.10);
+          --metric-card-bg: #ffffff;
+          --metric-card-border: #E2E8F0;
+          --metric-card-accent: #2D6A4F;
+          --formula-card-bg: #EEF7F2;
+          --formula-card-text: #1A3D2B;
+          --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.08);
           background: var(--background);
           color: var(--foreground);
           font-family: "DM Sans", system-ui, sans-serif;
@@ -106,6 +112,23 @@ export default function FinancePage() {
         .fin-shell .text-primary-foreground { color: var(--primary-foreground); }
         .fin-shell .bg-\\[image\\:var\\(--gradient-primary\\)\\] { background-image: var(--gradient-primary); }
         .fin-shell .shadow-\\[var\\(--shadow-card\\)\\] { box-shadow: var(--shadow-card); }
+        /* metric card — white with green top accent */
+        .fin-metric-card {
+          background: var(--metric-card-bg);
+          border: 1px solid var(--metric-card-border);
+          border-top: 3px solid var(--metric-card-accent);
+          box-shadow: var(--shadow-card);
+        }
+        .fin-metric-label { color: #64748B; }
+        .fin-metric-value { color: #0F172A; }
+        /* formula card — light mint for editable, dark green gradient for result */
+        .fin-formula-input {
+          background: var(--formula-card-bg);
+          border: 1px solid #C6E8D5;
+        }
+        .fin-formula-input-label { color: #2D6A4F; opacity: 0.75; }
+        .fin-formula-input-value { color: var(--formula-card-text); }
+        .fin-pencil-dark { color: #2D6A4F !important; }
       `}</style>
 
       <div className="fin-shell flex min-h-[calc(100vh-64px)]">
@@ -119,19 +142,21 @@ export default function FinancePage() {
             <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: 'rgba(255,255,255,0.6)' }}>Fund Operations</p>
           </div>
           <nav className="flex-1 px-3 py-4 space-y-1">
-            {NAV.map(({ key, label, Icon }) => (
-              <button key={key} onClick={() => setActiveTab(key)}
-                className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors text-left',
-                  activeTab === key ? 'font-medium' : 'hover:bg-white/10')}
-                style={{
-                  color: 'var(--sidebar-foreground)',
-                  backgroundColor: activeTab === key ? 'var(--sidebar-accent)' : 'transparent',
-                  opacity: activeTab === key ? 1 : 0.8,
-                }}>
-                <Icon className="w-4 h-4 shrink-0" />
-                {label}
-              </button>
-            ))}
+            {NAV.map(({ key, label, Icon }) => {
+              const active = activeTab === key;
+              return (
+                <button key={key} onClick={() => setActiveTab(key)}
+                  className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors text-left')}
+                  style={{
+                    color: active ? '#4ADE80' : 'var(--sidebar-foreground)',
+                    backgroundColor: active ? 'var(--sidebar-accent)' : 'transparent',
+                    fontWeight: active ? '600' : '400',
+                  }}>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {label}
+                </button>
+              );
+            })}
           </nav>
         </aside>
 

@@ -142,38 +142,44 @@ export default function FundOverviewPage() {
   return (
     <div className="flex flex-col min-h-full" style={{ background: 'var(--background)' }}>
       {/* Header */}
-      <div className="border-b px-6 md:px-10 py-6 flex items-start justify-between"
-        style={{ borderColor: 'var(--border)', backgroundColor: 'rgba(255,255,255,0.5)' }}>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-serif uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+      <div className="border-b px-6 md:px-10 py-6 flex items-start justify-between gap-4"
+        style={{ borderColor: 'var(--border)', backgroundColor: '#ffffff' }}>
+        <div className="flex-1">
+          <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
             Fund Overview
           </h1>
-          <p className="text-xs italic mt-1" style={{ color: 'var(--muted-foreground)' }}>
-            Last updated: {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })} · Click any cell to edit inline · Amounts in INR Cr
+          <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+            Last updated: {new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'2-digit' })} at {new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12: false })} · Click any cell to edit inline · Amounts in INR Cr
           </p>
         </div>
-        {/* Print / PDF */}
-        <div className="flex items-center gap-2 no-print">
+
+        {/* Cactus logo */}
+        {store.firm?.logoUrl && (
+          <img src={store.firm.logoUrl} alt="Cactus Partners" className="h-12 object-contain hidden md:block" />
+        )}
+
+        <div className="flex items-center gap-2 no-print shrink-0">
+          {/* Fund selector */}
+          <div className="inline-flex items-center rounded-lg border p-0.5"
+            style={{ borderColor: 'var(--border)', backgroundColor: '#F8FAFC' }}>
+            {(store.financeConfig?.funds ?? [{ key: 'fund_1', label: 'Fund 1' }, { key: 'fund_2', label: 'Fund 2' }]).map(f => (
+              <button key={f.key} onClick={() => setFund(f.key as 'fund_1' | 'fund_2')}
+                className="px-4 py-1.5 text-xs font-semibold rounded-md transition-colors"
+                style={fund === f.key
+                  ? { backgroundColor: '#2D6A4F', color: '#fff' }
+                  : { color: '#2D6A4F', backgroundColor: 'transparent' }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Print / PDF */}
           <button onClick={() => window.print()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors"
-            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'var(--card)' }}
+            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', backgroundColor: '#F8FAFC' }}
             title="Save as PDF / Print">
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
-        </div>
-
-        {/* Fund selector */}
-        <div className="inline-flex items-center rounded-md border p-0.5"
-          style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-          {(store.financeConfig?.funds ?? [{ key: 'fund_1', label: 'Fund 1' }, { key: 'fund_2', label: 'Fund 2' }]).map(f => (
-            <button key={f.key} onClick={() => setFund(f.key as 'fund_1' | 'fund_2')}
-              className="px-3 py-1.5 text-xs font-medium rounded transition-colors"
-              style={fund === f.key
-                ? { backgroundColor: '#1E293B', color: '#fff' }
-                : { color: '#2D6A4F', backgroundColor: 'transparent' }}>
-              {f.label}
-            </button>
-          ))}
         </div>
       </div>
 

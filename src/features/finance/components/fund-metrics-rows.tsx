@@ -168,19 +168,19 @@ function MetricCard({ metric, period, rowType, value }: { metric: MetricDef; per
   }
 
   return (
-    <div className="relative group rounded-lg border border-transparent bg-[image:var(--gradient-primary)] text-primary-foreground p-5 shadow-[var(--shadow-card)]">
-      <div className="text-[11px] uppercase tracking-widest text-primary-foreground/70">{metric.label}</div>
+    <div className="fin-metric-card relative group rounded-lg p-5">
+      <div className="fin-metric-label text-[11px] uppercase tracking-widest font-semibold">{metric.label}</div>
       {editing && canEdit ? (
         <Input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)}
           onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
-          type="number" step="any" className="mt-2 h-9 font-numeric text-foreground" />
+          type="number" step="any" className="mt-2 h-9 font-numeric" />
       ) : (
-        <div className={cn("mt-2 font-serif font-bold text-2xl md:text-[26px] leading-none tabular-nums", canEdit && "cursor-text")}
+        <div className={cn("fin-metric-value mt-2 font-bold text-2xl md:text-[26px] leading-none tabular-nums", canEdit && "cursor-text")}
           onClick={() => { if (!canEdit) return; setDraft(value === null || value === undefined ? "" : String(value)); setEditing(true); }}>
           {display}
         </div>
       )}
-      {canEdit && !editing && <Pencil className="size-3 absolute top-3 right-3 opacity-0 group-hover:opacity-60 transition text-primary-foreground" />}
+      {canEdit && !editing && <Pencil className="fin-pencil-dark size-3 absolute top-3 right-3 opacity-0 group-hover:opacity-50 transition" />}
     </div>
   );
 }
@@ -333,12 +333,21 @@ function FormulaCard({ label, value, period, metricKey, readOnly = false, compac
     setEditing(false);
   }
 
+  const isResult = readOnly;
+
   return (
     <div className={cn(
-      "relative group rounded-lg border border-transparent bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-card)] flex-1",
+      "relative group rounded-lg shadow-[var(--shadow-card)] flex-1",
+      isResult
+        ? "bg-[image:var(--gradient-primary)] text-primary-foreground border border-transparent"
+        : "fin-formula-input",
       compact ? "p-3 min-w-[110px]" : "p-5 min-w-[180px]",
     )}>
-      <div className={cn("uppercase tracking-widest font-semibold text-primary-foreground/70", compact ? "text-[9px] leading-tight" : "text-[11px]")}>
+      <div className={cn(
+        "uppercase tracking-widest font-semibold",
+        compact ? "text-[9px] leading-tight" : "text-[11px]",
+        isResult ? "text-primary-foreground/70" : "fin-formula-input-label",
+      )}>
         {label}
       </div>
       {editing && editable ? (
@@ -346,14 +355,19 @@ function FormulaCard({ label, value, period, metricKey, readOnly = false, compac
           onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
           type="number" step="any" className="mt-2 h-8 font-numeric text-foreground" />
       ) : (
-        <div className={cn("font-serif font-bold leading-none tabular-nums",
+        <div className={cn(
+          "font-bold leading-none tabular-nums",
           compact ? "mt-1.5 text-base md:text-lg" : "mt-2 text-2xl md:text-[26px]",
-          editable && "cursor-text")}
+          isResult ? "text-primary-foreground" : "fin-formula-input-value",
+          editable && "cursor-text",
+        )}
           onClick={() => { if (!editable) return; setDraft(value === null || value === undefined ? "" : String(value)); setEditing(true); }}>
           {display}
         </div>
       )}
-      {editable && !editing && <Pencil className="size-3 absolute top-2 right-2 opacity-0 group-hover:opacity-60 transition text-primary-foreground" />}
+      {editable && !editing && (
+        <Pencil className={cn("size-3 absolute top-2 right-2 opacity-0 group-hover:opacity-60 transition", isResult ? "text-primary-foreground" : "fin-pencil-dark")} />
+      )}
     </div>
   );
 }
