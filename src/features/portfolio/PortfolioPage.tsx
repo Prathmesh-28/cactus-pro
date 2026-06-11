@@ -74,11 +74,9 @@ export default function PortfolioPage() {
     }
   }, [searchParams]);
 
-  if (!canAccess('portfolio')) return <AccessRestricted tab="portfolio" />;
-
   const { firm, fundMetrics, companies, sectors } = store;
   const totalInvestedCr = (store.portfolioSnapshot ?? []).reduce(
-    (s, inv) => s + parseFloat(inv.totalInvested || '0'), 0
+    (s, inv) => s + (inv.valueOfInvestment ?? 0), 0
   );
 
   const visibleMetrics = fundMetrics.filter((m) => m.visible);
@@ -106,6 +104,8 @@ export default function PortfolioPage() {
       return 0;
     });
   }, [companies, activeSector, search, sortKey, sortDir, sectors]);
+
+  if (!canAccess('portfolio')) return <AccessRestricted tab="portfolio" />;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));

@@ -66,7 +66,7 @@ function getFM(store: AppStore, ...keys: string[]): string {
 }
 
 function fillFromLiveData(type: LpCommType, store: AppStore): { subject: string; body: string } {
-  const { q, label, fy } = currentQuarterFY();
+  const { label, fy } = currentQuarterFY();
   const firmName = store.firm?.name ?? 'Cactus Partners';
   const active = store.companies.filter(c => c.status === 'Active');
   const exited = store.companies.filter(c => c.status === 'Exited').length;

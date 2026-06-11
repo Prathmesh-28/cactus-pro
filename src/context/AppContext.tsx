@@ -515,26 +515,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addCompany    = (c: PortfolioCompany)  => setStore(s => ({ ...s, companies: [...s.companies, c] }));
   const updateCompany = (c: PortfolioCompany)  => setStore(s => ({ ...s, companies: s.companies.map(x => x.id === c.id ? c : x) }));
   const deleteCompany = (id: string) => setStore(s => {
-    const noId = (arr: { companyId?: string }[] | undefined) => (arr ?? []).filter(x => x.companyId !== id);
+    const name = s.companies.find(x => x.id === id)?.name;
+    const noId = <T extends { companyId?: string | null }>(arr: T[] | undefined): T[] =>
+      (arr ?? []).filter(x => x.companyId !== id);
+    // capitalEvents, coInvestors, researchDocs are fund-level — no company link, not cascaded
     return {
       ...s,
       companies:        s.companies.filter(x => x.id !== id),
-      financialPeriods: noId(s.financialPeriods as any),
-      companyHealth:    noId(s.companyHealth as any),
-      newsItems:        noId(s.newsItems as any),
-      portfolioUpdates: noId(s.portfolioUpdates as any),
-      founderContacts:  noId(s.founderContacts as any),
-      capitalEvents:    noId(s.capitalEvents as any),
-      valuationMarks:   noId(s.valuationMarks as any),
-      coInvestors:      noId(s.coInvestors as any),
-      signingDocs:      noId(s.signingDocs as any),
-      icMemos:          noId(s.icMemos as any),
-      ddChecklists:     noId(s.ddChecklists as any),
-      referenceChecks:  noId(s.referenceChecks as any),
-      introRequests:    noId(s.introRequests as any),
-      jobOpenings:      noId(s.jobOpenings as any),
-      researchDocs:     noId(s.researchDocs as any),
-      meetingNotes:     noId(s.meetingNotes as any),
+      financialPeriods: noId(s.financialPeriods),
+      companyHealth:    noId(s.companyHealth),
+      newsItems:        noId(s.newsItems),
+      portfolioUpdates: noId(s.portfolioUpdates),
+      founderContacts:  noId(s.founderContacts),
+      valuationMarks:   noId(s.valuationMarks),
+      signingDocs:      noId(s.signingDocs),
+      icMemos:          noId(s.icMemos),
+      referenceChecks:  noId(s.referenceChecks),
+      jobOpenings:      noId(s.jobOpenings),
+      meetingNotes:     noId(s.meetingNotes),
+      ddChecklists:     (s.ddChecklists ?? []).filter(d => d.companyName !== name),
+      introRequests:    (s.introRequests ?? []).filter(r => r.requestedByCompanyId !== id),
     };
   });
 

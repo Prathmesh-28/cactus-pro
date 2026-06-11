@@ -19,6 +19,7 @@ import { useApp } from '../../context/AppContext';
 import { parseCr } from '../../lib/money';
 import type { CompanyGap, CompanyGapType } from '../../data/types';
 import type { PortfolioCompany } from '../../data/types';
+import { defaultConfig } from '../../data/defaultConfig';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
 import AvatarChip from '../../components/ui/AvatarChip';
