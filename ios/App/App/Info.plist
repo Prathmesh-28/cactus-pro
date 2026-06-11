@@ -4,6 +4,14 @@
 <dict>
 	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Cactus Pro uses Face ID to lock the app, protecting confidential portfolio and LP data.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Cactus Pro uses the camera to capture documents and photos to attach to companies and contacts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Cactus Pro accesses your photo library to attach images to companies and contacts.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Cactus Pro saves exported reports to your photo library.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

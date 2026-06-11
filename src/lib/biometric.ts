@@ -16,8 +16,8 @@ const PIN_KEY     = 'cactus_app_pin'; // stored in secure store on native
 export async function biometricAvailable(): Promise<boolean> {
   if (!isNative) return false;
   try {
-    const { NativeBiometric } = await import('capacitor-native-biometric');
-    const res = await NativeBiometric.isAvailable();
+    const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
+    const res = await BiometricAuth.checkBiometry();
     return !!res.isAvailable;
   } catch { return false; }
 }
@@ -30,18 +30,25 @@ export async function setLockEnabled(on: boolean): Promise<void> {
   await secureSet(ENABLED_KEY, on ? '1' : '0');
 }
 
-/** Prompt the OS biometric. Returns true if verified. */
+/** Prompt the OS biometric. Returns true if verified.
+ *  useFallback:true lets iOS/Android offer the device passcode if Face ID/fingerprint
+ *  isn't available or fails — so the lock still works on devices without enrolled
+ *  biometrics. */
 export async function verifyBiometric(reason = 'Unlock Cactus Pro'): Promise<boolean> {
   if (!isNative) return true;
   try {
-    const { NativeBiometric } = await import('capacitor-native-biometric');
-    await NativeBiometric.verifyIdentity({
+    const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
+    await BiometricAuth.authenticate({
       reason,
-      title: 'Cactus Pro',
-      subtitle: 'Confirm your identity',
-      description: reason,
+      cancelTitle: 'Cancel',
+      // Allow the device passcode as a fallback so the lock still works if Face ID /
+      // fingerprint fails or isn't enrolled.
+      allowDeviceCredential: true,
+      iosFallbackTitle: 'Use passcode',
+      androidTitle: 'Cactus Pro',
+      androidSubtitle: 'Confirm your identity',
     });
-    return true; // verifyIdentity resolves on success, rejects on failure/cancel
+    return true; // authenticate() resolves on success, throws BiometryError otherwise
   } catch { return false; }
 }
 
