@@ -487,6 +487,9 @@ export interface AppStore {
   toolkitLinks:        Record<string, string>;  // frameworkId → external URL (admin-managed)
   emailTemplates:      EmailTemplates | null;   // admin-managed email templates
   contentConfig:       ContentConfig | null;    // admin-managed page descriptions/headers
+  // ── Document Templates & SharePoint Links ─────────────────────────────────
+  docTemplates:        DocTemplate[];           // admin-managed template registry
+  companyDocLinks:     CompanyDocLink[];        // company × template SharePoint links
 }
 
 // ── Shared config types ───────────────────────────────────────────────────────
@@ -1053,6 +1056,32 @@ export interface FounderPortalAccess {
   lastLoginAt?: string;
   invitedAt: string;
   invitedBy: string;
+}
+
+// ─── Document Templates & SharePoint Links ───────────────────────────────────
+export type DocTemplateCategory = 'governance' | 'financial' | 'legal' | 'operational' | 'fundraise' | 'compliance' | 'other';
+export type DocTemplateFrequency = 'monthly' | 'quarterly' | 'annual' | 'one_time' | 'ad_hoc';
+
+export interface DocTemplate {
+  id: string;
+  name: string;
+  category: DocTemplateCategory;
+  description: string;
+  frequency: DocTemplateFrequency;
+  required: boolean;          // required for every portfolio company
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface CompanyDocLink {
+  id: string;
+  companyId: string;
+  templateId: string;
+  url: string;                // SharePoint (or any cloud) URL
+  label?: string;
+  lastSyncedAt?: string;      // ISO timestamp of last verification
+  syncStatus: 'linked' | 'pending' | 'broken';
+  notes?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

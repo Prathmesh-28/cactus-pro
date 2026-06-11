@@ -17,6 +17,7 @@ import type {
   JobOpening, Candidate, Interview, OfferLetter, OnboardingTask,
   CompanyFinancialPeriod,
   NavTabConfig, RecruitmentAppConfig, OpsAppConfig, FundInvestment,
+  DocTemplate, CompanyDocLink,
 } from '../data/types';
 
 const LS_KEY   = 'cactus_store';
@@ -223,6 +224,10 @@ interface AppContextValue {
   addPortfolioFundView: (x: FundInvestment) => void;
   updatePortfolioFundView: (x: FundInvestment) => void;
   deletePortfolioFundView: (id: string) => void;
+  // Document templates & SharePoint link registry
+  addDocTemplate: (x: DocTemplate) => void;           updateDocTemplate: (x: DocTemplate) => void;           deleteDocTemplate: (id: string) => void;
+  upsertCompanyDocLink: (x: CompanyDocLink) => void;  // add or replace by companyId+templateId
+  deleteCompanyDocLink: (id: string) => void;
   // Shared config setters (synced to PostgreSQL for all users)
   setNavConfig: (cfg: NavTabConfig[]) => void;
   updateToolkitLinks: (links: Record<string, string>) => void;
@@ -477,6 +482,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [setStore]);
 
+  // v1: backfill docTemplates + companyDocLinks from defaultConfig for stores that lack them
+  useEffect(() => {
+    const KEY = 'cactus_doctpl_v1';
+    if (!localStorage.getItem(KEY)) {
+      localStorage.setItem(KEY, '1');
+      setStore(s => ({
+        ...s,
+        docTemplates:    s.docTemplates?.length    ? s.docTemplates    : defaultConfig.docTemplates,
+        companyDocLinks: s.companyDocLinks?.length ? s.companyDocLinks : defaultConfig.companyDocLinks,
+      }));
+    }
+  }, [setStore]);
+
   const setCurrentRole = (role: RoleName) => {
     // Only users whose DB role is super_admin can switch (preview other roles)
     if (user?.role && user.role !== 'super_admin') return;
@@ -533,6 +551,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       referenceChecks:  noId(s.referenceChecks),
       jobOpenings:      noId(s.jobOpenings),
       meetingNotes:     noId(s.meetingNotes),
+      companyDocLinks:  noId(s.companyDocLinks),
       ddChecklists:     (s.ddChecklists ?? []).filter(d => d.companyName !== name),
       introRequests:    (s.introRequests ?? []).filter(r => r.requestedByCompanyId !== id),
     };
@@ -693,6 +712,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updatePortfolioFundView = (x: FundInvestment) => setStore(s => ({ ...s, portfolioFundView: (s.portfolioFundView??[]).map((i:any)=>i.id===x.id?x:i) }));
   const deletePortfolioFundView = (id: string) => setStore(s => ({ ...s, portfolioFundView: (s.portfolioFundView??[]).filter((i:any)=>i.id!==id) }));
 
+  // ── Document templates & SharePoint links ────────────────────────────────
+  const addDocTemplate    = (x: DocTemplate) => setStore(s => ({ ...s, docTemplates: [...(s.docTemplates??[]), x] }));
+  const updateDocTemplate = (x: DocTemplate) => setStore(s => ({ ...s, docTemplates: (s.docTemplates??[]).map((i:any)=>i.id===x.id?x:i) }));
+  const deleteDocTemplate = (id: string) => setStore(s => ({
+    ...s,
+    docTemplates: (s.docTemplates??[]).filter((i:any)=>i.id!==id),
+    // Cascade: remove every company link pointing at the deleted template
+    companyDocLinks: (s.companyDocLinks??[]).filter((i:any)=>i.templateId!==id),
+  }));
+  // Upsert by composite key: companyId + templateId (keeps the existing link's id)
+  const upsertCompanyDocLink = (x: CompanyDocLink) => setStore(s => {
+    const match = (l: CompanyDocLink) => l.companyId === x.companyId && l.templateId === x.templateId;
+    const existing = (s.companyDocLinks??[]).find((l: any) => match(l));
+    if (existing) {
+      return { ...s, companyDocLinks: (s.companyDocLinks??[]).map((l: any) => match(l) ? { ...l, ...x, id: l.id } : l) };
+    }
+    return { ...s, companyDocLinks: [...(s.companyDocLinks??[]), x] };
+  });
+  const deleteCompanyDocLink = (id: string) => setStore(s => ({ ...s, companyDocLinks: (s.companyDocLinks??[]).filter((i:any)=>i.id!==id) }));
+
   // ── Shared config (all users see same values via PostgreSQL) ─────────────
   const setNavConfig         = (cfg: NavTabConfig[])         => setStore(s => ({ ...s, navConfig: cfg }));
   const updateToolkitLinks    = (links: Record<string, string>) => setStore(s => ({ ...s, toolkitLinks: links }));
@@ -763,6 +802,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addFinancialPeriod, updateFinancialPeriod, deleteFinancialPeriod, upsertFinancialPeriod,
     addFundInvestment, updateFundInvestment, deleteFundInvestment,
     addPortfolioFundView, updatePortfolioFundView, deletePortfolioFundView,
+    addDocTemplate, updateDocTemplate, deleteDocTemplate,
+    upsertCompanyDocLink, deleteCompanyDocLink,
     setNavConfig, setRecruitmentConfig, setOpsConfig, setFinanceData, getFinanceData,
     updateToolkitLinks, updateEmailTemplates, updateContentConfig,
     updateDealStages, updateKpiThresholds, updateHomepage,

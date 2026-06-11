@@ -19,6 +19,7 @@ import { useApp } from '../../context/AppContext';
 import { parseCr } from '../../lib/money';
 import type { CompanyGap, CompanyGapType } from '../../data/types';
 import type { PortfolioCompany } from '../../data/types';
+import type { DocTemplate, DocTemplateCategory, DocTemplateFrequency, CompanyDocLink } from '../../data/types';
 import { defaultConfig } from '../../data/defaultConfig';
 import SectorPill from '../../components/ui/SectorPill';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -302,6 +303,20 @@ function KV({ label, value }: { label: string; value: string | number }) {
     </div>
   );
 }
+
+// ─── SharePoint document registry helpers ─────────────────────────────────────
+
+const DOC_CATEGORY_ORDER: DocTemplateCategory[] = ['governance', 'financial', 'legal', 'operational', 'fundraise', 'compliance', 'other'];
+const DOC_CATEGORY_LABELS: Record<DocTemplateCategory, string> = {
+  governance: 'Governance', financial: 'Financial', legal: 'Legal',
+  operational: 'Operational', fundraise: 'Fundraise', compliance: 'Compliance', other: 'Other',
+};
+const DOC_FREQ_LABELS: Record<DocTemplateFrequency, string> = {
+  monthly: 'Monthly', quarterly: 'Quarterly', annual: 'Annual', one_time: 'One-time', ad_hoc: 'Ad hoc',
+};
+const DOC_SYNC_DOT: Record<CompanyDocLink['syncStatus'], string> = {
+  linked: 'bg-emerald-500', pending: 'bg-amber-400', broken: 'bg-red-500',
+};
 
 // ─── Main drawer ──────────────────────────────────────────────────────────────
 
@@ -1331,8 +1346,80 @@ export default function CompanyDrawer({ company, onClose }: Props) {
   };
 
   // ── Tab: Docs ──────────────────────────────────────────────────────────────
-  const DocsTab = () => (
+  const DocsTab = () => {
+    const templates = (store.docTemplates ?? []);
+    const links = (store.companyDocLinks ?? []).filter(l => l.companyId === company.id);
+    const linkByTemplate = new Map(links.map(l => [l.templateId, l]));
+    const requiredTemplates = templates.filter(t => t.required);
+    const requiredLinked = requiredTemplates.filter(t => linkByTemplate.has(t.id)).length;
+    const allRequiredLinked = requiredTemplates.length > 0 && requiredLinked === requiredTemplates.length;
+    const groups: [DocTemplateCategory, DocTemplate[]][] = DOC_CATEGORY_ORDER
+      .map(cat => [cat, templates.filter(t => t.category === cat).sort((a, b) => a.sortOrder - b.sortOrder)] as [DocTemplateCategory, DocTemplate[]])
+      .filter(([, tpls]) => tpls.length > 0);
+    return (
     <div className="space-y-4">
+      {/* SharePoint document registry */}
+      {templates.length > 0 && (
+        <Section title="SharePoint Documents" icon={ExternalLink}>
+          <div className="space-y-3">
+            <div className={`flex items-center gap-2 text-xs font-medium rounded-lg border px-3 py-2 ${
+              allRequiredLinked
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                : 'bg-amber-50 text-amber-700 border-amber-100'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${allRequiredLinked ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+              {requiredLinked} / {requiredTemplates.length} required documents linked
+            </div>
+            {groups.map(([cat, tpls]) => (
+              <div key={cat}>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">{DOC_CATEGORY_LABELS[cat]}</p>
+                <div className="border border-gray-100 rounded-lg divide-y divide-gray-100">
+                  {tpls.map(t => {
+                    const link = linkByTemplate.get(t.id);
+                    return (
+                      <div key={t.id} className="flex items-center gap-2 px-3 py-2">
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          <span className="text-xs font-medium text-gray-700 truncate" title={t.description}>{t.name}</span>
+                          <span className="text-[10px] text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-1.5 py-0.5 flex-shrink-0">
+                            {DOC_FREQ_LABELS[t.frequency]}
+                          </span>
+                        </div>
+                        {link ? (
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className={`w-1.5 h-1.5 rounded-full ${DOC_SYNC_DOT[link.syncStatus]}`} title={`Sync status: ${link.syncStatus}`} />
+                            {link.lastSyncedAt && (
+                              <span className="text-[10px] text-gray-400">
+                                synced {new Date(link.lastSyncedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </span>
+                            )}
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs font-medium hover:underline"
+                              style={{ color: primaryColor }}
+                              title={link.label ?? link.url}
+                            >
+                              <ExternalLink className="w-3 h-3" /> Open
+                            </a>
+                          </div>
+                        ) : t.required ? (
+                          <span className="text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5 flex-shrink-0">
+                            Not linked
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-300 flex-shrink-0">—</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* Upload */}
       {canAddNotes() && (
         <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center">
@@ -1391,7 +1478,8 @@ export default function CompanyDrawer({ company, onClose }: Props) {
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   // ── Tab: Calendar ──────────────────────────────────────────────────────────
   const CalendarTab = () => (

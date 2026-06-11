@@ -2162,4 +2162,37 @@ export const defaultConfig: AppStore = {
     { companyId: 'c12', companyName: 'ParkMate',                 dateOfFirstInvestment: '30.4.21', currentStake: 130000000,  currentEquityValue: 56000000,   valueOfInvestment: 50000000,   moic: 1.12, irr: 18 },
     { companyId: 'c13', companyName: 'Rubix',                    dateOfFirstInvestment: '15.4.21', currentStake: 98000000,   currentEquityValue: 1764000000, valueOfInvestment: 800000000,  moic: 2.21, irr: 32 },
   ],
+
+  // ─── Document Templates & SharePoint Links (Admin-managed registry) ──────────
+  docTemplates: [
+    { id: 'dt1',  name: 'Board Deck',                category: 'governance', description: 'Quarterly board presentation with KPIs, financials, asks.',                       frequency: 'quarterly', required: true,  sortOrder: 1,  createdAt: '2026-06-11' },
+    { id: 'dt2',  name: 'Board Minutes',             category: 'governance', description: 'Signed minutes of board meetings.',                                               frequency: 'quarterly', required: true,  sortOrder: 2,  createdAt: '2026-06-11' },
+    { id: 'dt3',  name: 'Monthly MIS',               category: 'financial',  description: 'Management information system report: P&L, cash, runway, KPIs.',                  frequency: 'monthly',   required: true,  sortOrder: 3,  createdAt: '2026-06-11' },
+    { id: 'dt4',  name: 'Quarterly Financials',      category: 'financial',  description: 'Unaudited quarterly P&L, balance sheet, cash flow.',                              frequency: 'quarterly', required: true,  sortOrder: 4,  createdAt: '2026-06-11' },
+    { id: 'dt5',  name: 'Annual Audited Financials', category: 'financial',  description: 'Statutory audited financial statements.',                                         frequency: 'annual',    required: true,  sortOrder: 5,  createdAt: '2026-06-11' },
+    { id: 'dt6',  name: 'Cap Table',                 category: 'legal',      description: 'Fully-diluted capitalisation table, updated on every round/ESOP event.',          frequency: 'ad_hoc',    required: true,  sortOrder: 6,  createdAt: '2026-06-11' },
+    { id: 'dt7',  name: 'Shareholders Agreement',    category: 'legal',      description: 'Executed SHA and amendments.',                                                    frequency: 'one_time',  required: true,  sortOrder: 7,  createdAt: '2026-06-11' },
+    { id: 'dt8',  name: 'Share Certificates',        category: 'legal',      description: 'Cactus share certificates and stamp duty proofs.',                                frequency: 'one_time',  required: true,  sortOrder: 8,  createdAt: '2026-06-11' },
+    { id: 'dt9',  name: 'Compliance Certificates',   category: 'compliance', description: 'ROC filings, GST, TDS, PF/ESI compliance confirmations.',                         frequency: 'quarterly', required: true,  sortOrder: 9,  createdAt: '2026-06-11' },
+    { id: 'dt10', name: 'Insurance Policies',        category: 'compliance', description: 'D&O, keyman, asset insurance policies.',                                          frequency: 'annual',    required: false, sortOrder: 10, createdAt: '2026-06-11' },
+    { id: 'dt11', name: 'ESOP Documents',            category: 'legal',      description: 'ESOP scheme, grants register, valuation reports.',                                frequency: 'ad_hoc',    required: false, sortOrder: 11, createdAt: '2026-06-11' },
+    { id: 'dt12', name: 'Fundraise Data Room',       category: 'fundraise',  description: 'Live data room index for ongoing/next round.',                                    frequency: 'ad_hoc',    required: false, sortOrder: 12, createdAt: '2026-06-11' },
+  ],
+
+  // Example SharePoint links for the three featured companies × first 4 templates.
+  // All other links are added by admins through the UI.
+  companyDocLinks: [
+    { id: 'cdl-c3-dt1', companyId: 'c3', templateId: 'dt1', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Lohum/BoardDeck',               syncStatus: 'pending' },
+    { id: 'cdl-c3-dt2', companyId: 'c3', templateId: 'dt2', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Lohum/BoardMinutes',            syncStatus: 'pending' },
+    { id: 'cdl-c3-dt3', companyId: 'c3', templateId: 'dt3', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Lohum/MonthlyMIS',              syncStatus: 'pending' },
+    { id: 'cdl-c3-dt4', companyId: 'c3', templateId: 'dt4', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Lohum/QuarterlyFinancials',     syncStatus: 'pending' },
+    { id: 'cdl-c1-dt1', companyId: 'c1', templateId: 'dt1', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Bellatrix/BoardDeck',           syncStatus: 'pending' },
+    { id: 'cdl-c1-dt2', companyId: 'c1', templateId: 'dt2', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Bellatrix/BoardMinutes',        syncStatus: 'pending' },
+    { id: 'cdl-c1-dt3', companyId: 'c1', templateId: 'dt3', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Bellatrix/MonthlyMIS',          syncStatus: 'pending' },
+    { id: 'cdl-c1-dt4', companyId: 'c1', templateId: 'dt4', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Bellatrix/QuarterlyFinancials', syncStatus: 'pending' },
+    { id: 'cdl-c7-dt1', companyId: 'c7', templateId: 'dt1', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Kapture/BoardDeck',             syncStatus: 'pending' },
+    { id: 'cdl-c7-dt2', companyId: 'c7', templateId: 'dt2', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Kapture/BoardMinutes',          syncStatus: 'pending' },
+    { id: 'cdl-c7-dt3', companyId: 'c7', templateId: 'dt3', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Kapture/MonthlyMIS',            syncStatus: 'pending' },
+    { id: 'cdl-c7-dt4', companyId: 'c7', templateId: 'dt4', url: 'https://cactuspartners.sharepoint.com/sites/Portfolio/Kapture/QuarterlyFinancials',   syncStatus: 'pending' },
+  ],
 };

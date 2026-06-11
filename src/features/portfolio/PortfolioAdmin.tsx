@@ -2,10 +2,11 @@ import { useState, lazy, Suspense, useCallback } from 'react';
 import {
   LayoutDashboard, TrendingUp, BarChart2, Layers, Activity,
   Edit2, X, Plus, Check, RefreshCw,
-  Info,
+  Info, FileText,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../lib/utils';
+import DocTemplateManager from '../admin/DocTemplateManager';
 const TeamSyncPanel = lazy(() => import('../../components/ui/TeamSyncPanel'));
 import type {
   PortfolioCompany, CompanyFinancialPeriod, FundInvestment,
@@ -18,7 +19,7 @@ const PRIMARY   = '#1C4B42';
 const BG        = '#F6FAF7';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type TabId = 'sync' | 'metrics' | 'periods' | 'fund' | 'health' | 'viewer';
+type TabId = 'sync' | 'metrics' | 'periods' | 'fund' | 'health' | 'docs' | 'viewer';
 
 interface Tab { id: TabId; label: string; icon: React.ReactNode }
 
@@ -28,6 +29,7 @@ const TABS: Tab[] = [
   { id: 'periods', label: 'Financial Periods', icon: <BarChart2 size={15} /> },
   { id: 'fund',    label: 'Fund View',         icon: <Layers size={15} /> },
   { id: 'health',  label: 'Company Health',    icon: <Activity size={15} /> },
+  { id: 'docs',    label: 'Doc Templates',     icon: <FileText size={15} /> },
   { id: 'viewer', label: 'Viewer Settings',    icon: <LayoutDashboard size={15} /> },
 ];
 
@@ -1295,6 +1297,32 @@ export default function PortfolioAdmin() {
           </div>
         )}
 
+        {activeTab === 'docs' && (
+          <div className="rounded-xl border border-teal-100 bg-teal-50 p-4">
+            <p className="text-sm font-bold text-teal-800 mb-2">📁 Doc Templates — What this tab does</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-teal-700">
+              <div>
+                <p className="font-semibold mb-1">What you manage here:</p>
+                <ul className="space-y-1 list-disc list-inside text-teal-600">
+                  <li><strong>Template registry</strong> — Board Deck, Monthly MIS, Cap Table…</li>
+                  <li>Category, reporting frequency and whether it's required</li>
+                  <li><strong>SharePoint links</strong> — one URL per company per template</li>
+                  <li>Sync status per link — Linked / Pending / Broken</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Good to know:</p>
+                <ul className="space-y-1 list-disc list-inside text-teal-600">
+                  <li>The coverage line shows how many required docs are linked per company</li>
+                  <li>The greyed URL placeholder suggests the standard SharePoint path convention</li>
+                  <li>Deleting a template also removes all its company links</li>
+                  <li>This is the same registry as Admin → Doc Templates</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           {activeTab === 'sync' && (
             <Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm">Loading sync panel…</div>}><TeamSyncPanel team="portfolio" /></Suspense>
@@ -1337,6 +1365,17 @@ export default function PortfolioAdmin() {
                 <span className="text-xs text-gray-400 ml-1">Quarterly health signal reviews per company.</span>
               </div>
               <CompanyHealthTab />
+            </div>
+          )}
+
+          {activeTab === 'docs' && (
+            <div>
+              <div className="flex items-center gap-2 mb-5">
+                <FileText size={17} style={{ color: PRIMARY }} />
+                <h2 className="text-base font-semibold text-gray-800">Doc Templates & SharePoint Links</h2>
+                <span className="text-xs text-gray-400 ml-1">Document template registry and per-company SharePoint links.</span>
+              </div>
+              <DocTemplateManager />
             </div>
           )}
 

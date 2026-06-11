@@ -26,6 +26,7 @@ import ToolkitManager from './ToolkitManager';
 import EmailTemplatesManager from './EmailTemplatesManager';
 import ContentManager from './ContentManager';
 import WorkspaceManager from './WorkspaceManager';
+import DocTemplateManager from './DocTemplateManager';
 import {
   Settings,
   Building2,
@@ -51,6 +52,7 @@ import {
   Activity,
   Wrench,
   FolderOpen,
+  FileText,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -61,7 +63,8 @@ type AdminTab =
   | 'portfolio_snapshot' | 'users'
   | 'lps' | 'navigation' | 'recruitment_config' | 'operations_config'
   | 'master_sheet' | 'changelog' | 'toolkit_links'
-  | 'email_templates' | 'content_manager' | 'workspace_manager';
+  | 'email_templates' | 'content_manager' | 'workspace_manager'
+  | 'doc_templates';
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: string }[] = [
   // ── Platform ──────────────────────────────────────────────────────────────
@@ -94,6 +97,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType; group?: str
   { key: 'email_templates',    label: 'Email Templates',       Icon: Bell,             group: 'Platform' },
   { key: 'content_manager',    label: 'Content & Pages',       Icon: Globe,            group: 'Platform' },
   { key: 'workspace_manager',  label: 'Team Workspace',        Icon: FolderOpen,       group: 'Platform' },
+  { key: 'doc_templates',      label: 'Doc Templates',         Icon: FileText,         group: 'Portfolio' },
 ];
 
 // ─── Impact notes — shown as a banner under each panel heading ───────────────
@@ -186,6 +190,10 @@ const TAB_META: Record<AdminTab, { affects: string[]; note?: string }> = {
   email_templates: { affects: ['LP Comms emails', 'Capital call notices', 'Founder portal welcome', 'User invite email'] },
   content_manager: { affects: ['Page headings and subtitles across all tabs'] },
   workspace_manager: { affects: ['Team Workspace — view, delete or bulk-clear any resource/gap/note across teams; review the activity log'] },
+  doc_templates: {
+    affects: ['Portfolio → Portfolio Admin → Doc Templates — same registry, shared with the portfolio team', 'Company Drawer → Docs tab — SharePoint links per company'],
+    note: 'Deleting a template also removes every company SharePoint link attached to it.',
+  },
 };
 
 export default function AdminPage() {
@@ -220,6 +228,7 @@ export default function AdminPage() {
     email_templates:      <EmailTemplatesManager />,
     content_manager:      <ContentManager />,
     workspace_manager:    <WorkspaceManager />,
+    doc_templates:        <DocTemplateManager />,
   };
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab);
