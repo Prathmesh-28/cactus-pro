@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, RefreshCw, ExternalLink } from 'lucide-react';
+import { X, Send, RefreshCw, ExternalLink } from 'lucide-react';
+import CactusMark from './CactusMark';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { getBotResponse, buildPortfolioContext, genId, type BotMessage } from '../../lib/chatbot';
@@ -107,13 +108,13 @@ export default function Chatbot() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-[150] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ background: open ? '#0A2321' : 'linear-gradient(135deg, #1C4B42, #254536)', border: '3px solid #86CA0F' }}
+        className="fixed right-6 z-[150] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+        style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))', background: open ? '#0A2321' : 'linear-gradient(135deg, #1C4B42, #254536)', border: '3px solid #86CA0F' }}
         aria-label="Open assistant"
       >
         {open
           ? <X className="w-5 h-5 text-white" />
-          : <MessageCircle className="w-6 h-6 text-white" />}
+          : <CactusMark className="w-7 h-7" color="#fff" />}
         {/* Pulse ring */}
         {!open && (
           <span className="absolute inset-0 rounded-full animate-ping opacity-20"
@@ -123,14 +124,14 @@ export default function Chatbot() {
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-[150] w-[360px] max-w-[calc(100vw-24px)] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
-          style={{ height: '520px', border: '1px solid #E3EDE9', backgroundColor: '#ffffff' }}>
+        <div className="fixed right-6 z-[150] w-[360px] max-w-[calc(100vw-24px)] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
+          style={{ bottom: 'calc(6rem + env(safe-area-inset-bottom, 0px))', height: 'min(520px, calc(100dvh - 7rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px)))', border: '1px solid #E3EDE9', backgroundColor: '#ffffff' }}>
 
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3.5 shrink-0"
             style={{ background: 'linear-gradient(135deg, #1C4B42, #0A2321)', borderBottom: '2px solid #86CA0F' }}>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg" style={{ backgroundColor: '#86CA0F' }}>
-              🌵
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#86CA0F' }}>
+              <CactusMark className="w-5 h-5" color="#1C4B42" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-white">Cactus Pro Assistant</p>
@@ -149,9 +150,9 @@ export default function Chatbot() {
             {messages.map(msg => (
               <div key={msg.id} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 {msg.role === 'bot' && (
-                  <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-sm mt-1"
+                  <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center mt-1"
                     style={{ backgroundColor: '#1C4B42' }}>
-                    🌵
+                    <CactusMark className="w-4 h-4" color="#86CA0F" />
                   </div>
                 )}
                 <div className={`max-w-[85%] space-y-2`}>
@@ -197,8 +198,8 @@ export default function Chatbot() {
             ))}
             {typing && (
               <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-sm"
-                  style={{ backgroundColor: '#1C4B42' }}>🌵</div>
+                <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center"
+                  style={{ backgroundColor: '#1C4B42' }}><CactusMark className="w-4 h-4" color="#86CA0F" /></div>
                 <div className="rounded-xl px-4 py-3 flex items-center gap-1"
                   style={{ backgroundColor: '#ffffff', border: '1px solid #E3EDE9' }}>
                   {[0,1,2].map(i => (

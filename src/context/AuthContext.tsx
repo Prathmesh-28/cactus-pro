@@ -22,6 +22,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => string | null;
+  updateProfile: (data: { name?: string; avatarUrl?: string }) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const Ctx = createContext<AuthContextValue | null>(null);
@@ -159,8 +161,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = '/login';
   };
 
+  // Update your own profile (name / avatar) — persists to the backend and refreshes
+  // the local user so the change shows everywhere (web + app) immediately.
+  const updateProfile = async (data: { name?: string; avatarUrl?: string }) => {
+    const updated = await apiFetch('/auth/me', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
+      body: JSON.stringify(data),
+    });
+    setUser(updated);
+  };
+
+  // Change your own password (verifies the current one server-side).
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    await apiFetch('/auth/change-password', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  };
+
   return (
-    <Ctx.Provider value={{ user, loading, login, logout, getAccessToken }}>
+    <Ctx.Provider value={{ user, loading, login, logout, getAccessToken, updateProfile, changePassword }}>
       {children}
     </Ctx.Provider>
   );

@@ -106,7 +106,9 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════
           NAVIGATION
       ═══════════════════════════════════════════════════════════════ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0A0F0D]/95 backdrop-blur-xl border-b border-white/10 shadow-xl shadow-black/20' : 'bg-transparent'}`}>
+      <nav
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0A0F0D]/95 backdrop-blur-xl border-b border-white/10 shadow-xl shadow-black/20' : 'bg-[#0A2321]/80 backdrop-blur-sm'}`}>
         <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">

@@ -99,6 +99,52 @@ router.get('/me', authenticate, (req, res) => {
   res.json({ id: u.id, email: u.email, name: u.name, role: u.role, avatarUrl: u.avatar_url });
 });
 
+// ── PUT /auth/me — update your OWN profile (name, avatar) ─────────────────────
+router.put('/me', authenticate, async (req, res) => {
+  const { name, avatarUrl } = req.body;
+  try {
+    const sets = []; const vals = [];
+    if (name      !== undefined) { sets.push(`name=$${vals.length + 1}`);       vals.push(String(name).trim()); }
+    if (avatarUrl !== undefined) { sets.push(`avatar_url=$${vals.length + 1}`); vals.push(avatarUrl || null); }
+    if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
+    vals.push(req.user.id);
+    const { rows } = await pool.query(
+      `UPDATE users SET ${sets.join(',')} WHERE id=$${vals.length} RETURNING id,email,name,role,avatar_url`,
+      vals
+    );
+    await audit(req.user.id, req.user.email, 'updated_own_profile', 'auth', req.ip);
+    const u = rows[0];
+    res.json({ id: u.id, email: u.email, name: u.name, role: u.role, avatarUrl: u.avatar_url });
+  } catch (err) {
+    console.error('update profile error:', err.message);
+    res.status(500).json({ error: 'Could not update profile' });
+  }
+});
+
+// ── POST /auth/change-password — change your OWN password (verify current) ────
+router.post('/change-password', authenticate, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Current and new password required' });
+  if (newPassword.length < 8) return res.status(400).json({ error: 'New password must be at least 8 characters' });
+  try {
+    const { rows } = await pool.query('SELECT password_hash FROM users WHERE id=$1', [req.user.id]);
+    const hash = rows[0]?.password_hash;
+    if (!hash) return res.status(400).json({ error: 'No password set for this account' });
+    const ok = await bcrypt.compare(currentPassword, hash);
+    if (!ok) return res.status(401).json({ error: 'Current password is incorrect' });
+    const newHash = await bcrypt.hash(newPassword, 12);
+    await pool.query('UPDATE users SET password_hash=$1 WHERE id=$2', [newHash, req.user.id]);
+    // Revoke all other sessions for safety (keeps current session's access token valid
+    // until it expires; refresh will require re-login elsewhere).
+    await revokeAllRefresh(req.user.id);
+    await audit(req.user.id, req.user.email, 'changed_own_password', 'auth', req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('change-password error:', err.message);
+    res.status(500).json({ error: 'Could not change password' });
+  }
+});
+
 // ── POST /auth/forgot-password ────────────────────────────────────────────────
 router.post('/forgot-password', resetLimiter, async (req, res) => {
   const { email } = req.body;

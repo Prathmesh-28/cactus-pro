@@ -165,9 +165,14 @@ export default function FinancePage() {
           <FinanceExportMenu />
         </div>
 
-        {/* Mobile bottom nav — scrollable so all tabs fit */}
+        {/* Mobile bottom nav — horizontally scrollable so all tabs fit; momentum scroll
+            on iOS + safe-area padding so it clears the home indicator. */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t overflow-x-auto"
-          style={{ backgroundColor: 'var(--sidebar)', borderColor: 'var(--sidebar-border)' }}>
+          style={{
+            backgroundColor: 'var(--sidebar)', borderColor: 'var(--sidebar-border)',
+            WebkitOverflowScrolling: 'touch',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          }}>
           <div className="flex min-w-max">
             {NAV.map(({ key, label, Icon }) => (
               <button key={key} onClick={() => setActiveTab(key)}

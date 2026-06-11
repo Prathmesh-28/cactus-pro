@@ -141,11 +141,11 @@ export default function FundOverviewPage() {
 
   return (
     <div className="flex flex-col min-h-full" style={{ background: 'var(--background)' }}>
-      {/* Header */}
-      <div className="border-b px-6 md:px-10 py-6 flex items-start justify-between gap-4"
+      {/* Header — wraps on mobile so the Fund selector + PDF never overflow the screen */}
+      <div className="border-b px-4 md:px-10 py-5 md:py-6 flex flex-wrap items-start justify-between gap-3"
         style={{ borderColor: 'var(--border)', backgroundColor: '#ffffff' }}>
-        <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl md:text-3xl font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
             Fund Overview
           </h1>
           <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
@@ -158,7 +158,7 @@ export default function FundOverviewPage() {
           <img src={store.firm.logoUrl} alt="Cactus Partners" className="h-12 object-contain hidden md:block" />
         )}
 
-        <div className="flex items-center gap-2 no-print shrink-0">
+        <div className="flex items-center gap-2 no-print flex-wrap">
           {/* Fund selector */}
           <div className="inline-flex items-center rounded-lg border p-0.5"
             style={{ borderColor: 'var(--border)', backgroundColor: '#F8FAFC' }}>

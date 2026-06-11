@@ -13,7 +13,7 @@ import {
   ChevronUp, ChevronDown, BarChart2, Layers, LayoutList, CalendarDays,
   Users, Activity, Newspaper, BookOpen, Globe,
 } from 'lucide-react';
-import { exportToCSV } from '../../lib/utils';
+import { exportToCSV, cn } from '../../lib/utils';
 import ExportMenu from '../../components/ui/ExportMenu';
 import { exportPortfolioPDF, exportPortfolioExcel } from '../../lib/export';
 import type { PortfolioCompany } from '../../data/types';
@@ -193,8 +193,8 @@ export default function PortfolioPage() {
           </div>
         </div>
 
-        {/* Metric cards grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        {/* Metric cards grid — compact boxes that fit any number (auto-scaling value) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
           {visibleMetrics.map((m) => (
             <MetricCard key={m.id} metric={m} />
           ))}
@@ -228,10 +228,16 @@ export default function PortfolioPage() {
               color: '#7C3AED',
             },
           ].map((item) => (
-            <div key={item.label} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
-              <p className="text-xs text-gray-500 mb-1">{item.label}</p>
-              <p className="text-2xl font-heading font-bold" style={{ color: item.color }}>{item.value}</p>
-              <p className="text-xs text-gray-400 mt-1">{item.sub}</p>
+            <div key={item.label} className="bg-white border border-gray-200 rounded-xl p-3 hover:shadow-sm transition-shadow min-w-0">
+              <p className="text-xs text-gray-500 mb-1 line-clamp-2 leading-tight">{item.label}</p>
+              <p
+                className={cn(
+                  'font-heading font-bold break-words leading-tight min-w-0',
+                  String(item.value).length > 12 ? 'text-base' : String(item.value).length > 8 ? 'text-lg' : 'text-xl',
+                )}
+                style={{ color: item.color }}
+              >{item.value}</p>
+              <p className="text-xs text-gray-400 mt-1 truncate">{item.sub}</p>
             </div>
           ))}
         </div>
