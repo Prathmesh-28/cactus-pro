@@ -106,8 +106,8 @@ async function downloadSharePointFile(sharingUrl) {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
-// GET /api/microsoft/connect  → start OAuth flow
-router.get('/connect', authenticate, (req, res) => {
+// GET /api/microsoft/connect  → start OAuth flow (no auth middleware — browser redirect can't send headers)
+router.get('/connect', (req, res) => {
   if (!CLIENT_ID || !TENANT_ID) {
     return res.status(500).json({ error: 'Microsoft OAuth not configured. Set MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_TENANT_ID in Render env vars.' });
   }
